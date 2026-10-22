@@ -82,5 +82,111 @@ namespace NextGen__7
         {
 
         }
+
+        /*private void btnBookSession_Click(object sender, EventArgs e)
+        {
+            if (cmbCourse.SelectedIndex == -1)
+            {
+                MessageBox.Show("Please select a course.");
+                cmbCourse.Focus();
+                return;
+            }
+
+            if (!dtpSessionDate.Checked)
+            {
+                MessageBox.Show("Please select a session date.");
+                dtpSessionDate.Focus();
+                return;
+            }
+
+            if (dtpSessionDate.Value.Date < DateTime.Today)
+            {
+                MessageBox.Show("The session date cannot be in the past.");
+                dtpSessionDate.Focus();
+                return;
+            }
+
+            if (cmbSessionTime.SelectedIndex == -1)
+            {
+                MessageBox.Show("Please select a preferred time.");
+                cmbSessionTime.Focus();
+                return;
+            }
+
+            MessageBox.Show(
+                "Your booking details are valid. Database saving still needs to be implemented.",
+                "Booking",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }*/
+
+       /* private void btnClear_Click(object sender, EventArgs e)
+        {
+            cmbCourse.SelectedIndex = -1;
+            cmbSessionTime.SelectedIndex = -1;
+
+            dtpSessionDate.Value = DateTime.Today;
+            dtpSessionDate.Checked = false;
+
+            lblSelectedCourse.Text = "No course selected";
+            lblSelectedCourse.ForeColor = Color.Black;
+            lblSelectedCourse.BackColor = SystemColors.Control;
+
+            /*lblBookingStatus.Text = "No booking submitted.";
+            lblBookingStatus.ForeColor = Color.Black;
+        }*/
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            cmbCourse.SelectedIndex = -1;
+            cmbSessionTime.SelectedIndex = -1;
+
+            dtpSessionDate.Value = DateTime.Today;
+            dtpSessionDate.Checked = false;
+
+            lblSelectedCourse.Text = "No course selected";
+            lblSelectedCourse.ForeColor = Color.Black;
+            lblSelectedCourse.BackColor = SystemColors.Control;
+
+            /*lblBookingStatus.Text = "No booking submitted.";
+            lblBookingStatus.ForeColor = Color.Black;*/
+        }
+
+        private void btnBookSession_Click(object sender, EventArgs e)
+        {
+            if (cmbCourse.SelectedIndex == -1)
+            {
+                MessageBox.Show("Please select a course.");
+                cmbCourse.Focus();
+                return;
+            }
+
+            if (!dtpSessionDate.Checked)
+            {
+                MessageBox.Show("Please select a session date.");
+                dtpSessionDate.Focus();
+                return;
+            }
+
+            if (dtpSessionDate.Value.Date < DateTime.Today)
+            {
+                MessageBox.Show("The session date cannot be in the past.");
+                dtpSessionDate.Focus();
+                return;
+            }
+
+            if (cmbSessionTime.SelectedIndex == -1)
+            {
+                MessageBox.Show("Please select a preferred time.");
+                cmbSessionTime.Focus();
+                return;
+            }
+
+            MessageBox.Show(
+                "Your booking details are valid. Database saving still needs to be implemented.",
+                "Booking",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
     }
 }
