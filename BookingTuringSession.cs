@@ -19,12 +19,68 @@ namespace NextGen__7
         {
             InitializeComponent();
 
+            cmbCourse.SelectedIndexChanged += cmbCourse_SelectedIndexChanged;
+            toolTip1.SetToolTip(cmbCourse, "Select the course you need help with.");
+            toolTip1.SetToolTip(dtpSessionDate, "Choose a date for your tutoring session.");
+            toolTip1.SetToolTip(cmbSessionTime, "Select your preferred time slot.");
+            
+            //toolTip1.SetToolTip(btnBookSession, "Submit your tutoring session booking.");
+
+
         }
 
 
         private void BookingTutoringSession_Load(object sender, EventArgs e)
         {
             
+        }
+
+        private void cmbCourse_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbCourse.SelectedIndex >= 0)
+            {
+                lblSelectedCourse.Text =
+                    "Selected course: " + cmbCourse.SelectedItem.ToString();
+
+                lblSelectedCourse.ForeColor = Color.Green;
+                lblSelectedCourse.BackColor = Color.LightGreen;
+            }
+            else
+            {
+                lblSelectedCourse.Text = "No course selected";
+                //lblSelectedCourse.ForeColor = Color.Black;
+                lblSelectedCourse.BackColor = SystemColors.Control;
+            }
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dtpSessionDate_ValueChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
