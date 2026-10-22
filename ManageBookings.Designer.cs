@@ -129,6 +129,7 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.panel1);
             this.Name = "ManageBookings";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ManageBookings";
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
