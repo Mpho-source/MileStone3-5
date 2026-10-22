@@ -221,7 +221,7 @@
             // 
             // pnlHeader
             // 
-            this.pnlHeader.BackColor = System.Drawing.Color.DarkBlue;
+            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(56)))), ((int)(((byte)(100)))));
             this.pnlHeader.Controls.Add(this.picLogo);
             this.pnlHeader.Controls.Add(this.label9);
             this.pnlHeader.Controls.Add(this.label8);
@@ -267,9 +267,9 @@
             // btnBookSession
             // 
             this.btnBookSession.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnBookSession.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBookSession.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBookSession.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnBookSession.Location = new System.Drawing.Point(75, 506);
+            this.btnBookSession.Location = new System.Drawing.Point(114, 506);
             this.btnBookSession.Name = "btnBookSession";
             this.btnBookSession.Size = new System.Drawing.Size(120, 35);
             this.btnBookSession.TabIndex = 17;
@@ -280,11 +280,11 @@
             // btnClear
             // 
             this.btnClear.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnClear.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnClear.Location = new System.Drawing.Point(278, 506);
+            this.btnClear.Location = new System.Drawing.Point(409, 506);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(75, 35);
+            this.btnClear.Size = new System.Drawing.Size(117, 35);
             this.btnClear.TabIndex = 18;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = true;
@@ -294,7 +294,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
             this.ClientSize = new System.Drawing.Size(803, 858);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnBookSession);
