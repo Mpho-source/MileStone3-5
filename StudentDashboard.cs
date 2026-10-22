@@ -15,6 +15,44 @@ namespace NextGen__7
         public StudentDashboard()
         {
             InitializeComponent();
+            pnlBook.Clicked += (s, e) =>
+            {
+                this.Hide();
+
+                using (BookingTutoringSession form = new BookingTutoringSession())
+                {
+                    form.ShowDialog();
+                }
+
+                this.Show();
+            };
+
+            // Manage existing bookings
+            pnlManageBooking.Clicked += (s, e) =>
+            {
+                this.Hide();
+
+                using (ManageBookings form = new ManageBookings())
+                {
+                    form.ShowDialog();
+                }
+
+                this.Show();
+            };
+
+            // Log out
+            pnlLogout.Clicked += (s, e) =>
+            {
+                this.Hide();
+
+                using (Login form = new Login())
+                {
+                    form.ShowDialog();
+                }
+
+                this.Close();
+            };
+
 
 
         }

@@ -35,27 +35,27 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.roundedPanel1 = new NextGen__7.RoundedPanel();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.roundedPanel2 = new NextGen__7.RoundedPanel();
-            this.pictureBox3 = new System.Windows.Forms.PictureBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.roundedPanel3 = new NextGen__7.RoundedPanel();
-            this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.pnlLogout = new NextGen__7.RoundedPanel();
             this.label11 = new System.Windows.Forms.Label();
+            this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.pnlManageBooking = new NextGen__7.RoundedPanel();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.pictureBox3 = new System.Windows.Forms.PictureBox();
+            this.pnlBook = new NextGen__7.RoundedPanel();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.roundedPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
-            this.roundedPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
-            this.roundedPanel3.SuspendLayout();
+            this.pnlLogout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
+            this.pnlManageBooking.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
+            this.pnlBook.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -125,149 +125,20 @@
             this.label4.TabIndex = 2;
             this.label4.Text = "What would you like to do today?";
             // 
-            // roundedPanel1
+            // pnlLogout
             // 
-            this.roundedPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(245)))), ((int)(((byte)(248)))));
-            this.roundedPanel1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(215)))), ((int)(((byte)(222)))), ((int)(((byte)(232)))));
-            this.roundedPanel1.Controls.Add(this.label7);
-            this.roundedPanel1.Controls.Add(this.label6);
-            this.roundedPanel1.Controls.Add(this.label5);
-            this.roundedPanel1.Controls.Add(this.pictureBox2);
-            this.roundedPanel1.CornerRadius = 15;
-            this.roundedPanel1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.roundedPanel1.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
-            this.roundedPanel1.Location = new System.Drawing.Point(21, 189);
-            this.roundedPanel1.Name = "roundedPanel1";
-            this.roundedPanel1.NormalColor = System.Drawing.Color.White;
-            this.roundedPanel1.Size = new System.Drawing.Size(620, 87);
-            this.roundedPanel1.TabIndex = 3;
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(17, 17);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(67, 49);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox2.TabIndex = 0;
-            this.pictureBox2.TabStop = false;
-            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.ForeColor = System.Drawing.Color.Navy;
-            this.label5.Location = new System.Drawing.Point(90, 17);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(177, 20);
-            this.label5.TabIndex = 1;
-            this.label5.Text = "Book a Tutoring Session";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label6.Location = new System.Drawing.Point(91, 51);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(212, 15);
-            this.label6.TabIndex = 2;
-            this.label6.Text = "Request academic support for a course";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(548, 28);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(27, 29);
-            this.label7.TabIndex = 4;
-            this.label7.Text = ">";
-            // 
-            // roundedPanel2
-            // 
-            this.roundedPanel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(245)))), ((int)(((byte)(248)))));
-            this.roundedPanel2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(215)))), ((int)(((byte)(222)))), ((int)(((byte)(232)))));
-            this.roundedPanel2.Controls.Add(this.label10);
-            this.roundedPanel2.Controls.Add(this.label9);
-            this.roundedPanel2.Controls.Add(this.label8);
-            this.roundedPanel2.Controls.Add(this.pictureBox3);
-            this.roundedPanel2.CornerRadius = 15;
-            this.roundedPanel2.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.roundedPanel2.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
-            this.roundedPanel2.Location = new System.Drawing.Point(28, 298);
-            this.roundedPanel2.Name = "roundedPanel2";
-            this.roundedPanel2.NormalColor = System.Drawing.Color.White;
-            this.roundedPanel2.Size = new System.Drawing.Size(613, 76);
-            this.roundedPanel2.TabIndex = 4;
-            // 
-            // pictureBox3
-            // 
-            this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
-            this.pictureBox3.Location = new System.Drawing.Point(10, 14);
-            this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(67, 50);
-            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox3.TabIndex = 0;
-            this.pictureBox3.TabStop = false;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.ForeColor = System.Drawing.Color.Navy;
-            this.label8.Location = new System.Drawing.Point(83, 14);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(160, 20);
-            this.label8.TabIndex = 2;
-            this.label8.Text = "Manage My Bookings";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label9.Location = new System.Drawing.Point(84, 49);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(200, 15);
-            this.label9.TabIndex = 3;
-            this.label9.Text = "View, update or cancel your requests";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(541, 23);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(27, 29);
-            this.label10.TabIndex = 5;
-            this.label10.Text = ">";
-            // 
-            // roundedPanel3
-            // 
-            this.roundedPanel3.BackColor = System.Drawing.Color.White;
-            this.roundedPanel3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(215)))), ((int)(((byte)(222)))), ((int)(((byte)(232)))));
-            this.roundedPanel3.Controls.Add(this.label11);
-            this.roundedPanel3.Controls.Add(this.pictureBox4);
-            this.roundedPanel3.CornerRadius = 15;
-            this.roundedPanel3.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.roundedPanel3.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
-            this.roundedPanel3.Location = new System.Drawing.Point(55, 396);
-            this.roundedPanel3.Name = "roundedPanel3";
-            this.roundedPanel3.NormalColor = System.Drawing.Color.White;
-            this.roundedPanel3.Size = new System.Drawing.Size(136, 60);
-            this.roundedPanel3.TabIndex = 5;
-            // 
-            // pictureBox4
-            // 
-            this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
-            this.pictureBox4.Location = new System.Drawing.Point(12, 12);
-            this.pictureBox4.Name = "pictureBox4";
-            this.pictureBox4.Size = new System.Drawing.Size(38, 32);
-            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox4.TabIndex = 0;
-            this.pictureBox4.TabStop = false;
+            this.pnlLogout.BackColor = System.Drawing.Color.White;
+            this.pnlLogout.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(215)))), ((int)(((byte)(222)))), ((int)(((byte)(232)))));
+            this.pnlLogout.Controls.Add(this.label11);
+            this.pnlLogout.Controls.Add(this.pictureBox4);
+            this.pnlLogout.CornerRadius = 15;
+            this.pnlLogout.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pnlLogout.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
+            this.pnlLogout.Location = new System.Drawing.Point(55, 396);
+            this.pnlLogout.Name = "pnlLogout";
+            this.pnlLogout.NormalColor = System.Drawing.Color.White;
+            this.pnlLogout.Size = new System.Drawing.Size(136, 60);
+            this.pnlLogout.TabIndex = 5;
             // 
             // label11
             // 
@@ -280,15 +151,144 @@
             this.label11.TabIndex = 1;
             this.label11.Text = "Logout";
             // 
+            // pictureBox4
+            // 
+            this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
+            this.pictureBox4.Location = new System.Drawing.Point(12, 12);
+            this.pictureBox4.Name = "pictureBox4";
+            this.pictureBox4.Size = new System.Drawing.Size(38, 32);
+            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox4.TabIndex = 0;
+            this.pictureBox4.TabStop = false;
+            // 
+            // pnlManageBooking
+            // 
+            this.pnlManageBooking.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(245)))), ((int)(((byte)(248)))));
+            this.pnlManageBooking.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(215)))), ((int)(((byte)(222)))), ((int)(((byte)(232)))));
+            this.pnlManageBooking.Controls.Add(this.label10);
+            this.pnlManageBooking.Controls.Add(this.label9);
+            this.pnlManageBooking.Controls.Add(this.label8);
+            this.pnlManageBooking.Controls.Add(this.pictureBox3);
+            this.pnlManageBooking.CornerRadius = 15;
+            this.pnlManageBooking.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pnlManageBooking.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
+            this.pnlManageBooking.Location = new System.Drawing.Point(28, 298);
+            this.pnlManageBooking.Name = "pnlManageBooking";
+            this.pnlManageBooking.NormalColor = System.Drawing.Color.White;
+            this.pnlManageBooking.Size = new System.Drawing.Size(613, 76);
+            this.pnlManageBooking.TabIndex = 4;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(541, 23);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(27, 29);
+            this.label10.TabIndex = 5;
+            this.label10.Text = ">";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label9.Location = new System.Drawing.Point(84, 49);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(200, 15);
+            this.label9.TabIndex = 3;
+            this.label9.Text = "View, update or cancel your requests";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.ForeColor = System.Drawing.Color.Navy;
+            this.label8.Location = new System.Drawing.Point(83, 14);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(160, 20);
+            this.label8.TabIndex = 2;
+            this.label8.Text = "Manage My Bookings";
+            // 
+            // pictureBox3
+            // 
+            this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
+            this.pictureBox3.Location = new System.Drawing.Point(10, 14);
+            this.pictureBox3.Name = "pictureBox3";
+            this.pictureBox3.Size = new System.Drawing.Size(67, 50);
+            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox3.TabIndex = 0;
+            this.pictureBox3.TabStop = false;
+            // 
+            // pnlBook
+            // 
+            this.pnlBook.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(245)))), ((int)(((byte)(248)))));
+            this.pnlBook.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(215)))), ((int)(((byte)(222)))), ((int)(((byte)(232)))));
+            this.pnlBook.Controls.Add(this.label7);
+            this.pnlBook.Controls.Add(this.label6);
+            this.pnlBook.Controls.Add(this.label5);
+            this.pnlBook.Controls.Add(this.pictureBox2);
+            this.pnlBook.CornerRadius = 15;
+            this.pnlBook.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pnlBook.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
+            this.pnlBook.Location = new System.Drawing.Point(21, 189);
+            this.pnlBook.Name = "pnlBook";
+            this.pnlBook.NormalColor = System.Drawing.Color.White;
+            this.pnlBook.Size = new System.Drawing.Size(620, 87);
+            this.pnlBook.TabIndex = 3;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(548, 28);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(27, 29);
+            this.label7.TabIndex = 4;
+            this.label7.Text = ">";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label6.Location = new System.Drawing.Point(91, 51);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(212, 15);
+            this.label6.TabIndex = 2;
+            this.label6.Text = "Request academic support for a course";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.ForeColor = System.Drawing.Color.Navy;
+            this.label5.Location = new System.Drawing.Point(90, 17);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(177, 20);
+            this.label5.TabIndex = 1;
+            this.label5.Text = "Book a Tutoring Session";
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
+            this.pictureBox2.Location = new System.Drawing.Point(17, 17);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(67, 49);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox2.TabIndex = 0;
+            this.pictureBox2.TabStop = false;
+            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
+            // 
             // StudentDashboard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
             this.ClientSize = new System.Drawing.Size(800, 479);
-            this.Controls.Add(this.roundedPanel3);
-            this.Controls.Add(this.roundedPanel2);
-            this.Controls.Add(this.roundedPanel1);
+            this.Controls.Add(this.pnlLogout);
+            this.Controls.Add(this.pnlManageBooking);
+            this.Controls.Add(this.pnlBook);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.panel1);
@@ -298,15 +298,15 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.roundedPanel1.ResumeLayout(false);
-            this.roundedPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-            this.roundedPanel2.ResumeLayout(false);
-            this.roundedPanel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
-            this.roundedPanel3.ResumeLayout(false);
-            this.roundedPanel3.PerformLayout();
+            this.pnlLogout.ResumeLayout(false);
+            this.pnlLogout.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
+            this.pnlManageBooking.ResumeLayout(false);
+            this.pnlManageBooking.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
+            this.pnlBook.ResumeLayout(false);
+            this.pnlBook.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -320,17 +320,17 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
-        private RoundedPanel roundedPanel1;
+        private RoundedPanel pnlBook;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label6;
-        private RoundedPanel roundedPanel2;
+        private RoundedPanel pnlManageBooking;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.PictureBox pictureBox3;
-        private RoundedPanel roundedPanel3;
+        private RoundedPanel pnlLogout;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.PictureBox pictureBox4;
     }
