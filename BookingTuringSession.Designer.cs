@@ -50,6 +50,7 @@
             this.picLogo = new System.Windows.Forms.PictureBox();
             this.btnBookSession = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
+            this.btnBack = new System.Windows.Forms.Button();
             this.pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picLogo)).BeginInit();
             this.SuspendLayout();
@@ -269,7 +270,7 @@
             this.btnBookSession.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBookSession.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBookSession.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnBookSession.Location = new System.Drawing.Point(114, 506);
+            this.btnBookSession.Location = new System.Drawing.Point(43, 506);
             this.btnBookSession.Name = "btnBookSession";
             this.btnBookSession.Size = new System.Drawing.Size(120, 35);
             this.btnBookSession.TabIndex = 17;
@@ -282,7 +283,7 @@
             this.btnClear.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnClear.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnClear.Location = new System.Drawing.Point(409, 506);
+            this.btnClear.Location = new System.Drawing.Point(295, 506);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(117, 35);
             this.btnClear.TabIndex = 18;
@@ -290,12 +291,26 @@
             this.btnClear.UseVisualStyleBackColor = true;
             this.btnClear.Click += new System.EventHandler(this.button1_Click);
             // 
+            // btnBack
+            // 
+            this.btnBack.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnBack.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBack.ForeColor = System.Drawing.SystemColors.HotTrack;
+            this.btnBack.Location = new System.Drawing.Point(560, 506);
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Size = new System.Drawing.Size(117, 35);
+            this.btnBack.TabIndex = 19;
+            this.btnBack.Text = "Back";
+            this.btnBack.UseVisualStyleBackColor = true;
+            this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
+            // 
             // BookingTutoringSession
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
             this.ClientSize = new System.Drawing.Size(803, 858);
+            this.Controls.Add(this.btnBack);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnBookSession);
             this.Controls.Add(this.pnlHeader);
@@ -345,6 +360,7 @@
         private System.Windows.Forms.PictureBox picLogo;
         private System.Windows.Forms.Button btnBookSession;
         private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.Button btnBack;
     }
 }
 

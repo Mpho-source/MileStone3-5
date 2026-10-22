@@ -188,5 +188,10 @@ namespace NextGen__7
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }
+
+        private void btnBack_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
