@@ -15,6 +15,7 @@ namespace NextGen__7
         public Login()
         {
             InitializeComponent();
+            EduConnectTheme.Apply(this);
 
             txtPassword.Multiline = false;
             txtPassword.UseSystemPasswordChar = false;
