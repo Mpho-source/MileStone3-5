@@ -117,7 +117,7 @@ namespace NextGen__7
                 BackColor = active ? Color.FromArgb(74, 122, 191) : EduConnectTheme.Navy,
                 ForeColor = Color.White,
                 Cursor = action == null ? Cursors.Default : Cursors.Hand,
-                Enabled = action != null && !active,
+                Enabled = true,
                 AccessibleName = label,
                 TabStop = action != null && !active,
                 UseVisualStyleBackColor = false
@@ -387,7 +387,7 @@ namespace NextGen__7
             form.SuspendLayout();
             form.Text = "EduConnect | Book a session";
             form.ClientSize = new Size(1080, 740);
-            form.MinimumSize = new Size(1030, 740);
+            form.MinimumSize = new Size(1030, 800);
             Find(form, "pnlHeader").Visible = false;
             AddNav(form, "Book", dashboard, null, manage, null);
 
@@ -550,7 +550,7 @@ namespace NextGen__7
                 studentNo.Bounds = new Rectangle(left, 204, 380, 30);
                 filterLabel.Bounds = new Rectangle(left + span - 300, 205, 135, 29);
                 filter.Bounds = new Rectangle(left + span - 161, 204, 161, 33);
-                int height = Math.Max(305, form.ClientSize.Height - 350);
+                int height = Math.Max(310, form.ClientSize.Height - 410);
                 listCard.Bounds = new Rectangle(left, 251, span, height);
                 grid.Bounds = new Rectangle(15, 15,
                     listCard.Width - 30, listCard.Height - 30);
