@@ -12,6 +12,7 @@ namespace NextGen__7
         private readonly int studentID;
         private readonly string studentNo;
         private readonly string connectionString;
+        private ComboBox statusFilter;
 
         public ManageBookings()
             : this(Login.CurrentStudentID, Login.CurrentStudentNo)
@@ -43,7 +44,7 @@ namespace NextGen__7
             btnEditBooking.Click += btnEditBooking_Click;
             btnCancelBooking.Click += btnCancelBooking_Click;
 
-            ComboBox statusFilter = EduConnectLayout.Manage(
+            statusFilter = EduConnectLayout.Manage(
                 this, () => Close(), () =>
                 {
                     using (BookingTutoringSession page =
@@ -51,17 +52,7 @@ namespace NextGen__7
                         page.ShowDialog(this);
                 });
             statusFilter.SelectedIndexChanged += (s, e) =>
-            {
-                DataTable source = dgvBookings.DataSource as DataTable;
-                if (source != null)
-                {
-                    string status = Convert.ToString(statusFilter.SelectedItem);
-                    source.DefaultView.RowFilter = status == "All bookings"
-                        ? "" : "[Status] = '" + status.Replace("'", "''") + "'";
-                    dgvBookings.ClearSelection();
-                    UpdateActionAvailability();
-                }
-            };
+                ApplyStatusFilter();
             dgvBookings.SelectionChanged += (s, e) => UpdateActionAvailability();
             UpdateActionAvailability();
         }
@@ -135,9 +126,7 @@ namespace NextGen__7
                 dgvBookings.Columns["RequestDate"]
                     .DefaultCellStyle.Format = "dd MMM yyyy";
 
-                dgvBookings.ClearSelection();
-
-                UpdateActionAvailability();
+                ApplyStatusFilter();
             }
             catch (Exception ex)
             {
@@ -147,6 +136,21 @@ namespace NextGen__7
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
+        }
+
+        private void ApplyStatusFilter()
+        {
+            DataTable source = dgvBookings.DataSource as DataTable;
+            if (source == null || statusFilter == null)
+                return;
+
+            string status = Convert.ToString(statusFilter.SelectedItem);
+            source.DefaultView.RowFilter =
+                string.IsNullOrEmpty(status) || status == "All bookings"
+                    ? "" : "[Status] = '" + status.Replace("'", "''") + "'";
+
+            dgvBookings.ClearSelection();
+            UpdateActionAvailability();
         }
 
         private void UpdateActionAvailability()
