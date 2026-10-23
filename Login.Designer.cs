@@ -80,12 +80,10 @@
             // 
             this.txtPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtPassword.Location = new System.Drawing.Point(206, 409);
-            this.txtPassword.Multiline = true;
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.PasswordChar = '&';
-            this.txtPassword.Size = new System.Drawing.Size(355, 30);
+            this.txtPassword.PasswordChar = '*';
+            this.txtPassword.Size = new System.Drawing.Size(355, 23);
             this.txtPassword.TabIndex = 8;
-            this.txtPassword.UseSystemPasswordChar = true;
             // 
             // label4
             // 
