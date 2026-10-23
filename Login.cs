@@ -23,6 +23,7 @@ namespace NextGen__7
 
             btnLogin.Click += btnLogin_Click;
             AcceptButton = btnLogin;
+            EduConnectLayout.Login(this);
         }
 
         public static void ClearSession()
