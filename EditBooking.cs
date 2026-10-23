@@ -32,6 +32,7 @@ namespace NextGen__7
 
             BuildForm();
             EduConnectTheme.Apply(this);
+            EduConnectLayout.Edit(this);
             Load += EditBooking_Load;
         }
 
@@ -73,6 +74,7 @@ namespace NextGen__7
 
             Label heading = new Label
             {
+                Name = "lblEditHeading",
                 Text = "Edit Tutoring Booking",
                 Left = 35,
                 Top = 20,
@@ -85,18 +87,27 @@ namespace NextGen__7
 
             Controls.Add(heading);
 
-            Controls.Add(MakeLabel("Course", 80));
+            Label lblEditCourse = MakeLabel("Course", 80);
+            lblEditCourse.Name = "lblEditCourse";
+            Controls.Add(lblEditCourse);
             cmbCourse = MakeCombo(105);
+            cmbCourse.Name = "cmbCourse";
             Controls.Add(cmbCourse);
 
-            Controls.Add(MakeLabel("Support Type", 155));
+            Label lblEditSupport = MakeLabel("Support Type", 155);
+            lblEditSupport.Name = "lblEditSupport";
+            Controls.Add(lblEditSupport);
             cmbSupportType = MakeCombo(180);
+            cmbSupportType.Name = "cmbSupportType";
             Controls.Add(cmbSupportType);
 
-            Controls.Add(MakeLabel("Session Date", 230));
+            Label lblEditDate = MakeLabel("Session Date", 230);
+            lblEditDate.Name = "lblEditDate";
+            Controls.Add(lblEditDate);
 
             dtpSessionDate = new DateTimePicker
             {
+                Name = "dtpSessionDate",
                 Left = 35,
                 Top = 255,
                 Width = 420,
@@ -108,8 +119,11 @@ namespace NextGen__7
 
             Controls.Add(dtpSessionDate);
 
-            Controls.Add(MakeLabel("Session Time", 305));
+            Label lblEditTime = MakeLabel("Session Time", 305);
+            lblEditTime.Name = "lblEditTime";
+            Controls.Add(lblEditTime);
             cmbSessionTime = MakeCombo(330);
+            cmbSessionTime.Name = "cmbSessionTime";
 
             cmbSessionTime.Items.AddRange(new object[]
             {
@@ -126,6 +140,7 @@ namespace NextGen__7
 
             btnSaveChanges = new Button
             {
+                Name = "btnSaveChanges",
                 Text = "Save Changes",
                 Left = 35,
                 Top = 415,
@@ -137,6 +152,7 @@ namespace NextGen__7
 
             btnBack = new Button
             {
+                Name = "btnBack",
                 Text = "Cancel",
                 Left = 255,
                 Top = 415,
