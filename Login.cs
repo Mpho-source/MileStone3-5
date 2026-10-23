@@ -16,9 +16,18 @@ namespace NextGen__7
         {
             InitializeComponent();
 
-            txtPassword.UseSystemPasswordChar = true;
+            txtPassword.Multiline = false;
+            txtPassword.UseSystemPasswordChar = false;
+            txtPassword.PasswordChar = '*';
+
             btnLogin.Click += btnLogin_Click;
             AcceptButton = btnLogin;
+        }
+
+        public static void ClearSession()
+        {
+            CurrentStudentID = 0;
+            CurrentStudentNo = null;
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
@@ -69,10 +78,8 @@ namespace NextGen__7
                     return;
                 }
 
-                string connectionString = settings.ConnectionString;
-
                 using (OleDbConnection connection =
-                    new OleDbConnection(connectionString))
+                    new OleDbConnection(settings.ConnectionString))
                 {
                     connection.Open();
 
@@ -117,13 +124,24 @@ namespace NextGen__7
 
                 Hide();
 
-                using (StudentDashboard dashboard =
-                    new StudentDashboard())
+                try
                 {
-                    dashboard.ShowDialog();
+                    using (StudentDashboard dashboard =
+                        new StudentDashboard())
+                    {
+                        dashboard.ShowDialog();
+                    }
                 }
+                finally
+                {
+                    ClearSession();
 
-                Close();
+                    txtStudentNo.Clear();
+                    txtPassword.Clear();
+
+                    Show();
+                    txtStudentNo.Focus();
+                }
             }
             catch (OleDbException ex)
             {
