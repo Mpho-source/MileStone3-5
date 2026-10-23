@@ -22,20 +22,14 @@ namespace NextGen__7
         {
             InitializeComponent();
 
+            if (studentID <= 0 || string.IsNullOrWhiteSpace(studentNo))
+                throw new InvalidOperationException("Invalid student session.");
+
             this.studentID = studentID;
             this.studentNo = studentNo;
 
-            ConnectionStringSettings settings =
-                ConfigurationManager.ConnectionStrings[
-                    "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
-
-            if (settings == null)
-            {
-                throw new InvalidOperationException(
-                    "Database connection string not found.");
-            }
-
-            connectionString = settings.ConnectionString;
+            connectionString = ConfigurationManager.ConnectionStrings[
+                "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"].ConnectionString;
 
             lblStudentNo.Text = "Student No: " + studentNo;
 
@@ -45,7 +39,6 @@ namespace NextGen__7
                 DataGridViewSelectionMode.FullRowSelect;
             dgvBookings.AutoGenerateColumns = true;
 
-            Load += ManageBookings_Load;
             btnEditBooking.Click += btnEditBooking_Click;
             btnCancelBooking.Click += btnCancelBooking_Click;
         }
@@ -57,19 +50,6 @@ namespace NextGen__7
 
         private void LoadBookings()
         {
-
-
-            string query =
-                "SELECT R.[StudentID], C.[CourseCode], C.[CourseName], " +
-                "R.[RequestDate], R.[PreferredDate], " +
-                "R.[PreferredStartTime], R.[PreferredEndTime], R.[Status] " +
-                "FROM [TUTORING_REQUEST] AS R " +
-                "LEFT JOIN [COURSE] AS C " +
-                "ON R.[CourseID] = C.[CourseID] " +
-                "WHERE R.[StudentID] = ?";
-
-
-
             try
             {
                 DataTable table = new DataTable();
@@ -77,11 +57,31 @@ namespace NextGen__7
                 using (OleDbConnection connection =
                     new OleDbConnection(connectionString))
                 {
+                    connection.Open();
+
+                    string requestIDColumn =
+                        BookingData.GetColumn(
+                            connection, null,
+                            "TUTORING_REQUEST", "RequestID");
+
+                    string query =
+                        "SELECT R.[" + requestIDColumn + "] AS BookingKey, " +
+                        "C.[CourseCode], C.[CourseName], " +
+                        "R.[SupportType], R.[RequestDate], " +
+                        "R.[PreferredDate], R.[PreferredStartTime], " +
+                        "R.[PreferredEndTime], R.[Status] " +
+                        "FROM [TUTORING_REQUEST] AS R " +
+                        "LEFT JOIN [COURSE] AS C " +
+                        "ON R.[CourseID] = C.[CourseID] " +
+                        "WHERE R.[StudentID] = ? " +
+                        "ORDER BY R.[PreferredDate] DESC";
+
                     using (OleDbCommand command =
                         new OleDbCommand(query, connection))
                     {
                         command.Parameters.Add(
-                            "@StudentID", OleDbType.Integer).Value = studentID;
+                            "@StudentID", OleDbType.Integer).Value =
+                            studentID;
 
                         using (OleDbDataAdapter adapter =
                             new OleDbDataAdapter(command))
@@ -93,59 +93,43 @@ namespace NextGen__7
 
                 dgvBookings.DataSource = table;
 
-
-
-                dgvBookings.Columns["StudentID"].Visible = false;
-
+                dgvBookings.Columns["BookingKey"].Visible = false;
                 dgvBookings.Columns["CourseCode"].HeaderText = "Course Code";
                 dgvBookings.Columns["CourseName"].HeaderText = "Course Name";
-
+                dgvBookings.Columns["SupportType"].HeaderText = "Support Type";
                 dgvBookings.Columns["PreferredDate"].HeaderText = "Session Date";
-                dgvBookings.Columns["PreferredDate"].DefaultCellStyle.Format = "dd MMM yyyy";
-
                 dgvBookings.Columns["PreferredStartTime"].HeaderText = "Start Time";
-                dgvBookings.Columns["PreferredStartTime"].DefaultCellStyle.Format = "HH:mm";
-
                 dgvBookings.Columns["PreferredEndTime"].HeaderText = "End Time";
-                dgvBookings.Columns["PreferredEndTime"].DefaultCellStyle.Format = "HH:mm";
-
                 dgvBookings.Columns["Status"].HeaderText = "Booking Status";
                 dgvBookings.Columns["RequestDate"].HeaderText = "Request Date";
-                dgvBookings.Columns["RequestDate"].DefaultCellStyle.Format = "dd MMM yyyy";
 
+                dgvBookings.Columns["PreferredDate"]
+                    .DefaultCellStyle.Format = "dd MMM yyyy";
+                dgvBookings.Columns["PreferredStartTime"]
+                    .DefaultCellStyle.Format = "HH:mm";
+                dgvBookings.Columns["PreferredEndTime"]
+                    .DefaultCellStyle.Format = "HH:mm";
+                dgvBookings.Columns["RequestDate"]
+                    .DefaultCellStyle.Format = "dd MMM yyyy";
 
                 dgvBookings.ClearSelection();
 
-                bool hasBookings = table.Rows.Count > 0;
-
-                btnEditBooking.Enabled = hasBookings;
-                btnCancelBooking.Enabled = hasBookings;
-
-                if (!hasBookings)
-                {
-                    MessageBox.Show(
-                        "You have no tutoring bookings yet.",
-                        "No Bookings Found",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                }
+                btnEditBooking.Enabled = table.Rows.Count > 0;
+                btnCancelBooking.Enabled = table.Rows.Count > 0;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Unable to load your bookings.\n\n" + ex.Message,
+                    "Unable to load bookings.\n\n" + ex.Message,
                     "Database Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
         }
 
-        private bool TryGetSelectedBooking(
-            out int studentBookingID,
-            out string status)
+        private bool TryGetSelectedBooking(out int requestID)
         {
-            studentBookingID = 0;
-            status = null;
+            requestID = 0;
 
             if (dgvBookings.SelectedRows.Count == 0)
             {
@@ -154,61 +138,75 @@ namespace NextGen__7
                     "No Booking Selected",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 return false;
             }
 
-            DataGridViewRow row = dgvBookings.SelectedRows[0];
+            object value =
+                dgvBookings.SelectedRows[0].Cells["BookingKey"].Value;
 
-            studentBookingID =
-                Convert.ToInt32(row.Cells["StudentID"].Value);
+            if (value == null || value == DBNull.Value)
+                return false;
 
-            status =
-                Convert.ToString(row.Cells["Status"].Value);
-
+            requestID = Convert.ToInt32(value);
             return true;
         }
 
         private void btnEditBooking_Click(object sender, EventArgs e)
         {
-            int bookingID;
-            string status;
+            int requestID;
 
-            if (!TryGetSelectedBooking(out bookingID, out status))
+            if (!TryGetSelectedBooking(out requestID))
                 return;
 
-            if (status != "Submitted")
+            using (EditBooking form =
+                new EditBooking(studentID, requestID, connectionString))
             {
-                MessageBox.Show(
-                    "Only submitted bookings can be edited.",
-                    "Editing Not Allowed",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-
-                return;
+                form.ShowDialog(this);
             }
 
-            MessageBox.Show(
-                "The editing functionality requires an Edit Booking form.",
-                "Edit Booking",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            LoadBookings();
         }
 
         private void btnCancelBooking_Click(object sender, EventArgs e)
         {
-            int bookingID;
-            string status;
+            int requestID;
 
-            if (!TryGetSelectedBooking(out bookingID, out status))
+            if (!TryGetSelectedBooking(out requestID))
                 return;
 
-            MessageBox.Show(
-                "Cancellation will be enabled once the request identifier " +
-                "is available from the database.",
-                "Cancel Booking",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            DialogResult answer = MessageBox.Show(
+                "Are you sure you want to cancel this booking?\n\n" +
+                "If a tutor has been assigned, their scheduled session " +
+                "will also be cancelled.",
+                "Confirm Cancellation",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (answer != DialogResult.Yes)
+                return;
+
+            try
+            {
+                BookingData.CancelBooking(
+                    connectionString, studentID, requestID);
+
+                MessageBox.Show(
+                    "Your booking has been cancelled successfully.",
+                    "Booking Cancelled",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
+                LoadBookings();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Cancellation could not be completed.\n\n" +
+                    ex.Message,
+                    "Cancellation Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
 
         private void btnBack_Click(object sender, EventArgs e)

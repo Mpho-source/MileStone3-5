@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
@@ -25,10 +26,7 @@ namespace NextGen__7
             InitializeComponent();
 
             if (studentID <= 0 || string.IsNullOrWhiteSpace(studentNo))
-            {
-                throw new InvalidOperationException(
-                    "Invalid student session.");
-            }
+                throw new InvalidOperationException("Invalid student session.");
 
             this.studentID = studentID;
             this.studentNo = studentNo;
@@ -38,10 +36,8 @@ namespace NextGen__7
                     "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
 
             if (settings == null)
-            {
                 throw new InvalidOperationException(
                     "Database connection string not found.");
-            }
 
             connectionString = settings.ConnectionString;
 
@@ -58,20 +54,16 @@ namespace NextGen__7
             dtpSessionDate.Checked = false;
 
             toolTip1.SetToolTip(
-                cmbCourse,
-                "Select the course you need tutoring for.");
+                cmbCourse, "Select the course you need tutoring for.");
 
             toolTip1.SetToolTip(
-                cmbSupportType,
-                "Select the type of tutoring support you need.");
+                cmbSupportType, "Select the type of tutoring support.");
 
             toolTip1.SetToolTip(
-                dtpSessionDate,
-                "Select your preferred tutoring date.");
+                dtpSessionDate, "Select your preferred tutoring date.");
 
             toolTip1.SetToolTip(
-                cmbSessionTime,
-                "Select your preferred tutoring time.");
+                cmbSessionTime, "Select your preferred tutoring time.");
         }
 
         private void BookingTutoringSession_Load(object sender, EventArgs e)
@@ -111,12 +103,11 @@ namespace NextGen__7
             using (OleDbConnection connection =
                 new OleDbConnection(connectionString))
             {
-                string query =
-                    "SELECT [CourseID], [CourseCode], [CourseName] " +
-                    "FROM [COURSE] ORDER BY [CourseCode]";
-
                 using (OleDbDataAdapter adapter =
-                    new OleDbDataAdapter(query, connection))
+                    new OleDbDataAdapter(
+                        "SELECT [CourseID], [CourseCode], [CourseName] " +
+                        "FROM [COURSE] ORDER BY [CourseCode]",
+                        connection))
                 {
                     adapter.Fill(courses);
                 }
@@ -140,8 +131,7 @@ namespace NextGen__7
         }
 
         private void cmbCourse_SelectedIndexChanged(
-            object sender,
-            EventArgs e)
+            object sender, EventArgs e)
         {
             if (cmbCourse.SelectedIndex >= 0 &&
                 cmbCourse.SelectedItem is DataRowView)
@@ -164,28 +154,27 @@ namespace NextGen__7
             }
         }
 
-        private static string GetRequestIdColumn(
+        private static string GetColumnName(
             OleDbConnection connection,
-            OleDbTransaction transaction)
+            OleDbTransaction transaction,
+            string tableName,
+            string columnName)
         {
+            string query =
+                "SELECT * FROM [" + tableName + "] WHERE 1 = 0";
+
             using (OleDbCommand command =
-                new OleDbCommand(
-                    "SELECT * FROM [TUTORING_REQUEST] WHERE 1 = 0",
-                    connection,
-                    transaction))
-            using (OleDbDataReader reader =
-                command.ExecuteReader())
+                new OleDbCommand(query, connection, transaction))
+            using (OleDbDataReader reader = command.ExecuteReader())
             {
                 DataTable schema = reader.GetSchemaTable();
 
                 foreach (DataRow row in schema.Rows)
                 {
-                    string name =
-                        Convert.ToString(row["ColumnName"]);
+                    string name = Convert.ToString(row["ColumnName"]);
 
                     if (name.Trim('\uFEFF', ' ')
-                        .Equals(
-                            "RequestID",
+                        .Equals(columnName,
                             StringComparison.OrdinalIgnoreCase))
                     {
                         return name;
@@ -194,15 +183,76 @@ namespace NextGen__7
             }
 
             throw new InvalidOperationException(
-                "RequestID column could not be found.");
+                columnName + " was not found in " + tableName + ".");
+        }
+
+        private static int GetNextID(
+            OleDbConnection connection,
+            OleDbTransaction transaction,
+            string tableName,
+            string columnName)
+        {
+            string query =
+                "SELECT MAX([" + columnName + "]) FROM [" +
+                tableName + "]";
+
+            using (OleDbCommand command =
+                new OleDbCommand(query, connection, transaction))
+            {
+                object result = command.ExecuteScalar();
+
+                if (result == null || result == DBNull.Value)
+                    return 1;
+
+                return checked(Convert.ToInt32(result) + 1);
+            }
+        }
+
+        private static TimeSpan GetTime(object value)
+        {
+            if (value == null || value == DBNull.Value)
+                throw new InvalidOperationException(
+                    "A required time value is missing.");
+
+            if (value is DateTime)
+                return ((DateTime)value).TimeOfDay;
+
+            if (value is TimeSpan)
+                return (TimeSpan)value;
+
+            string text = Convert.ToString(value).Trim();
+
+            DateTime parsedDate;
+
+            if (DateTime.TryParse(
+                text,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out parsedDate))
+            {
+                return parsedDate.TimeOfDay;
+            }
+
+            TimeSpan parsedTime;
+
+            if (TimeSpan.TryParse(
+                text,
+                CultureInfo.InvariantCulture,
+                out parsedTime))
+            {
+                return parsedTime;
+            }
+
+            throw new InvalidOperationException(
+                "An invalid time value was found in the database.");
         }
 
         private bool HasStudentConflict(
             OleDbConnection connection,
             OleDbTransaction transaction,
             DateTime sessionDate,
-            DateTime start,
-            DateTime end)
+            TimeSpan start,
+            TimeSpan end)
         {
             string query =
                 "SELECT [PreferredStartTime], [PreferredEndTime] " +
@@ -213,45 +263,122 @@ namespace NextGen__7
                 "AND [Status] IN ('Submitted', 'Scheduled')";
 
             using (OleDbCommand command =
-                new OleDbCommand(
-                    query,
-                    connection,
-                    transaction))
+                new OleDbCommand(query, connection, transaction))
             {
                 command.Parameters.Add(
-                    "@StudentID",
-                    OleDbType.Integer).Value = studentID;
+                    "@StudentID", OleDbType.Integer).Value = studentID;
 
                 command.Parameters.Add(
-                    "@DateStart",
-                    OleDbType.Date).Value = sessionDate.Date;
+                    "@DateStart", OleDbType.Date).Value = sessionDate.Date;
 
                 command.Parameters.Add(
-                    "@DateEnd",
-                    OleDbType.Date).Value =
-                        sessionDate.Date.AddDays(1);
+                    "@DateEnd", OleDbType.Date).Value =
+                    sessionDate.Date.AddDays(1);
 
-                using (OleDbDataReader reader =
-                    command.ExecuteReader())
+                using (OleDbDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.IsDBNull(0) || reader.IsDBNull(1))
+                            continue;
+
+                        TimeSpan existingStart = GetTime(reader[0]);
+                        TimeSpan existingEnd = GetTime(reader[1]);
+
+                        if (start < existingEnd && end > existingStart)
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private List<int> GetQualifiedTutors(
+            OleDbConnection connection,
+            OleDbTransaction transaction,
+            int courseID)
+        {
+            List<int> tutors = new List<int>();
+
+            string query =
+                "SELECT [TutorID] FROM [TUTOR_COURSE] " +
+                "WHERE [CourseID] = ? ORDER BY [TutorID]";
+
+            using (OleDbCommand command =
+                new OleDbCommand(query, connection, transaction))
+            {
+                command.Parameters.Add(
+                    "@CourseID", OleDbType.Integer).Value = courseID;
+
+                using (OleDbDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (!reader.IsDBNull(0))
+                            tutors.Add(Convert.ToInt32(reader[0]));
+                    }
+                }
+            }
+
+            return tutors;
+        }
+
+        private bool IsTutorAvailable(
+            OleDbConnection connection,
+            OleDbTransaction transaction,
+            int tutorID,
+            DateTime sessionDate,
+            TimeSpan start,
+            TimeSpan end)
+        {
+            string query =
+                "SELECT [StartTime], [EndTime], [IsAvailable] " +
+                "FROM [TUTOR_AVAILABILITY] " +
+                "WHERE [TutorID] = ? " +
+                "AND [AvailableDate] >= ? " +
+                "AND [AvailableDate] < ?";
+
+            using (OleDbCommand command =
+                new OleDbCommand(query, connection, transaction))
+            {
+                command.Parameters.Add(
+                    "@TutorID", OleDbType.Integer).Value = tutorID;
+
+                command.Parameters.Add(
+                    "@DateStart", OleDbType.Date).Value = sessionDate.Date;
+
+                command.Parameters.Add(
+                    "@DateEnd", OleDbType.Date).Value =
+                    sessionDate.Date.AddDays(1);
+
+                using (OleDbDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
                         if (reader.IsDBNull(0) ||
-                            reader.IsDBNull(1))
-                        {
+                            reader.IsDBNull(1) ||
+                            reader.IsDBNull(2))
                             continue;
-                        }
 
-                        TimeSpan existingStart =
-                            Convert.ToDateTime(
-                                reader.GetValue(0)).TimeOfDay;
+                        string value =
+                            Convert.ToString(reader[2]).Trim();
 
-                        TimeSpan existingEnd =
-                            Convert.ToDateTime(
-                                reader.GetValue(1)).TimeOfDay;
+                        bool available =
+                            value.Equals("True",
+                                StringComparison.OrdinalIgnoreCase) ||
+                            value.Equals("Yes",
+                                StringComparison.OrdinalIgnoreCase) ||
+                            value == "1";
 
-                        if (start.TimeOfDay < existingEnd &&
-                            end.TimeOfDay > existingStart)
+                        if (!available)
+                            continue;
+
+                        TimeSpan availableStart = GetTime(reader[0]);
+                        TimeSpan availableEnd = GetTime(reader[1]);
+
+                        if (availableStart <= start &&
+                            availableEnd >= end)
                         {
                             return true;
                         }
@@ -262,91 +389,243 @@ namespace NextGen__7
             return false;
         }
 
-        private bool HasRecordedTutorAvailability(
+        private bool HasTutorConflict(
             OleDbConnection connection,
             OleDbTransaction transaction,
+            int tutorID,
             DateTime sessionDate,
+            TimeSpan start,
+            TimeSpan end)
+        {
+            string query =
+                "SELECT [StartTime], [EndTime], [SessionStatus] " +
+                "FROM [TUTORING_SESSION] " +
+                "WHERE [TutorID] = ? " +
+                "AND [SessionDate] >= ? " +
+                "AND [SessionDate] < ?";
+
+            using (OleDbCommand command =
+                new OleDbCommand(query, connection, transaction))
+            {
+                command.Parameters.Add(
+                    "@TutorID", OleDbType.Integer).Value = tutorID;
+
+                command.Parameters.Add(
+                    "@DateStart", OleDbType.Date).Value = sessionDate.Date;
+
+                command.Parameters.Add(
+                    "@DateEnd", OleDbType.Date).Value =
+                    sessionDate.Date.AddDays(1);
+
+                using (OleDbDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.IsDBNull(0) || reader.IsDBNull(1))
+                            continue;
+
+                        string status = reader.IsDBNull(2)
+                            ? ""
+                            : Convert.ToString(reader[2]).Trim();
+
+                        if (status.Equals("Cancelled",
+                                StringComparison.OrdinalIgnoreCase) ||
+                            status.Equals("Canceled",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        TimeSpan existingStart = GetTime(reader[0]);
+                        TimeSpan existingEnd = GetTime(reader[1]);
+
+                        if (start < existingEnd && end > existingStart)
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private int FindAvailableTutor(
+            OleDbConnection connection,
+            OleDbTransaction transaction,
+            int courseID,
+            DateTime sessionDate,
+            TimeSpan start,
+            TimeSpan end)
+        {
+            List<int> qualifiedTutors =
+                GetQualifiedTutors(connection, transaction, courseID);
+
+            foreach (int tutorID in qualifiedTutors)
+            {
+                if (!IsTutorAvailable(
+                    connection, transaction,
+                    tutorID, sessionDate, start, end))
+                    continue;
+
+                if (HasTutorConflict(
+                    connection, transaction,
+                    tutorID, sessionDate, start, end))
+                    continue;
+
+                return tutorID;
+            }
+
+            return 0;
+        }
+
+        private string GetTutorName(
+            OleDbConnection connection,
+            OleDbTransaction transaction,
+            int tutorID)
+        {
+            string idColumn =
+                GetColumnName(connection, transaction,
+                    "TUTOR", "TutorID");
+
+            string query =
+                "SELECT [FirstName], [LastName] " +
+                "FROM [TUTOR] WHERE [" + idColumn + "] = ?";
+
+            using (OleDbCommand command =
+                new OleDbCommand(query, connection, transaction))
+            {
+                command.Parameters.Add(
+                    "@TutorID", OleDbType.Integer).Value = tutorID;
+
+                using (OleDbDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        string firstName =
+                            Convert.ToString(reader["FirstName"]).Trim();
+
+                        string lastName =
+                            Convert.ToString(reader["LastName"]).Trim();
+
+                        string fullName =
+                            (firstName + " " + lastName).Trim();
+
+                        if (!string.IsNullOrWhiteSpace(fullName))
+                            return fullName;
+                    }
+                }
+            }
+
+            throw new InvalidOperationException(
+                "The selected tutor could not be found.");
+        }
+
+        private void InsertRequest(
+            OleDbConnection connection,
+            OleDbTransaction transaction,
+            string requestIdColumn,
+            int requestID,
+            int courseID,
+            string supportType,
+            DateTime date,
+            DateTime start,
+            DateTime end,
+            string status)
+        {
+            string query =
+                "INSERT INTO [TUTORING_REQUEST] " +
+                "([" + requestIdColumn + "], [StudentID], " +
+                "[CourseID], [SupportType], [PreferredDate], " +
+                "[PreferredStartTime], [PreferredEndTime], " +
+                "[RequestDate], [Status]) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            using (OleDbCommand command =
+                new OleDbCommand(query, connection, transaction))
+            {
+                command.Parameters.Add(
+                    "@RequestID", OleDbType.Integer).Value = requestID;
+
+                command.Parameters.Add(
+                    "@StudentID", OleDbType.Integer).Value = studentID;
+
+                command.Parameters.Add(
+                    "@CourseID", OleDbType.VarWChar).Value =
+                    courseID.ToString(CultureInfo.InvariantCulture);
+
+                command.Parameters.Add(
+                    "@SupportType", OleDbType.VarWChar).Value = supportType;
+
+                command.Parameters.Add(
+                    "@PreferredDate", OleDbType.Date).Value = date;
+
+                command.Parameters.Add(
+                    "@PreferredStartTime", OleDbType.Date).Value = start;
+
+                command.Parameters.Add(
+                    "@PreferredEndTime", OleDbType.Date).Value = end;
+
+                command.Parameters.Add(
+                    "@RequestDate", OleDbType.Date).Value = DateTime.Now;
+
+                command.Parameters.Add(
+                    "@Status", OleDbType.VarWChar).Value = status;
+
+                if (command.ExecuteNonQuery() != 1)
+                    throw new InvalidOperationException(
+                        "The tutoring request could not be saved.");
+            }
+        }
+
+        private void InsertSession(
+            OleDbConnection connection,
+            OleDbTransaction transaction,
+            string sessionIdColumn,
+            int sessionID,
+            int requestID,
+            int tutorID,
+            DateTime date,
             DateTime start,
             DateTime end)
         {
             string query =
-                "SELECT [AvailableDate], [StartTime], " +
-                "[EndTime], [IsAvailable] " +
-                "FROM [TUTOR_AVAILABILITY] " +
-                "WHERE [AvailableDate] >= ? " +
-                "AND [AvailableDate] < ?";
+                "INSERT INTO [TUTORING_SESSION] " +
+                "([" + sessionIdColumn + "], [RequestID], " +
+                "[TutorID], [SessionDate], [StartTime], " +
+                "[EndTime], [SessionStatus]) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             using (OleDbCommand command =
-                new OleDbCommand(
-                    query,
-                    connection,
-                    transaction))
+                new OleDbCommand(query, connection, transaction))
             {
                 command.Parameters.Add(
-                    "@DateStart",
-                    OleDbType.Date).Value = sessionDate.Date;
+                    "@SessionID", OleDbType.Integer).Value = sessionID;
 
                 command.Parameters.Add(
-                    "@DateEnd",
-                    OleDbType.Date).Value =
-                        sessionDate.Date.AddDays(1);
+                    "@RequestID", OleDbType.Integer).Value = requestID;
 
-                using (OleDbDataReader reader =
-                    command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        if (reader.IsDBNull(1) ||
-                            reader.IsDBNull(2) ||
-                            reader.IsDBNull(3))
-                        {
-                            continue;
-                        }
+                command.Parameters.Add(
+                    "@TutorID", OleDbType.Integer).Value = tutorID;
 
-                        string availability =
-                            Convert.ToString(
-                                reader["IsAvailable"]).Trim();
+                command.Parameters.Add(
+                    "@SessionDate", OleDbType.Date).Value = date;
 
-                        bool isAvailable =
-                            availability.Equals(
-                                "Yes",
-                                StringComparison.OrdinalIgnoreCase) ||
-                            availability.Equals(
-                                "True",
-                                StringComparison.OrdinalIgnoreCase) ||
-                            availability.Equals(
-                                "Available",
-                                StringComparison.OrdinalIgnoreCase) ||
-                            availability == "1";
+                command.Parameters.Add(
+                    "@StartTime", OleDbType.Date).Value = start;
 
-                        if (!isAvailable)
-                        {
-                            continue;
-                        }
+                command.Parameters.Add(
+                    "@EndTime", OleDbType.Date).Value = end;
 
-                        TimeSpan availableStart =
-                            Convert.ToDateTime(
-                                reader["StartTime"]).TimeOfDay;
+                command.Parameters.Add(
+                    "@SessionStatus", OleDbType.VarWChar).Value =
+                    "Scheduled";
 
-                        TimeSpan availableEnd =
-                            Convert.ToDateTime(
-                                reader["EndTime"]).TimeOfDay;
-
-                        if (availableStart <= start.TimeOfDay &&
-                            availableEnd >= end.TimeOfDay)
-                        {
-                            return true;
-                        }
-                    }
-                }
+                if (command.ExecuteNonQuery() != 1)
+                    throw new InvalidOperationException(
+                        "The tutoring session could not be created.");
             }
-
-            return false;
         }
 
-        private void btnBookSession_Click(
-            object sender,
-            EventArgs e)
+        private void btnBookSession_Click(object sender, EventArgs e)
         {
             if (studentID != Login.CurrentStudentID ||
                 studentNo != Login.CurrentStudentNo)
@@ -369,7 +648,6 @@ namespace NextGen__7
                     "Missing Course",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 cmbCourse.Focus();
                 return;
             }
@@ -381,7 +659,6 @@ namespace NextGen__7
                     "Missing Support Type",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 cmbSupportType.Focus();
                 return;
             }
@@ -393,7 +670,6 @@ namespace NextGen__7
                     "Missing Date",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 dtpSessionDate.Focus();
                 return;
             }
@@ -405,7 +681,6 @@ namespace NextGen__7
                     "Missing Time",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 cmbSessionTime.Focus();
                 return;
             }
@@ -422,33 +697,23 @@ namespace NextGen__7
 
             if (times.Length != 2 ||
                 !TimeSpan.TryParseExact(
-                    times[0].Trim(),
-                    @"hh\:mm",
-                    CultureInfo.InvariantCulture,
-                    out startTime) ||
+                    times[0].Trim(), @"hh\:mm",
+                    CultureInfo.InvariantCulture, out startTime) ||
                 !TimeSpan.TryParseExact(
-                    times[1].Trim(),
-                    @"hh\:mm",
-                    CultureInfo.InvariantCulture,
-                    out endTime))
+                    times[1].Trim(), @"hh\:mm",
+                    CultureInfo.InvariantCulture, out endTime))
             {
                 MessageBox.Show(
                     "The selected time slot is invalid.",
                     "Invalid Time",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 return;
             }
 
-            DateTime preferredDate =
-                dtpSessionDate.Value.Date;
-
-            DateTime preferredStart =
-                preferredDate.Add(startTime);
-
-            DateTime preferredEnd =
-                preferredDate.Add(endTime);
+            DateTime preferredDate = dtpSessionDate.Value.Date;
+            DateTime preferredStart = preferredDate.Add(startTime);
+            DateTime preferredEnd = preferredDate.Add(endTime);
 
             if (preferredStart <= DateTime.Now)
             {
@@ -457,7 +722,6 @@ namespace NextGen__7
                     "Invalid Date",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 return;
             }
 
@@ -468,7 +732,6 @@ namespace NextGen__7
                     "Invalid Time",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 return;
             }
 
@@ -476,8 +739,7 @@ namespace NextGen__7
 
             try
             {
-                courseID =
-                    Convert.ToInt32(cmbCourse.SelectedValue);
+                courseID = Convert.ToInt32(cmbCourse.SelectedValue);
             }
             catch
             {
@@ -486,39 +748,33 @@ namespace NextGen__7
                     "Invalid Course",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 return;
             }
 
             string supportType =
-                Convert.ToString(
-                    cmbSupportType.SelectedItem).Trim();
+                Convert.ToString(cmbSupportType.SelectedItem).Trim();
 
-            DialogResult confirmation =
-                MessageBox.Show(
-                    "Course: " + cmbCourse.Text +
-                    "\nSupport Type: " + supportType +
-                    "\nDate: " +
-                    preferredDate.ToString("dd MMM yyyy") +
-                    "\nTime: " + selectedSlot +
-                    "\n\nDo you want to submit this tutoring request?",
-                    "Confirm Booking",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
+            DialogResult confirmation = MessageBox.Show(
+                "Course: " + cmbCourse.Text +
+                "\nSupport Type: " + supportType +
+                "\nDate: " + preferredDate.ToString("dd MMM yyyy") +
+                "\nTime: " + selectedSlot +
+                "\n\nDo you want to book this tutoring session?",
+                "Confirm Booking",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
 
             if (confirmation != DialogResult.Yes)
-            {
                 return;
-            }
 
             btnBookSession.Enabled = false;
+
             bool bookingSaved = false;
+            bool tutorMatched = false;
+            string tutorName = "";
 
             try
             {
-                int newRequestID = 0;
-                bool recordedTutorAvailability = false;
-
                 using (OleDbConnection connection =
                     new OleDbConnection(connectionString))
                 {
@@ -529,135 +785,96 @@ namespace NextGen__7
                     {
                         try
                         {
-                            bool studentConflict =
-                                HasStudentConflict(
-                                    connection,
-                                    transaction,
-                                    preferredDate,
-                                    preferredStart,
-                                    preferredEnd);
-
-                            if (studentConflict)
+                            if (HasStudentConflict(
+                                connection,
+                                transaction,
+                                preferredDate,
+                                startTime,
+                                endTime))
                             {
-                                transaction.Rollback();
-
-                                MessageBox.Show(
+                                throw new InvalidOperationException(
                                     "You already have an active tutoring " +
-                                    "request that overlaps this time slot." +
-                                    "\n\nPlease select another date or time.",
-                                    "Booking Conflict",
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Warning);
-
-                                return;
+                                    "booking that overlaps this time slot. " +
+                                    "Please choose another date or time.");
                             }
 
-                            recordedTutorAvailability =
-                                HasRecordedTutorAvailability(
+                            string requestIdColumn =
+                                GetColumnName(
                                     connection,
                                     transaction,
+                                    "TUTORING_REQUEST",
+                                    "RequestID");
+
+                            string sessionIdColumn =
+                                GetColumnName(
+                                    connection,
+                                    transaction,
+                                    "TUTORING_SESSION",
+                                    "SessionID");
+
+                            int tutorID = FindAvailableTutor(
+                                connection,
+                                transaction,
+                                courseID,
+                                preferredDate,
+                                startTime,
+                                endTime);
+
+                            int newRequestID = GetNextID(
+                                connection,
+                                transaction,
+                                "TUTORING_REQUEST",
+                                requestIdColumn);
+
+                            if (tutorID > 0)
+                            {
+                                tutorName = GetTutorName(
+                                    connection, transaction, tutorID);
+
+                                int newSessionID = GetNextID(
+                                    connection,
+                                    transaction,
+                                    "TUTORING_SESSION",
+                                    sessionIdColumn);
+
+                                InsertRequest(
+                                    connection,
+                                    transaction,
+                                    requestIdColumn,
+                                    newRequestID,
+                                    courseID,
+                                    supportType,
+                                    preferredDate,
+                                    preferredStart,
+                                    preferredEnd,
+                                    "Scheduled");
+
+                                InsertSession(
+                                    connection,
+                                    transaction,
+                                    sessionIdColumn,
+                                    newSessionID,
+                                    newRequestID,
+                                    tutorID,
                                     preferredDate,
                                     preferredStart,
                                     preferredEnd);
 
-                            string idColumn =
-                                GetRequestIdColumn(
-                                    connection,
-                                    transaction);
-
-                            string idQuery =
-                                "SELECT MAX([" + idColumn + "]) " +
-                                "FROM [TUTORING_REQUEST]";
-
-                            using (OleDbCommand idCommand =
-                                new OleDbCommand(
-                                    idQuery,
-                                    connection,
-                                    transaction))
-                            {
-                                object result =
-                                    idCommand.ExecuteScalar();
-
-                                if (result == null ||
-                                    result == DBNull.Value)
-                                {
-                                    newRequestID = 1;
-                                }
-                                else
-                                {
-                                    newRequestID = checked(
-                                        Convert.ToInt32(result) + 1);
-                                }
+                                tutorMatched = true;
                             }
-
-                            string insertQuery =
-                                "INSERT INTO [TUTORING_REQUEST] " +
-                                "([" + idColumn + "], " +
-                                "[StudentID], [CourseID], " +
-                                "[SupportType], [PreferredDate], " +
-                                "[PreferredStartTime], [PreferredEndTime], " +
-                                "[RequestDate], [Status]) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-                            using (OleDbCommand command =
-                                new OleDbCommand(
-                                    insertQuery,
-                                    connection,
-                                    transaction))
+                            else
                             {
-                                command.Parameters.Add(
-                                    "@RequestID",
-                                    OleDbType.Integer).Value =
-                                        newRequestID;
-
-                                command.Parameters.Add(
-                                    "@StudentID",
-                                    OleDbType.Integer).Value =
-                                        studentID;
-
-                                command.Parameters.Add(
-                                    "@CourseID",
-                                    OleDbType.Integer).Value =
-                                        courseID;
-
-                                command.Parameters.Add(
-                                    "@SupportType",
-                                    OleDbType.VarWChar).Value =
-                                        supportType;
-
-                                command.Parameters.Add(
-                                    "@PreferredDate",
-                                    OleDbType.Date).Value =
-                                        preferredDate;
-
-                                command.Parameters.Add(
-                                    "@PreferredStartTime",
-                                    OleDbType.Date).Value =
-                                        preferredStart;
-
-                                command.Parameters.Add(
-                                    "@PreferredEndTime",
-                                    OleDbType.Date).Value =
-                                        preferredEnd;
-
-                                command.Parameters.Add(
-                                    "@RequestDate",
-                                    OleDbType.Date).Value =
-                                        DateTime.Now;
-
-                                command.Parameters.Add(
-                                    "@Status",
-                                    OleDbType.VarWChar).Value =
-                                        "Submitted";
-
-                                int affectedRows =
-                                    command.ExecuteNonQuery();
-
-                                if (affectedRows != 1)
-                                {
-                                    throw new InvalidOperationException(
-                                        "The tutoring request was not saved.");
-                                }
+                                InsertRequest(
+                                    connection,
+                                    transaction,
+                                    requestIdColumn,
+                                    newRequestID,
+                                    courseID,
+                                    supportType,
+                                    preferredDate,
+                                    preferredStart,
+                                    preferredEnd,
+                                    "Submitted");
                             }
 
                             transaction.Commit();
@@ -678,42 +895,44 @@ namespace NextGen__7
                     }
                 }
 
-                string availabilityMessage;
-
-                if (recordedTutorAvailability)
-                {
-                    availabilityMessage =
-                        "\n\nA tutor has recorded availability " +
-                        "for this time slot." +
-                        "\nCourse suitability and final tutor " +
-                        "assignment still need to be verified.";
-                }
-                else
-                {
-                    availabilityMessage =
-                        "\n\nNo tutor availability is currently " +
-                        "recorded for this time slot." +
-                        "\nYour request is awaiting review.";
-                }
-
-                MessageBox.Show(
-                    "Your tutoring request has been submitted successfully!" +
-                    "\n\nCourse: " + cmbCourse.Text +
+                string message =
+                    "Course: " + cmbCourse.Text +
                     "\nSupport Type: " + supportType +
                     "\nDate: " +
                     preferredDate.ToString("dd MMM yyyy") +
-                    "\nTime: " + selectedSlot +
-                    "\nStatus: Submitted" +
-                    availabilityMessage,
-                    "Booking Successful",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    "\nTime: " + selectedSlot;
+
+                if (tutorMatched)
+                {
+                    MessageBox.Show(
+                        "Your tutoring session has been scheduled successfully!" +
+                        "\n\n" + message +
+                        "\nAssigned Tutor: " + tutorName +
+                        "\nStatus: Scheduled" +
+                        "\n\nYour tutor has been assigned and " +
+                        "your session is confirmed.",
+                        "Booking Successful",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Your tutoring request has been submitted successfully!" +
+                        "\n\n" + message +
+                        "\nStatus: Submitted" +
+                        "\n\nNo qualified tutor is currently available " +
+                        "for your selected date and time." +
+                        "\nYour request is awaiting tutor assignment.",
+                        "Request Submitted",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Booking could not be completed.\n\n" +
-                    ex.Message,
+                    "Booking could not be completed.\n\n" + ex.Message,
                     "Database Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -724,9 +943,7 @@ namespace NextGen__7
             }
 
             if (bookingSaved)
-            {
                 OpenManageBookings();
-            }
         }
 
         private void OpenManageBookings()
@@ -801,8 +1018,7 @@ namespace NextGen__7
         }
 
         private void dtpSessionDate_ValueChanged(
-            object sender,
-            EventArgs e)
+            object sender, EventArgs e)
         {
         }
     }
