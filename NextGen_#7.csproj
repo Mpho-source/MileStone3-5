@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="BookingData.cs" />
     <Compile Include="EduConnectTheme.cs" />
+    <Compile Include="EduConnectLayout.cs" />
     <Compile Include="BookingResult.cs">
       <SubType>Form</SubType>
     </Compile>
