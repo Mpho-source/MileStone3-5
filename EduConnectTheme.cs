@@ -6,164 +6,144 @@ namespace NextGen__7
 {
     public static class EduConnectTheme
     {
-        private static readonly Color Navy = Color.FromArgb(24, 43, 78);
-        private static readonly Color Blue = Color.FromArgb(38, 92, 174);
-        private static readonly Color Pale = Color.FromArgb(244, 247, 252);
-        private static readonly Color Ink = Color.FromArgb(34, 48, 68);
-        private static readonly Color Muted = Color.FromArgb(96, 111, 133);
-        private static readonly Color Border = Color.FromArgb(210, 220, 233);
-        private static readonly Color Danger = Color.FromArgb(169, 48, 56);
+        public static readonly Color Background = Color.FromArgb(230, 237, 249);
+        public static readonly Color Navy = Color.FromArgb(31, 56, 100);
+        public static readonly Color NavyDark = Color.FromArgb(22, 42, 79);
+        public static readonly Color Blue = Color.FromArgb(35, 93, 177);
+        public static readonly Color Ink = Color.FromArgb(36, 52, 79);
+        public static readonly Color Muted = Color.FromArgb(83, 104, 132);
+        public static readonly Color Edge = Color.FromArgb(150, 176, 208);
+        public static readonly Color SoftBlue = Color.FromArgb(243, 248, 255);
+        public static readonly Color HoverBlue = Color.FromArgb(222, 235, 252);
+        public static readonly Color Danger = Color.FromArgb(164, 47, 65);
 
         public static void Apply(Form form)
         {
             form.SuspendLayout();
             form.Font = new Font("Segoe UI", 10F);
-            form.BackColor = Pale;
+            form.BackColor = Background;
             form.ForeColor = Ink;
             form.StartPosition = FormStartPosition.CenterScreen;
-            form.AutoScaleMode = AutoScaleMode.Dpi;
-            form.KeyPreview = true;
-            form.KeyDown += (s, e) =>
-            {
-                if (e.KeyCode == Keys.Escape && form.Modal)
-                {
-                    e.Handled = true;
-                    form.Close();
-                }
-            };
             StyleChildren(form.Controls);
-            form.ResumeLayout(true);
+            form.ResumeLayout(false);
         }
 
-        private static void StyleChildren(Control.ControlCollection controls)
+        public static void StyleChildren(Control.ControlCollection controls)
         {
-            foreach (Control control in controls)
+            foreach (Control c in controls)
             {
-                if (control is Button)
-                    StyleButton((Button)control);
-                else if (control is TextBox)
-                    StyleTextBox((TextBox)control);
-                else if (control is RichTextBox)
-                    StyleRichTextBox((RichTextBox)control);
-                else if (control is ComboBox)
-                    StyleComboBox((ComboBox)control);
-                else if (control is DateTimePicker)
-                    StyleDatePicker((DateTimePicker)control);
-                else if (control is DataGridView)
-                    StyleGrid((DataGridView)control);
-                else if (control is Label)
-                    StyleLabel((Label)control);
-                else if (control is Panel)
-                    StylePanel((Panel)control);
-                if (control.HasChildren)
-                    StyleChildren(control.Controls);
+                RoundedPanel rounded = c as RoundedPanel;
+                if (rounded != null)
+                {
+                    rounded.NormalColor = SoftBlue;
+                    rounded.HoverColor = HoverBlue;
+                    rounded.BorderColor = Edge;
+                    rounded.CornerRadius = 16;
+                    rounded.Cursor = Cursors.Hand;
+                    rounded.TabStop = true;
+                }
+                else if (c is Button)
+                    StyleButton((Button)c);
+                else if (c is TextBox)
+                {
+                    TextBox t = (TextBox)c;
+                    t.Font = new Font("Segoe UI", 10.5F);
+                    t.BorderStyle = BorderStyle.FixedSingle;
+                    t.BackColor = Color.White;
+                    t.ForeColor = Ink;
+                }
+                else if (c is RichTextBox)
+                {
+                    RichTextBox t = (RichTextBox)c;
+                    t.Font = new Font("Segoe UI", 10.5F);
+                    t.BorderStyle = BorderStyle.FixedSingle;
+                    t.BackColor = t.ReadOnly ? Color.FromArgb(236, 242, 250) : Color.White;
+                    t.ForeColor = Ink;
+                }
+                else if (c is ComboBox)
+                {
+                    ComboBox t = (ComboBox)c;
+                    t.Font = new Font("Segoe UI", 10.5F);
+                    t.FlatStyle = FlatStyle.Standard;
+                    t.BackColor = Color.White;
+                    t.ForeColor = Ink;
+                }
+                else if (c is DateTimePicker)
+                {
+                    DateTimePicker t = (DateTimePicker)c;
+                    t.Font = new Font("Segoe UI", 10.5F);
+                    t.CalendarForeColor = Ink;
+                    t.CalendarTitleBackColor = Navy;
+                }
+                else if (c is DataGridView)
+                    StyleGrid((DataGridView)c);
+                else if (c is Label)
+                {
+                    Label label = (Label)c;
+                    if (label.Parent != null &&
+                        label.Parent.BackColor.GetBrightness() < 0.45F)
+                        label.ForeColor = Color.White;
+                    else if (label.Font.Bold)
+                        label.ForeColor = Navy;
+                    else if (label.ForeColor == SystemColors.GrayText ||
+                             label.ForeColor == SystemColors.ControlDarkDark)
+                        label.ForeColor = Muted;
+                }
+
+                if (c.HasChildren)
+                    StyleChildren(c.Controls);
             }
         }
 
-        private static void StyleButton(Button button)
+        public static void StyleButton(Button button)
         {
-            bool destructive = button.Name.IndexOf("CancelBooking", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                               button.Name.IndexOf("Logout", StringComparison.OrdinalIgnoreCase) >= 0;
-            bool secondary = button.Name.IndexOf("Back", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                             button.Name.IndexOf("Clear", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                             (button.Text.Trim().Equals("Cancel", StringComparison.OrdinalIgnoreCase));
-            Color baseColor = destructive ? Danger : secondary ? Color.White : Blue;
+            string name = button.Name ?? "";
+            bool danger = name.IndexOf("CancelBooking", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                          name.IndexOf("Logout", StringComparison.OrdinalIgnoreCase) >= 0;
+            bool secondary = name.IndexOf("Back", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             name.IndexOf("Clear", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             button.Text.Trim().Equals("Cancel", StringComparison.OrdinalIgnoreCase);
             button.FlatStyle = FlatStyle.Flat;
-            button.FlatAppearance.BorderSize = secondary ? 1 : 0;
-            button.FlatAppearance.BorderColor = Border;
-            button.FlatAppearance.MouseOverBackColor = destructive
-                ? Color.FromArgb(140, 34, 43)
-                : secondary ? Color.FromArgb(230, 237, 247)
-                : Color.FromArgb(25, 73, 149);
-            button.BackColor = baseColor;
+            button.FlatAppearance.BorderSize = secondary ? 2 : 1;
+            button.FlatAppearance.BorderColor = secondary ? Edge : danger ? Danger : Blue;
+            button.BackColor = danger ? Danger : secondary ? SoftBlue : Blue;
             button.ForeColor = secondary ? Navy : Color.White;
-            button.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            button.FlatAppearance.MouseOverBackColor = danger
+                ? Color.FromArgb(131, 36, 52)
+                : secondary ? HoverBlue : Color.FromArgb(26, 73, 148);
+            button.FlatAppearance.MouseDownBackColor = NavyDark;
+            button.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             button.Cursor = Cursors.Hand;
             button.UseVisualStyleBackColor = false;
-            button.MinimumSize = new Size(95, 35);
+            button.MinimumSize = new Size(110, 39);
             button.AccessibleName = button.Text;
             button.TabStop = true;
-        }
-
-        private static void StyleTextBox(TextBox text)
-        {
-            text.Font = new Font("Segoe UI", 10.5F);
-            text.BackColor = Color.White;
-            text.ForeColor = Ink;
-            text.BorderStyle = BorderStyle.FixedSingle;
-        }
-
-        private static void StyleRichTextBox(RichTextBox text)
-        {
-            text.Font = new Font("Segoe UI", 10.5F);
-            text.BackColor = text.ReadOnly ? Color.FromArgb(235, 241, 248) : Color.White;
-            text.ForeColor = Ink;
-            text.BorderStyle = BorderStyle.FixedSingle;
-        }
-
-        private static void StyleComboBox(ComboBox combo)
-        {
-            combo.Font = new Font("Segoe UI", 10F);
-            combo.BackColor = Color.White;
-            combo.ForeColor = Ink;
-            combo.FlatStyle = FlatStyle.Flat;
-        }
-
-        private static void StyleDatePicker(DateTimePicker picker)
-        {
-            picker.Font = new Font("Segoe UI", 10F);
-            picker.CalendarForeColor = Ink;
-            picker.CalendarTitleBackColor = Navy;
-        }
-
-        private static void StyleLabel(Label label)
-        {
-            if (label.Parent is Panel && label.Parent.Height <= 120 &&
-                label.Parent.BackColor.GetBrightness() < 0.45f)
-            {
-                label.ForeColor = Color.White;
-                return;
-            }
-            if (label.Font.Size >= 17)
-            {
-                label.Font = new Font("Segoe UI", label.Font.Size, FontStyle.Bold);
-                label.ForeColor = Navy;
-            }
-            else if (label.Font.Bold)
-                label.ForeColor = Navy;
-            else if (label.ForeColor == SystemColors.ControlDarkDark ||
-                     label.ForeColor == SystemColors.GrayText)
-                label.ForeColor = Muted;
-        }
-
-        private static void StylePanel(Panel panel)
-        {
-            if (panel.Height <= 115 && panel.Width >= 450 &&
-                panel.Dock != DockStyle.Fill)
-                panel.BackColor = Navy;
         }
 
         public static void StyleGrid(DataGridView grid)
         {
             grid.BackgroundColor = Color.White;
-            grid.BorderStyle = BorderStyle.None;
+            grid.BorderStyle = BorderStyle.FixedSingle;
             grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            grid.GridColor = Color.FromArgb(233, 238, 246);
+            grid.GridColor = Color.FromArgb(212, 226, 243);
             grid.EnableHeadersVisualStyles = false;
             grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             grid.ColumnHeadersDefaultCellStyle.BackColor = Navy;
             grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = Navy;
+            grid.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
             grid.ColumnHeadersDefaultCellStyle.Font =
-                new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
-            grid.ColumnHeadersHeight = 44;
+                new Font("Segoe UI", 10F, FontStyle.Bold);
             grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            grid.RowTemplate.Height = 38;
+            grid.ColumnHeadersHeight = 45;
+            grid.RowTemplate.Height = 43;
             grid.DefaultCellStyle.Font = new Font("Segoe UI", 9.5F);
             grid.DefaultCellStyle.ForeColor = Ink;
             grid.DefaultCellStyle.BackColor = Color.White;
-            grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(217, 231, 250);
-            grid.DefaultCellStyle.SelectionForeColor = Navy;
-            grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 254);
+            grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(208, 229, 252);
+            grid.DefaultCellStyle.SelectionForeColor = NavyDark;
+            grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(241, 247, 255);
+            grid.AlternatingRowsDefaultCellStyle.ForeColor = Ink;
             grid.RowHeadersVisible = false;
             grid.AllowUserToAddRows = false;
             grid.AllowUserToDeleteRows = false;
@@ -172,22 +152,6 @@ namespace NextGen__7
             grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             grid.MultiSelect = false;
             grid.ReadOnly = true;
-        }
-
-        public static void AddBookingGuidance(Form form, Control anchor)
-        {
-            Label guidance = new Label();
-            guidance.Name = "lblBookingGuidance";
-            guidance.Text = "Choose your course, support type, date and time. " +
-                "You can change or cancel a booking until 48 hours before it starts.";
-            guidance.Font = new Font("Segoe UI", 9F);
-            guidance.ForeColor = Muted;
-            guidance.AutoSize = false;
-            guidance.Size = new Size(Math.Max(400, anchor.Width), 42);
-            guidance.Location = new Point(anchor.Left, anchor.Bottom + 8);
-            guidance.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            form.Controls.Add(guidance);
-            guidance.BringToFront();
         }
     }
 }
