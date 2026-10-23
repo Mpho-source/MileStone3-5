@@ -12,7 +12,7 @@ namespace NextGen__7
         public static readonly Color Blue = Color.FromArgb(35, 93, 177);
         public static readonly Color Ink = Color.FromArgb(36, 52, 79);
         public static readonly Color Muted = Color.FromArgb(83, 104, 132);
-        public static readonly Color Edge = Color.FromArgb(150, 176, 208);
+        public static readonly Color Edge = Color.FromArgb(113, 145, 187);
         public static readonly Color SoftBlue = Color.FromArgb(243, 248, 255);
         public static readonly Color HoverBlue = Color.FromArgb(222, 235, 252);
         public static readonly Color Danger = Color.FromArgb(164, 47, 65);
