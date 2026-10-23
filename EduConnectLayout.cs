@@ -159,7 +159,7 @@ namespace NextGen__7
             form.SuspendLayout();
             form.Text = "EduConnect | Student sign in";
             form.ClientSize = new Size(1040, 700);
-            form.MinimumSize = new Size(1040, 700);
+            form.MinimumSize = new Size(1040, 740);
             form.BackColor = EduConnectTheme.Background;
             NavOnlyLogin(form);
 
@@ -272,7 +272,7 @@ namespace NextGen__7
             form.SuspendLayout();
             form.Text = "EduConnect | Dashboard";
             form.ClientSize = new Size(1090, 710);
-            form.MinimumSize = new Size(1010, 670);
+            form.MinimumSize = new Size(1010, 755);
             Find(form, "panel1").Visible = false;
             AddNav(form, "Dashboard", null, toBook, toManage, logout);
 
@@ -426,6 +426,7 @@ namespace NextGen__7
             studentLabel.Text = "Student number";
             Set(student, details, 28, 107, 203, 39);
             student.ReadOnly = true;
+            student.BackColor = Color.FromArgb(236, 242, 250);
 
             Set(courseLabel, details, 260, 73, 350, 24);
             courseLabel.Text = "Course";
@@ -539,6 +540,7 @@ namespace NextGen__7
             Label guidance = MakeLabel(
                 "Select a booking first. Editing and cancellation require at least 48 hours' notice.",
                 9, false, EduConnectTheme.Muted);
+            guidance.Name = "lblBookingActionHelp";
             form.Controls.Add(guidance);
 
             Action layout = () =>
