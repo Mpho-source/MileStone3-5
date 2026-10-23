@@ -21,6 +21,7 @@ namespace NextGen__7
         public ManageBookings(int studentID, string studentNo)
         {
             InitializeComponent();
+            EduConnectTheme.Apply(this);
 
             if (studentID <= 0 || string.IsNullOrWhiteSpace(studentNo))
                 throw new InvalidOperationException("Invalid student session.");
