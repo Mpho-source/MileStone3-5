@@ -10,7 +10,7 @@ namespace NextGen__7
         private int cornerRadius = 15;
         private Color normalColor = Color.FromArgb(241, 246, 253);
         private Color hoverColor = Color.FromArgb(222, 235, 250);
-        private Color borderColor = Color.FromArgb(155, 181, 211);
+        private Color borderColor = Color.FromArgb(113, 145, 187);
         private bool hovered;
 
         public int CornerRadius
