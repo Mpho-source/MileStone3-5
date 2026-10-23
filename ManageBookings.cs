@@ -42,6 +42,28 @@ namespace NextGen__7
 
             btnEditBooking.Click += btnEditBooking_Click;
             btnCancelBooking.Click += btnCancelBooking_Click;
+
+            ComboBox statusFilter = EduConnectLayout.Manage(
+                this, () => Close(), () =>
+                {
+                    using (BookingTutoringSession page =
+                        new BookingTutoringSession(studentID, studentNo))
+                        page.ShowDialog(this);
+                });
+            statusFilter.SelectedIndexChanged += (s, e) =>
+            {
+                DataTable source = dgvBookings.DataSource as DataTable;
+                if (source != null)
+                {
+                    string status = Convert.ToString(statusFilter.SelectedItem);
+                    source.DefaultView.RowFilter = status == "All bookings"
+                        ? "" : "[Status] = '" + status.Replace("'", "''") + "'";
+                    dgvBookings.ClearSelection();
+                    UpdateActionAvailability();
+                }
+            };
+            dgvBookings.SelectionChanged += (s, e) => UpdateActionAvailability();
+            UpdateActionAvailability();
         }
 
         private void ManageBookings_Load(object sender, EventArgs e)
@@ -115,8 +137,7 @@ namespace NextGen__7
 
                 dgvBookings.ClearSelection();
 
-                btnEditBooking.Enabled = table.Rows.Count > 0;
-                btnCancelBooking.Enabled = table.Rows.Count > 0;
+                UpdateActionAvailability();
             }
             catch (Exception ex)
             {
@@ -126,6 +147,38 @@ namespace NextGen__7
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
+        }
+
+        private void UpdateActionAvailability()
+        {
+            bool allowed = false;
+            if (dgvBookings.SelectedRows.Count > 0 &&
+                dgvBookings.Columns.Contains("Status") &&
+                dgvBookings.Columns.Contains("PreferredDate") &&
+                dgvBookings.Columns.Contains("PreferredStartTime"))
+            {
+                DataGridViewRow row = dgvBookings.SelectedRows[0];
+                try
+                {
+                    string status = Convert.ToString(row.Cells["Status"].Value);
+                    DateTime date = Convert.ToDateTime(
+                        row.Cells["PreferredDate"].Value).Date;
+                    TimeSpan start = BookingData.ReadTime(
+                        row.Cells["PreferredStartTime"].Value);
+                    DateTime time = date.Add(start);
+                    allowed = (status.Equals("Submitted",
+                            StringComparison.OrdinalIgnoreCase) ||
+                        status.Equals("Scheduled",
+                            StringComparison.OrdinalIgnoreCase)) &&
+                        DateTime.Now <= time.AddHours(-48);
+                }
+                catch
+                {
+                    allowed = false;
+                }
+            }
+            btnEditBooking.Enabled = allowed;
+            btnCancelBooking.Enabled = allowed;
         }
 
         private bool TryGetSelectedBooking(out int requestID)
