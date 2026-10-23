@@ -31,6 +31,7 @@ namespace NextGen__7
             this.connectionString = connectionString;
 
             BuildForm();
+            EduConnectTheme.Apply(this);
             Load += EditBooking_Load;
         }
 
