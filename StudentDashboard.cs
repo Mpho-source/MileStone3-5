@@ -12,6 +12,7 @@ namespace NextGen__7
         public StudentDashboard()
         {
             InitializeComponent();
+            EduConnectTheme.Apply(this);
 
             studentID = Login.CurrentStudentID;
             studentNo = Login.CurrentStudentNo;
