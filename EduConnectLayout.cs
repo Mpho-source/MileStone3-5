@@ -270,28 +270,56 @@ namespace NextGen__7
             StudentDashboard form, Action toBook, Action toManage, Action logout)
         {
             form.SuspendLayout();
-            form.Text = "EduConnect | Dashboard";
-            form.ClientSize = new Size(1090, 710);
-            form.MinimumSize = new Size(1010, 755);
+            form.Text = "EduConnect | Student dashboard";
+            form.ClientSize = new Size(1090, 750);
+            form.MinimumSize = new Size(1010, 800);
             Find(form, "panel1").Visible = false;
             AddNav(form, "Dashboard", null, toBook, toManage, logout);
 
             Label title = As<Label>(form, "label3");
             Label subtitle = As<Label>(form, "label4");
-            Set(title, form, 58, 134, 810, 50);
+            Set(title, form, 58, 140, 640, 52);
             title.Font = Heading;
             title.ForeColor = EduConnectTheme.Navy;
-            title.Text = "Welcome to your student dashboard";
+            title.Text = "Your student dashboard";
 
-            Set(subtitle, form, 60, 189, 720, 27);
+            Set(subtitle, form, 60, 195, 630, 34);
             subtitle.Font = Body;
             subtitle.ForeColor = EduConnectTheme.Muted;
-            subtitle.Text = "What would you like to do today?";
+            subtitle.Text = "Manage your tutoring and stay on track with your studies.";
+
+            Panel profile = Card(form);
+            profile.Name = "pnlStudentProfile";
+            profile.BackColor = Color.FromArgb(245, 249, 255);
+
+            Label avatar = MakeLabel("ST", 15, true, Color.White);
+            avatar.Name = "lblDashboardStudentAvatar";
+            avatar.BackColor = EduConnectTheme.Blue;
+            avatar.TextAlign = ContentAlignment.MiddleCenter;
+            profile.Controls.Add(avatar);
+
+            Label accountLabel = MakeLabel(
+                "STUDENT PROFILE", 9, true, EduConnectTheme.Blue);
+            profile.Controls.Add(accountLabel);
+
+            Label nameLabel = MakeLabel(
+                "Loading student name...", 13, true, EduConnectTheme.Navy);
+            nameLabel.Name = "lblDashboardStudentName";
+            profile.Controls.Add(nameLabel);
+
+            Label numberLabel = MakeLabel(
+                "Student number", 10, false, EduConnectTheme.Muted);
+            numberLabel.Name = "lblDashboardStudentNumber";
+            profile.Controls.Add(numberLabel);
+
+            avatar.Bounds = new Rectangle(20, 28, 55, 55);
+            accountLabel.Bounds = new Rectangle(92, 12, 224, 24);
+            nameLabel.Bounds = new Rectangle(92, 40, 235, 34);
+            numberLabel.Bounds = new Rectangle(92, 76, 235, 26);
 
             RoundedPanel book = As<RoundedPanel>(form, "pnlBook");
             RoundedPanel manage = As<RoundedPanel>(form, "pnlManageBooking");
-            RoundedPanel oldLogout = As<RoundedPanel>(form, "pnlLogout");
-            oldLogout.Visible = false;
+            RoundedPanel logoutPanel = As<RoundedPanel>(form, "pnlLogout");
 
             ConfigureTile(book, "label5", "label6", "label7", "pictureBox2",
                 "Book a tutoring session",
@@ -303,8 +331,28 @@ namespace NextGen__7
             ClickThrough(book);
             ClickThrough(manage);
 
+            logoutPanel.Visible = true;
+            logoutPanel.NormalColor = EduConnectTheme.SoftBlue;
+            logoutPanel.HoverColor = EduConnectTheme.HoverBlue;
+            logoutPanel.BorderColor = EduConnectTheme.Edge;
+            logoutPanel.CornerRadius = 15;
+            logoutPanel.TabStop = true;
+            logoutPanel.AccessibleName = "Logout";
+            logoutPanel.AccessibleDescription = "Sign out of your student account";
+
+            Label logoutText = (Label)logoutPanel.Controls["label11"];
+            PictureBox logoutIcon = (PictureBox)logoutPanel.Controls["pictureBox4"];
+            logoutText.Text = "Logout";
+            logoutText.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            logoutText.ForeColor = EduConnectTheme.Navy;
+            logoutText.TextAlign = ContentAlignment.MiddleLeft;
+            Set(logoutText, logoutPanel, 75, 19, 127, 41);
+            Set(logoutIcon, logoutPanel, 19, 18, 43, 43);
+            logoutIcon.SizeMode = PictureBoxSizeMode.Zoom;
+            ClickThrough(logoutPanel);
+
             Label policy = MakeLabel(
-                "BOOKING POLICY  •  Changes and cancellations require at least 48 hours' notice.",
+                "BOOKING POLICY  •  Edit or cancel at least 48 hours before the session starts.",
                 10, true, EduConnectTheme.Navy);
             form.Controls.Add(policy);
 
@@ -318,19 +366,62 @@ namespace NextGen__7
                 int span = Math.Min(1120, form.ClientSize.Width - 112);
                 int left = (form.ClientSize.Width - span) / 2;
                 int tileWidth = (span - 24) / 2;
-                title.Left = left;
-                subtitle.Left = left + 2;
-                book.Bounds = new Rectangle(left, 257, tileWidth, 236);
-                manage.Bounds = new Rectangle(left + tileWidth + 24, 257,
-                    tileWidth, 236);
+
+                title.Bounds = new Rectangle(left, 143, span - 376, 52);
+                subtitle.Bounds = new Rectangle(left + 2, 197, span - 376, 36);
+                profile.Bounds = new Rectangle(
+                    left + span - 342, 127, 342, 113);
+
+                book.Bounds = new Rectangle(left, 278, tileWidth, 235);
+                manage.Bounds = new Rectangle(
+                    left + tileWidth + 24, 278, tileWidth, 235);
                 PositionTile(book);
                 PositionTile(manage);
-                policy.Bounds = new Rectangle(left, 537, span, 35);
-                footer.Bounds = new Rectangle(left, 616, span, 30);
+
+                policy.Bounds = new Rectangle(
+                    left, 549, span - 253, 69);
+                logoutPanel.Bounds = new Rectangle(
+                    left + span - 216, 543, 216, 80);
+                footer.Bounds = new Rectangle(left, 664, span, 28);
             };
+
             form.Resize += (s, e) => layout();
             layout();
+            logoutPanel.BringToFront();
+            profile.BringToFront();
             form.ResumeLayout(false);
+        }
+
+        public static void UpdateStudentProfile(
+            StudentDashboard form, string fullName, string studentNo)
+        {
+            string name = string.IsNullOrWhiteSpace(fullName)
+                ? "Name unavailable" : fullName.Trim();
+            string number = string.IsNullOrWhiteSpace(studentNo)
+                ? "Student number unavailable" : "Student number: " + studentNo.Trim();
+
+            Control[] nameControls = form.Controls.Find(
+                "lblDashboardStudentName", true);
+            Control[] numberControls = form.Controls.Find(
+                "lblDashboardStudentNumber", true);
+            Control[] avatarControls = form.Controls.Find(
+                "lblDashboardStudentAvatar", true);
+
+            if (nameControls.Length > 0)
+                nameControls[0].Text = name;
+            if (numberControls.Length > 0)
+                numberControls[0].Text = number;
+            if (avatarControls.Length > 0)
+            {
+                string[] words = name.Split(new char[] { ' ' },
+                    StringSplitOptions.RemoveEmptyEntries);
+                string initials = words.Length == 0 ? "ST" :
+                    words.Length == 1
+                        ? words[0].Substring(0, 1)
+                        : words[0].Substring(0, 1) +
+                          words[words.Length - 1].Substring(0, 1);
+                avatarControls[0].Text = initials.ToUpperInvariant();
+            }
         }
 
         private static void ConfigureTile(
