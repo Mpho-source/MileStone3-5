@@ -59,19 +59,25 @@ namespace NextGen__7
                 }
             };
 
-            pnlLogout.Clicked += (s, e) =>
-            {
-                DialogResult result = MessageBox.Show(
-                    "Are you sure you want to log out?",
-                    "Confirm Logout",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
+            pnlLogout.Clicked += (s, e) => ConfirmLogout();
 
-                if (result == DialogResult.Yes)
-                {
-                    Close();
-                }
-            };
+            EduConnectLayout.Dashboard(
+                this,
+                () => pnlBook.Activate(),
+                () => pnlManageBooking.Activate(),
+                () => ConfirmLogout());
+        }
+
+        private void ConfirmLogout()
+        {
+            DialogResult answer = MessageBox.Show(
+                "Do you want to sign out of EduConnect?",
+                "Confirm sign out",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (answer == DialogResult.Yes)
+                Close();
         }
 
         private void label2_Click(object sender, EventArgs e)
