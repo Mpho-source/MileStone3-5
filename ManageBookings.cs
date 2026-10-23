@@ -54,6 +54,31 @@ namespace NextGen__7
             statusFilter.SelectedIndexChanged += (s, e) =>
                 ApplyStatusFilter();
             dgvBookings.SelectionChanged += (s, e) => UpdateActionAvailability();
+            dgvBookings.CellFormatting += (s, e) =>
+            {
+                if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
+                    dgvBookings.Columns[e.ColumnIndex].Name != "Status")
+                    return;
+                string status = Convert.ToString(e.Value).Trim();
+                if (status.Equals("Scheduled", StringComparison.OrdinalIgnoreCase))
+                {
+                    e.CellStyle.BackColor = System.Drawing.Color.FromArgb(221, 243, 229);
+                    e.CellStyle.ForeColor = System.Drawing.Color.FromArgb(23, 106, 63);
+                }
+                else if (status.Equals("Submitted", StringComparison.OrdinalIgnoreCase))
+                {
+                    e.CellStyle.BackColor = System.Drawing.Color.FromArgb(255, 244, 215);
+                    e.CellStyle.ForeColor = System.Drawing.Color.FromArgb(135, 83, 16);
+                }
+                else if (status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase))
+                {
+                    e.CellStyle.BackColor = System.Drawing.Color.FromArgb(253, 232, 232);
+                    e.CellStyle.ForeColor = System.Drawing.Color.FromArgb(150, 40, 51);
+                }
+            };
+            ToolTip rules = new ToolTip();
+            rules.SetToolTip(btnEditBooking, "Changes close 48 hours before the session.");
+            rules.SetToolTip(btnCancelBooking, "Cancellations close 48 hours before the session.");
             UpdateActionAvailability();
         }
 
@@ -156,6 +181,8 @@ namespace NextGen__7
         private void UpdateActionAvailability()
         {
             bool allowed = false;
+            string message = "Select a booking to see available actions.";
+
             if (dgvBookings.SelectedRows.Count > 0 &&
                 dgvBookings.Columns.Contains("Status") &&
                 dgvBookings.Columns.Contains("PreferredDate") &&
@@ -169,20 +196,31 @@ namespace NextGen__7
                         row.Cells["PreferredDate"].Value).Date;
                     TimeSpan start = BookingData.ReadTime(
                         row.Cells["PreferredStartTime"].Value);
-                    DateTime time = date.Add(start);
-                    allowed = (status.Equals("Submitted",
+                    DateTime sessionStart = date.Add(start);
+                    bool active = status.Equals("Submitted",
                             StringComparison.OrdinalIgnoreCase) ||
                         status.Equals("Scheduled",
-                            StringComparison.OrdinalIgnoreCase)) &&
-                        DateTime.Now <= time.AddHours(-48);
+                            StringComparison.OrdinalIgnoreCase);
+
+                    allowed = active && DateTime.Now <= sessionStart.AddHours(-48);
+                    message = !active
+                        ? "This booking is " + status + " and cannot be changed."
+                        : allowed
+                            ? "You may edit or cancel this booking until " +
+                              sessionStart.AddHours(-48).ToString("dd MMM yyyy, HH:mm") + "."
+                            : "The 48-hour change deadline has passed for this booking.";
                 }
                 catch
                 {
-                    allowed = false;
+                    message = "Please select a valid booking to continue.";
                 }
             }
+
             btnEditBooking.Enabled = allowed;
             btnCancelBooking.Enabled = allowed;
+            Control[] matches = Controls.Find("lblBookingActionHelp", true);
+            if (matches.Length > 0)
+                matches[0].Text = message;
         }
 
         private bool TryGetSelectedBooking(out int requestID)
