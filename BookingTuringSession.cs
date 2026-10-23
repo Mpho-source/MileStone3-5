@@ -156,8 +156,8 @@ namespace NextGen__7
             else
             {
                 lblSelectedCourse.Text = "No course selected";
-                lblSelectedCourse.ForeColor = Color.Black;
-                lblSelectedCourse.BackColor = SystemColors.Control;
+                lblSelectedCourse.ForeColor = EduConnectTheme.Navy;
+                lblSelectedCourse.BackColor = Color.FromArgb(225, 237, 252);
             }
         }
 
@@ -990,8 +990,8 @@ namespace NextGen__7
             dtpSessionDate.Checked = false;
 
             lblSelectedCourse.Text = "No course selected";
-            lblSelectedCourse.ForeColor = Color.Black;
-            lblSelectedCourse.BackColor = SystemColors.Control;
+            lblSelectedCourse.ForeColor = EduConnectTheme.Navy;
+            lblSelectedCourse.BackColor = Color.FromArgb(225, 237, 252);
         }
 
         private void button1_Click(object sender, EventArgs e)
