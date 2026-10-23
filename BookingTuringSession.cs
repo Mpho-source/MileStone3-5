@@ -65,6 +65,12 @@ namespace NextGen__7
 
             toolTip1.SetToolTip(
                 cmbSessionTime, "Select your preferred tutoring time.");
+
+            EduConnectLayout.Booking(this, () => Close(), () =>
+            {
+                using (ManageBookings page = new ManageBookings(studentID, studentNo))
+                    page.ShowDialog(this);
+            });
         }
 
         private void BookingTutoringSession_Load(object sender, EventArgs e)
@@ -144,8 +150,8 @@ namespace NextGen__7
                     "Selected course: " +
                     Convert.ToString(row["CourseCode"]);
 
-                lblSelectedCourse.ForeColor = Color.Green;
-                lblSelectedCourse.BackColor = Color.LightGreen;
+                lblSelectedCourse.ForeColor = EduConnectTheme.Navy;
+                lblSelectedCourse.BackColor = Color.FromArgb(225, 237, 252);
             }
             else
             {
