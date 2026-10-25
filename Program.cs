@@ -16,7 +16,7 @@ namespace NextGen__7
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new StudentDashboard());
+            Application.Run(new Login());
         }
     }
 }

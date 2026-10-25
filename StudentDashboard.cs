@@ -1,80 +1,92 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using System;
 using System.Windows.Forms;
 
 namespace NextGen__7
 {
     public partial class StudentDashboard : Form
     {
+        private readonly int studentID;
+        private readonly string studentNo;
+
         public StudentDashboard()
         {
             InitializeComponent();
+
+            studentID = Login.CurrentStudentID;
+            studentNo = Login.CurrentStudentNo;
+
+            if (studentID <= 0 || string.IsNullOrWhiteSpace(studentNo))
+            {
+                throw new InvalidOperationException(
+                    "No student is currently logged in.");
+            }
+
             pnlBook.Clicked += (s, e) =>
             {
-                this.Hide();
+                Hide();
 
-                using (BookingTutoringSession form = new BookingTutoringSession())
+                try
                 {
-                    form.ShowDialog();
+                    using (BookingTutoringSession form =
+                        new BookingTutoringSession(studentID, studentNo))
+                    {
+                        form.ShowDialog(this);
+                    }
                 }
-
-                this.Show();
+                finally
+                {
+                    Show();
+                }
             };
 
-            // Manage existing bookings
             pnlManageBooking.Clicked += (s, e) =>
             {
-                this.Hide();
+                Hide();
 
-                using (ManageBookings form = new ManageBookings())
+                try
                 {
-                    form.ShowDialog();
+                    using (ManageBookings form =
+                        new ManageBookings(studentID, studentNo))
+                    {
+                        form.ShowDialog(this);
+                    }
                 }
-
-                this.Show();
+                finally
+                {
+                    Show();
+                }
             };
 
-            // Log out
             pnlLogout.Clicked += (s, e) =>
             {
-                this.Hide();
+                DialogResult result = MessageBox.Show(
+                    "Are you sure you want to log out?",
+                    "Confirm Logout",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
 
-                using (Login form = new Login())
+                if (result == DialogResult.Yes)
                 {
-                    form.ShowDialog();
+                    Close();
                 }
-
-                this.Close();
             };
-
-
-
         }
 
         private void label2_Click(object sender, EventArgs e)
         {
-
         }
 
         private void label3_Click(object sender, EventArgs e)
         {
-
         }
 
         private void StudentDashboard_Load(object sender, EventArgs e)
         {
-
         }
 
         private void pictureBox2_Click(object sender, EventArgs e)
         {
-
         }
     }
 }
