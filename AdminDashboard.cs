@@ -1,191 +1,94 @@
 using System;
-using System.Configuration;
-using System.Data;
-using System.Data.OleDb;
 using System.Drawing;
-using System.IO;
-using System.Text;
 using System.Windows.Forms;
 
 namespace NextGen__7
 {
     public sealed class AdminDashboard : Form
     {
-        private readonly string adminNo;
-        private readonly string connectionString;
-        private readonly Label heading;
-        private readonly DataGridView grid;
-        private readonly ComboBox section;
-        private readonly ComboBox status;
-        private readonly DateTimePicker fromDate;
-        private readonly DateTimePicker toDate;
-        private DataTable current;
-        private string selectedTable;
+        private readonly string staffNumber;
+        private readonly string staffName;
+        private readonly FlowLayoutPanel actions;
 
-        public AdminDashboard(string adminNo, string displayName)
+        public AdminDashboard(string staffNumber, string staffName)
         {
-            this.adminNo = adminNo;
-            var cfg = ConfigurationManager.ConnectionStrings["NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
-            if (cfg == null) throw new InvalidOperationException("Database configuration missing.");
-            connectionString = cfg.ConnectionString;
+            this.staffNumber = staffNumber;
+            this.staffName = staffName;
             Text = "EduConnect | Administration";
             StartPosition = FormStartPosition.CenterScreen;
-            MinimumSize = new Size(1000, 660);
-            Size = new Size(1180, 740);
-            BackColor = Color.FromArgb(242, 246, 252);
+            MinimumSize = new Size(950, 680);
+            Size = new Size(1140, 760);
+            BackColor = EduConnectTheme.Background;
             Font = new Font("Segoe UI", 10);
-            var header = new Panel { Dock = DockStyle.Top, Height = 112, BackColor = Color.FromArgb(24, 41, 73) };
-            heading = new Label { Text = "Administration  |  " + displayName + "  (" + adminNo + ")", ForeColor = Color.White,
-                Font = new Font("Segoe UI", 18, FontStyle.Bold), Dock = DockStyle.Top, Height = 57, TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(24, 8, 0, 0) };
-            var subheading = new Label { Text = "Manage tutoring operations, verify requests and export reports", ForeColor = Color.Gainsboro,
-                Dock = DockStyle.Fill, Padding = new Padding(26, 0, 0, 0) };
-            header.Controls.Add(subheading);
-            header.Controls.Add(heading);
+
+            var header = new Panel { Dock = DockStyle.Top, Height = 108, BackColor = EduConnectTheme.Navy };
+            var brand = new Label { Text = "EduConnect", ForeColor = Color.White,
+                Font = new Font("Segoe UI", 23, FontStyle.Bold),
+                Location = new Point(34, 15), Size = new Size(340, 45) };
+            var strap = new Label { Text = "UNIVERSITY TUTORING PORTAL",
+                ForeColor = Color.FromArgb(208, 223, 246), Font = new Font("Segoe UI", 10),
+                Location = new Point(38, 65), Size = new Size(410, 27) };
+            header.Controls.Add(brand);
+            header.Controls.Add(strap);
             Controls.Add(header);
 
-            var bar = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 110, Padding = new Padding(16, 12, 10, 4),
-                FlowDirection = FlowDirection.LeftToRight, WrapContents = true, BackColor = Color.White };
-            section = new ComboBox { Width = 190, DropDownStyle = ComboBoxStyle.DropDownList };
-            section.Items.AddRange(new object[] { "Tutors", "Tutor courses", "Tutor availability", "Requests", "Sessions", "Students", "Courses" });
-            section.SelectedIndexChanged += (s, e) => LoadSection();
-            bar.Controls.Add(section);
-            var refresh = MakeButton("Refresh", (s, e) => LoadSection());
-            bar.Controls.Add(refresh);
-            status = new ComboBox { Width = 125, DropDownStyle = ComboBoxStyle.DropDownList };
-            status.Items.AddRange(new object[] { "Submitted", "Verified", "Scheduled", "Completed", "Cancelled" });
-            status.SelectedIndex = 1;
-            bar.Controls.Add(status);
-            bar.Controls.Add(MakeButton("Set request status", (s, e) => ChangeRequestStatus()));
-            fromDate = new DateTimePicker { Width = 132, Format = DateTimePickerFormat.Short, Value = DateTime.Today.AddMonths(-1) };
-            toDate = new DateTimePicker { Width = 132, Format = DateTimePickerFormat.Short, Value = DateTime.Today };
-            bar.Controls.Add(fromDate);
-            bar.Controls.Add(toDate);
-            bar.Controls.Add(MakeButton("Tutor session report", (s, e) => SessionReport()));
-            bar.Controls.Add(MakeButton("Export CSV", (s, e) => ExportCsv()));
-            bar.Controls.Add(MakeButton("Logout", (s, e) => Close()));
-            Controls.Add(bar);
+            var profile = new Panel { Dock = DockStyle.Top, Height = 124, BackColor = Color.White,
+                Padding = new Padding(30, 14, 24, 12) };
+            var title = new Label { Text = "Administration dashboard",
+                Font = new Font("Segoe UI", 22, FontStyle.Bold),
+                ForeColor = EduConnectTheme.Navy, Dock = DockStyle.Top, Height = 52 };
+            var identity = new Label { Text = staffName + "   |   " + staffNumber,
+                ForeColor = EduConnectTheme.Muted, Font = new Font("Segoe UI", 12),
+                Dock = DockStyle.Fill };
+            profile.Controls.Add(identity);
+            profile.Controls.Add(title);
+            Controls.Add(profile);
 
-            grid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false,
-                BackgroundColor = Color.White, BorderStyle = BorderStyle.None, RowHeadersVisible = false };
-            Controls.Add(grid);
-            grid.BringToFront();
-            section.SelectedIndex = 0;
+            actions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true,
+                WrapContents = true, FlowDirection = FlowDirection.LeftToRight,
+                Padding = new Padding(33, 28, 20, 30), BackColor = EduConnectTheme.Background };
+            AddTile("Manage tutors", "Add new tutors, edit tutor profiles and review the tutor table.",
+                () => OpenForm(new ManagaeTutors()));
+            AddTile("Tutoring requests", "Review submitted requests and verify them.",
+                () => OpenForm(new AdminRequests()));
+            AddTile("Tutoring reports", "View scheduled and completed tutoring sessions by tutor.",
+                () => OpenForm(new Reports()));
+            AddTile("Sign out", "Leave the administration dashboard and return to the login screen.",
+                () => ConfirmLogout());
+            Controls.Add(actions);
+            actions.BringToFront();
         }
 
-        private Button MakeButton(string text, EventHandler handler)
+        private void AddTile(string heading, string detail, Action action)
         {
-            var b = new Button { Text = text, AutoSize = true, Height = 35,
-                FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(39, 88, 156), ForeColor = Color.White, Margin = new Padding(5) };
-            b.FlatAppearance.BorderSize = 0;
-            b.Click += handler;
-            return b;
+            var tile = new Panel { Size = new Size(475, 164), BackColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle, Margin = new Padding(11) };
+            var name = new Label { Text = heading, ForeColor = EduConnectTheme.Navy,
+                Font = new Font("Segoe UI", 16, FontStyle.Bold),
+                Location = new Point(18, 14), Size = new Size(410, 35) };
+            var summary = new Label { Text = detail, ForeColor = EduConnectTheme.Muted,
+                Font = new Font("Segoe UI", 10), Location = new Point(19, 58),
+                Size = new Size(425, 48) };
+            var button = new Button { Text = "Open", Location = new Point(19, 115),
+                Size = new Size(142, 38) };
+            button.Click += (s, e) => action();
+            EduConnectTheme.StyleButton(button);
+            tile.Controls.Add(name);
+            tile.Controls.Add(summary);
+            tile.Controls.Add(button);
+            actions.Controls.Add(tile);
         }
 
-        private void LoadSection()
+        private void OpenForm(Form form)
         {
-            if (section.SelectedItem == null) return;
-            var tables = new [] { "TUTOR", "TUTOR_COURSE", "TUTOR_AVAILABILITY", "TUTORING_REQUEST",
-                "TUTORING_SESSION", "STUDENT", "COURSE" };
-            selectedTable = tables[section.SelectedIndex];
-            try
-            {
-                using (var db = new OleDbConnection(connectionString))
-                using (var adapter = new OleDbDataAdapter("SELECT * FROM [" + selectedTable + "]", db))
-                {
-                    current = new DataTable();
-                    adapter.Fill(current);
-                    grid.DataSource = current;
-                }
-            }
-            catch (Exception ex) { MessageBox.Show("Unable to load " + selectedTable + ": " + ex.Message); }
+            using (form) form.ShowDialog(this);
         }
 
-        private void ChangeRequestStatus()
+        private void ConfirmLogout()
         {
-            if (selectedTable != "TUTORING_REQUEST")
-            {
-                MessageBox.Show("Select Requests first."); return;
-            }
-            if (grid.SelectedRows.Count != 1 || current == null || !current.Columns.Contains("RequestID"))
-            {
-                MessageBox.Show("Select one request with a RequestID."); return;
-            }
-            object requestId = grid.SelectedRows[0].Cells["RequestID"].Value;
-            if (MessageBox.Show("Change request " + requestId + " to " + status.Text + "?",
-                "Confirm request update", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
-            try
-            {
-                using (var db = new OleDbConnection(connectionString))
-                using (var cmd = new OleDbCommand("UPDATE [TUTORING_REQUEST] SET [Status] = ? WHERE [RequestID] = ?", db))
-                {
-                    cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = status.Text;
-                    cmd.Parameters.Add("@RequestID", OleDbType.Integer).Value = Convert.ToInt32(requestId);
-                    db.Open();
-                    if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("Request not updated.");
-                }
-                LoadSection();
-            }
-            catch (Exception ex) { MessageBox.Show("Update failed: " + ex.Message); }
-        }
-
-        private void SessionReport()
-        {
-            if (fromDate.Value.Date > toDate.Value.Date) { MessageBox.Show("Start date must not exceed end date."); return; }
-            try
-            {
-                var report = new DataTable();
-                using (var db = new OleDbConnection(connectionString))
-                using (var command = new OleDbCommand(
-                    "SELECT [TutorID], " +
-                    "SUM(IIF([SessionStatus] = 'Scheduled', 1, 0)) AS [ScheduledCount], " +
-                    "SUM(IIF([SessionStatus] = 'Completed', 1, 0)) AS [CompletedCount] " +
-                    "FROM [TUTORING_SESSION] WHERE [SessionDate] >= ? AND [SessionDate] < ? " +
-                    "GROUP BY [TutorID] ORDER BY [TutorID]", db))
-                {
-                    command.Parameters.Add("@Start", OleDbType.Date).Value = fromDate.Value.Date;
-                    command.Parameters.Add("@End", OleDbType.Date).Value = toDate.Value.Date.AddDays(1);
-                    using (var adapter = new OleDbDataAdapter(command)) adapter.Fill(report);
-                }
-                current = report;
-                selectedTable = "REPORT";
-                grid.DataSource = report;
-                MessageBox.Show("Scheduled and completed session counts per tutor. Use Export CSV to save.");
-            }
-            catch (Exception ex) { MessageBox.Show("Report failed: " + ex.Message); }
-        }
-
-        private void ExportCsv()
-        {
-            if (current == null || current.Columns.Count == 0) { MessageBox.Show("Load a table or report first."); return; }
-            using (var dialog = new SaveFileDialog { Filter = "CSV files (*.csv)|*.csv", FileName = "EduConnect_" + selectedTable + ".csv" })
-            {
-                if (dialog.ShowDialog(this) != DialogResult.OK) return;
-                try
-                {
-                    using (var writer = new StreamWriter(dialog.FileName, false, Encoding.UTF8))
-                    {
-                        for (int c = 0; c < current.Columns.Count; c++)
-                        { if (c > 0) writer.Write(","); writer.Write(Csv(current.Columns[c].ColumnName)); }
-                        writer.WriteLine();
-                        foreach (DataRow row in current.Rows)
-                        {
-                            for (int c = 0; c < current.Columns.Count; c++)
-                            { if (c > 0) writer.Write(","); writer.Write(Csv(Convert.ToString(row[c]))); }
-                            writer.WriteLine();
-                        }
-                    }
-                    MessageBox.Show("Report exported successfully.");
-                }
-                catch (Exception ex) { MessageBox.Show("Export failed: " + ex.Message); }
-            }
-        }
-
-        private static string Csv(string value)
-        {
-            value = value ?? "";
-            return "\"" + value.Replace("\"", "\"\"") + "\"";
+            if (MessageBox.Show("Sign out of EduConnect?", "Confirm sign out",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                Close();
         }
     }
 }
