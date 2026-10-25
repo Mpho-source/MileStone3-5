@@ -192,9 +192,7 @@ namespace NextGen__7
             Label caption = As<Label>(form, "label2");
             Label description = As<Label>(form, "label4");
             Label studentLabel = As<Label>(form, "label5");
-            Label passwordLabel = As<Label>(form, "label6");
             TextBox student = As<TextBox>(form, "txtStudentNo");
-            TextBox password = As<TextBox>(form, "txtPassword");
             Button submit = As<Button>(form, "btnLogin");
             Find(form, "pictureBox1").Visible = false;
             Find(form, "panelSeparator").Visible = false;
@@ -228,16 +226,7 @@ namespace NextGen__7
             student.Multiline = false;
             student.TabIndex = 0;
 
-            Set(passwordLabel, card, 35, 277, 365, 27);
-            passwordLabel.Text = "Password";
-            passwordLabel.ForeColor = EduConnectTheme.Navy;
-            passwordLabel.TextAlign = ContentAlignment.MiddleLeft;
 
-            Set(password, card, 35, 310, 366, 38);
-            password.TabIndex = 1;
-            passwordLabel.Visible = false;
-            password.Visible = false;
-            password.TabStop = false;
             Set(submit, card, 35, 290, 366, 48);
             submit.Text = "Sign in";
             submit.TabIndex = 2;
@@ -252,7 +241,6 @@ namespace NextGen__7
                     span - heroWidth - 26, 495);
                 int inputWidth = Math.Max(310, card.Width - 70);
                 student.Width = inputWidth;
-                password.Width = inputWidth;
                 submit.Width = inputWidth;
             };
             form.Resize += (s, e) => layout();
