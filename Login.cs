@@ -14,6 +14,8 @@ namespace NextGen__7
         public Login()
         {
             InitializeComponent();
+            if (System.ComponentModel.LicenseManager.UsageMode ==
+                System.ComponentModel.LicenseUsageMode.Designtime) return;
             EduConnectTheme.Apply(this);
             txtPassword.PasswordChar = '*';
             txtPassword.UseSystemPasswordChar = true;
