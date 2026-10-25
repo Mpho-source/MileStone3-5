@@ -170,18 +170,18 @@ namespace NextGen__7
             };
             form.Controls.Add(hero);
 
-            Label heroTitle = MakeLabel("Your learning.\nYour schedule.", 25, true, Color.White);
+            Label heroTitle = MakeLabel("One place.\nBetter support.", 25, true, Color.White);
             heroTitle.Bounds = new Rectangle(35, 104, 420, 116);
             hero.Controls.Add(heroTitle);
 
             Label heroSubtitle = MakeLabel(
-                "Find academic support, schedule tutoring and manage sessions in one place.",
+                "Access your EduConnect workspace and manage academic support in one place.",
                 11, false, Color.FromArgb(220, 233, 252));
             heroSubtitle.Bounds = new Rectangle(35, 234, 368, 90);
             hero.Controls.Add(heroSubtitle);
 
             Label heroDetails = MakeLabel(
-                "BOOK SESSIONS    •    VIEW REQUESTS    •    STAY ON TRACK",
+                "CONNECTED SERVICES    •    SIMPLE WORKFLOWS",
                 9, true, Color.White);
             heroDetails.Bounds = new Rectangle(35, 367, 410, 36);
             hero.Controls.Add(heroDetails);
@@ -213,7 +213,7 @@ namespace NextGen__7
             welcome.ForeColor = EduConnectTheme.Ink;
 
             Set(description, card, 35, 133, 368, 39);
-            description.Text = "Enter your account number to continue.";
+            description.Text = "Enter your account number to sign in.";
             description.Font = Small;
             description.ForeColor = EduConnectTheme.Muted;
 
@@ -229,7 +229,7 @@ namespace NextGen__7
 
             Set(submit, card, 35, 290, 366, 48);
             submit.Text = "Sign in";
-            submit.TabIndex = 2;
+            submit.TabIndex = 1;
 
             Action layout = () =>
             {
