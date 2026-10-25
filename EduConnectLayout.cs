@@ -145,7 +145,7 @@ namespace NextGen__7
                 Color.FromArgb(207, 224, 245));
             caption.Bounds = new Rectangle(38, 53, 320, 22);
             bar.Controls.Add(caption);
-            Label signIn = MakeLabel("Student sign in", 11, true, Color.White);
+            Label signIn = MakeLabel("Sign in", 11, true, Color.White);
             signIn.TextAlign = ContentAlignment.MiddleRight;
             signIn.Bounds = new Rectangle(710, 25, 245, 38);
             signIn.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -157,7 +157,7 @@ namespace NextGen__7
         public static void Login(Login form)
         {
             form.SuspendLayout();
-            form.Text = "EduConnect | Student sign in";
+            form.Text = "EduConnect | Sign in";
             form.ClientSize = new Size(1040, 700);
             form.MinimumSize = new Size(1040, 740);
             form.BackColor = EduConnectTheme.Background;
@@ -200,7 +200,7 @@ namespace NextGen__7
             Find(form, "panelSeparator").Visible = false;
 
             Set(caption, card, 35, 22, 340, 22);
-            caption.Text = "STUDENT PORTAL";
+            caption.Text = "EDUCONNECT PORTAL";
             caption.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             caption.ForeColor = EduConnectTheme.Blue;
 
@@ -215,12 +215,12 @@ namespace NextGen__7
             welcome.ForeColor = EduConnectTheme.Ink;
 
             Set(description, card, 35, 133, 368, 39);
-            description.Text = "Enter your student number and password to continue.";
+            description.Text = "Enter your account number to continue.";
             description.Font = Small;
             description.ForeColor = EduConnectTheme.Muted;
 
             Set(studentLabel, card, 35, 188, 365, 27);
-            studentLabel.Text = "Student number";
+            studentLabel.Text = "Account number";
             studentLabel.ForeColor = EduConnectTheme.Navy;
             studentLabel.TextAlign = ContentAlignment.MiddleLeft;
 
@@ -235,7 +235,10 @@ namespace NextGen__7
 
             Set(password, card, 35, 310, 366, 38);
             password.TabIndex = 1;
-            Set(submit, card, 35, 385, 366, 48);
+            passwordLabel.Visible = false;
+            password.Visible = false;
+            password.TabStop = false;
+            Set(submit, card, 35, 290, 366, 48);
             submit.Text = "Sign in";
             submit.TabIndex = 2;
 
