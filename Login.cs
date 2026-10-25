@@ -9,11 +9,14 @@ namespace NextGen__7
     {
         public static int CurrentStudentID { get; private set; }
         public static string CurrentStudentNo { get; private set; }
+        internal ComboBox RoleSelector { get; set; }
 
         public Login()
         {
             InitializeComponent();
             EduConnectTheme.Apply(this);
+            txtPassword.PasswordChar = '*';
+            txtPassword.UseSystemPasswordChar = true;
             btnLogin.Click += btnLogin_Click;
             AcceptButton = btnLogin;
             EduConnectLayout.Login(this);
@@ -27,58 +30,70 @@ namespace NextGen__7
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            string accountNo = txtStudentNo.Text.Trim();
-            if (string.IsNullOrWhiteSpace(accountNo))
+            string number = txtStudentNo.Text.Trim();
+            string password = txtPassword.Text;
+            if (RoleSelector == null || RoleSelector.SelectedIndex < 0)
             {
-                MessageBox.Show("Please enter your account number.", "Account number required",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtStudentNo.Focus();
-                return;
+                MessageBox.Show("Select Student or Staff."); return;
             }
-
+            if (string.IsNullOrWhiteSpace(number))
+            {
+                MessageBox.Show("Enter your " + (RoleSelector.SelectedIndex == 1 ? "staff" : "student") + " number.");
+                txtStudentNo.Focus(); return;
+            }
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                MessageBox.Show("Enter your password.");
+                txtPassword.Focus(); return;
+            }
+            // This classroom prototype has no password verifier in the database.
+            // Requiring a password input does not authenticate the password.
             btnLogin.Enabled = false;
             try
             {
                 var settings = ConfigurationManager.ConnectionStrings[
                     "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
                 if (settings == null)
-                    throw new InvalidOperationException("Database connection is not configured.");
+                    throw new InvalidOperationException("Database connection not configured.");
 
-                bool isAdmin = false;
-                string adminName = null;
+                bool staff = RoleSelector.SelectedIndex == 1;
+                string name = "";
                 int studentId = 0;
-                using (var connection = new OleDbConnection(settings.ConnectionString))
+                using (var db = new OleDbConnection(settings.ConnectionString))
                 {
-                    connection.Open();
-                    using (var admin = new OleDbCommand(
-                        "SELECT [FirstName], [LastName], [IsActive] FROM [ADMIN] WHERE [AdminNo] = ?", connection))
+                    db.Open();
+                    if (staff)
                     {
-                        admin.Parameters.Add("@AdminNo", OleDbType.VarWChar).Value = accountNo;
-                        using (var reader = admin.ExecuteReader())
+                        using (var cmd = new OleDbCommand(
+                            "SELECT [FirstName], [LastName], [IsActive] FROM [ADMIN] WHERE [AdminNo] = ?", db))
                         {
-                            if (reader.Read())
+                            cmd.Parameters.Add("@AdminNo", OleDbType.VarWChar).Value = number;
+                            using (var reader = cmd.ExecuteReader())
                             {
-                                if (reader.IsDBNull(2) || !Convert.ToBoolean(reader[2]))
+                                if (!reader.Read())
                                 {
-                                    MessageBox.Show("This account is inactive.", "Sign in unavailable");
+                                    MessageBox.Show("Staff record not found.");
                                     return;
                                 }
-                                isAdmin = true;
-                                adminName = (Convert.ToString(reader[0]) + " " + Convert.ToString(reader[1])).Trim();
+                                if (reader.IsDBNull(2) || !Convert.ToBoolean(reader[2]))
+                                {
+                                    MessageBox.Show("This staff account is inactive.");
+                                    return;
+                                }
+                                name = (Convert.ToString(reader[0]) + " " + Convert.ToString(reader[1])).Trim();
                             }
                         }
                     }
-                    if (!isAdmin)
+                    else
                     {
-                        using (var student = new OleDbCommand(
-                            "SELECT [StudentID] FROM [STUDENT] WHERE [StudentNo] = ?", connection))
+                        using (var cmd = new OleDbCommand(
+                            "SELECT [StudentID] FROM [STUDENT] WHERE [StudentNo] = ?", db))
                         {
-                            student.Parameters.Add("@StudentNo", OleDbType.VarWChar).Value = accountNo;
-                            object value = student.ExecuteScalar();
+                            cmd.Parameters.Add("@StudentNo", OleDbType.VarWChar).Value = number;
+                            object value = cmd.ExecuteScalar();
                             if (value == null || value == DBNull.Value)
                             {
-                                MessageBox.Show("Account not found. Check your account number.",
-                                    "Sign in unsuccessful", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                MessageBox.Show("Student record not found.");
                                 return;
                             }
                             studentId = Convert.ToInt32(value);
@@ -89,15 +104,15 @@ namespace NextGen__7
                 Hide();
                 try
                 {
-                    if (isAdmin)
+                    if (staff)
                     {
-                        using (var dashboard = new AdminDashboard(accountNo, adminName))
+                        using (var dashboard = new AdminDashboard(number, name))
                             dashboard.ShowDialog(this);
                     }
                     else
                     {
                         CurrentStudentID = studentId;
-                        CurrentStudentNo = accountNo;
+                        CurrentStudentNo = number;
                         using (var dashboard = new StudentDashboard())
                             dashboard.ShowDialog(this);
                     }
@@ -116,6 +131,7 @@ namespace NextGen__7
         {
             ClearSession();
             txtStudentNo.Clear();
+            txtPassword.Clear();
             Show();
             txtStudentNo.Focus();
         }
