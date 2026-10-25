@@ -193,6 +193,8 @@ namespace NextGen__7
             Label description = As<Label>(form, "label4");
             Label studentLabel = As<Label>(form, "label5");
             TextBox student = As<TextBox>(form, "txtStudentNo");
+            TextBox password = As<TextBox>(form, "txtPassword");
+            Label passwordLabel = As<Label>(form, "label6");
             Button submit = As<Button>(form, "btnLogin");
             Find(form, "pictureBox1").Visible = false;
             Find(form, "panelSeparator").Visible = false;
@@ -212,24 +214,53 @@ namespace NextGen__7
             welcome.Font = Subheading;
             welcome.ForeColor = EduConnectTheme.Ink;
 
-            Set(description, card, 35, 133, 368, 39);
-            description.Text = "Enter your account number to sign in.";
+            Set(description, card, 35, 131, 368, 38);
+            description.Text = "Sign in to access your EduConnect workspace.";
             description.Font = Small;
             description.ForeColor = EduConnectTheme.Muted;
 
-            Set(studentLabel, card, 35, 188, 365, 27);
-            studentLabel.Text = "Account number";
+            Label roleLabel = MakeLabel("I am signing in as", 10, true, EduConnectTheme.Navy);
+            card.Controls.Add(roleLabel);
+            roleLabel.Bounds = new Rectangle(35, 174, 365, 25);
+            ComboBox role = new ComboBox
+            {
+                Name = "cmbSignInRole",
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font = Body,
+                TabIndex = 0
+            };
+            role.Items.AddRange(new object[] { "Student", "Staff" });
+            card.Controls.Add(role);
+            role.Bounds = new Rectangle(35, 202, 366, 32);
+            form.RoleSelector = role;
+
+            Set(studentLabel, card, 35, 244, 365, 25);
             studentLabel.ForeColor = EduConnectTheme.Navy;
             studentLabel.TextAlign = ContentAlignment.MiddleLeft;
-
-            Set(student, card, 35, 220, 366, 38);
+            Set(student, card, 35, 274, 366, 36);
             student.Multiline = false;
-            student.TabIndex = 0;
+            student.TabIndex = 1;
 
+            Set(passwordLabel, card, 35, 322, 365, 25);
+            passwordLabel.Text = "Password";
+            passwordLabel.ForeColor = EduConnectTheme.Navy;
+            passwordLabel.TextAlign = ContentAlignment.MiddleLeft;
+            Set(password, card, 35, 350, 366, 36);
+            password.Multiline = false;
+            password.PasswordChar = '*';
+            password.TabIndex = 2;
 
-            Set(submit, card, 35, 290, 366, 48);
+            Set(submit, card, 35, 416, 366, 46);
             submit.Text = "Sign in";
-            submit.TabIndex = 1;
+            submit.TabIndex = 3;
+            role.SelectedIndexChanged += (sender, e) =>
+            {
+                studentLabel.Text = role.SelectedIndex == 1 ? "Staff number" : "Student number";
+                student.Clear();
+                password.Clear();
+                student.Focus();
+            };
+            role.SelectedIndex = 0;
 
             Action layout = () =>
             {
@@ -240,7 +271,9 @@ namespace NextGen__7
                 card.Bounds = new Rectangle(left + heroWidth + 26, 145,
                     span - heroWidth - 26, 495);
                 int inputWidth = Math.Max(310, card.Width - 70);
+                role.Width = inputWidth;
                 student.Width = inputWidth;
+                password.Width = inputWidth;
                 submit.Width = inputWidth;
             };
             form.Resize += (s, e) => layout();
