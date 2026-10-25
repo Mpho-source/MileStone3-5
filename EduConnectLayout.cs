@@ -19,6 +19,12 @@ namespace NextGen__7
             return matches[0];
         }
 
+        private static void HideIfPresent(Form form, string name)
+        {
+            Control[] controls = form.Controls.Find(name, true);
+            if (controls.Length > 0) controls[0].Visible = false;
+        }
+
         private static T As<T>(Form form, string name) where T : Control
         {
             return (T)Find(form, name);
@@ -196,8 +202,8 @@ namespace NextGen__7
             TextBox password = As<TextBox>(form, "txtPassword");
             Label passwordLabel = As<Label>(form, "label6");
             Button submit = As<Button>(form, "btnLogin");
-            Find(form, "pictureBox1").Visible = false;
-            Find(form, "panelSeparator").Visible = false;
+            HideIfPresent(form, "pictureBox1");
+            HideIfPresent(form, "panelSeparator");
 
             Set(caption, card, 35, 22, 340, 22);
             caption.Text = "EDUCONNECT PORTAL";
@@ -297,7 +303,7 @@ namespace NextGen__7
             form.Text = "EduConnect | Student dashboard";
             form.ClientSize = new Size(1090, 750);
             form.MinimumSize = new Size(1010, 800);
-            Find(form, "panel1").Visible = false;
+            HideIfPresent(form, "panel1");
             AddNav(form, "Dashboard", null, toBook, toManage, logout);
 
             Label title = As<Label>(form, "label3");
@@ -503,7 +509,7 @@ namespace NextGen__7
             form.Text = "EduConnect | Book a session";
             form.ClientSize = new Size(1080, 740);
             form.MinimumSize = new Size(1030, 800);
-            Find(form, "pnlHeader").Visible = false;
+            HideIfPresent(form, "pnlHeader");
             AddNav(form, "Book", dashboard, null, manage, null);
 
             Label heading;
@@ -612,7 +618,7 @@ namespace NextGen__7
             form.Text = "EduConnect | My bookings";
             form.ClientSize = new Size(1100, 740);
             form.MinimumSize = new Size(1030, 740);
-            Find(form, "panel1").Visible = false;
+            HideIfPresent(form, "panel1");
             AddNav(form, "Manage", dashboard, booking, null, null);
 
             Label heading;
