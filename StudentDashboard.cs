@@ -15,6 +15,8 @@ namespace NextGen__7
         public StudentDashboard()
         {
             InitializeComponent();
+            if (System.ComponentModel.LicenseManager.UsageMode ==
+                System.ComponentModel.LicenseUsageMode.Designtime) return;
             EduConnectTheme.Apply(this);
 
             studentID = Login.CurrentStudentID;
