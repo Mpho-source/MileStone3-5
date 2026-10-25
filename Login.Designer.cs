@@ -53,8 +53,6 @@
             this.label5.Text = "Account Number";
             this.label5.Click += new System.EventHandler(this.label5_Click);
             // 
-            // label6
-            // 
             // 
             // txtStudentNo
             // 
@@ -63,10 +61,8 @@
             this.txtStudentNo.Multiline = true;
             this.txtStudentNo.Name = "txtStudentNo";
             this.txtStudentNo.Size = new System.Drawing.Size(355, 30);
-            this.txtStudentNo.TabIndex = 7;
+            this.txtStudentNo.TabIndex = 0;
             this.txtStudentNo.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-            // 
-            // txtPassword
             // 
             // 
             // label4
@@ -78,7 +74,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(252, 17);
             this.label4.TabIndex = 4;
-            this.label4.Text = "Log in to manage your tutoring bookings.";
+            this.label4.Text = "Sign in to EduConnect.";
             // 
             // label3
             // 
@@ -132,7 +128,7 @@
             this.btnLogin.Location = new System.Drawing.Point(187, 509);
             this.btnLogin.Name = "btnLogin";
             this.btnLogin.Size = new System.Drawing.Size(390, 38);
-            this.btnLogin.TabIndex = 9;
+            this.btnLogin.TabIndex = 1;
             this.btnLogin.Text = "Login";
             this.btnLogin.UseVisualStyleBackColor = true;
             // 
