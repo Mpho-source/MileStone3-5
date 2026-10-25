@@ -15,6 +15,7 @@ namespace NextGen__7
         public Login()
         {
             InitializeComponent();
+            EduConnectTheme.Apply(this);
 
             txtPassword.Multiline = false;
             txtPassword.UseSystemPasswordChar = false;
@@ -22,6 +23,7 @@ namespace NextGen__7
 
             btnLogin.Click += btnLogin_Click;
             AcceptButton = btnLogin;
+            EduConnectLayout.Login(this);
         }
 
         public static void ClearSession()

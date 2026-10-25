@@ -24,6 +24,7 @@ namespace NextGen__7
         public BookingTutoringSession(int studentID, string studentNo)
         {
             InitializeComponent();
+            EduConnectTheme.Apply(this);
 
             if (studentID <= 0 || string.IsNullOrWhiteSpace(studentNo))
                 throw new InvalidOperationException("Invalid student session.");
@@ -64,6 +65,12 @@ namespace NextGen__7
 
             toolTip1.SetToolTip(
                 cmbSessionTime, "Select your preferred tutoring time.");
+
+            EduConnectLayout.Booking(this, () => Close(), () =>
+            {
+                using (ManageBookings page = new ManageBookings(studentID, studentNo))
+                    page.ShowDialog(this);
+            });
         }
 
         private void BookingTutoringSession_Load(object sender, EventArgs e)
@@ -143,14 +150,14 @@ namespace NextGen__7
                     "Selected course: " +
                     Convert.ToString(row["CourseCode"]);
 
-                lblSelectedCourse.ForeColor = Color.Green;
-                lblSelectedCourse.BackColor = Color.LightGreen;
+                lblSelectedCourse.ForeColor = EduConnectTheme.Navy;
+                lblSelectedCourse.BackColor = Color.FromArgb(225, 237, 252);
             }
             else
             {
                 lblSelectedCourse.Text = "No course selected";
-                lblSelectedCourse.ForeColor = Color.Black;
-                lblSelectedCourse.BackColor = SystemColors.Control;
+                lblSelectedCourse.ForeColor = EduConnectTheme.Navy;
+                lblSelectedCourse.BackColor = Color.FromArgb(225, 237, 252);
             }
         }
 
@@ -983,8 +990,8 @@ namespace NextGen__7
             dtpSessionDate.Checked = false;
 
             lblSelectedCourse.Text = "No course selected";
-            lblSelectedCourse.ForeColor = Color.Black;
-            lblSelectedCourse.BackColor = SystemColors.Control;
+            lblSelectedCourse.ForeColor = EduConnectTheme.Navy;
+            lblSelectedCourse.BackColor = Color.FromArgb(225, 237, 252);
         }
 
         private void button1_Click(object sender, EventArgs e)

@@ -1,5 +1,8 @@
 ﻿
 using System;
+using System.Configuration;
+using System.Data;
+using System.Data.OleDb;
 using System.Windows.Forms;
 
 namespace NextGen__7
@@ -12,6 +15,7 @@ namespace NextGen__7
         public StudentDashboard()
         {
             InitializeComponent();
+            EduConnectTheme.Apply(this);
 
             studentID = Login.CurrentStudentID;
             studentNo = Login.CurrentStudentNo;
@@ -58,19 +62,25 @@ namespace NextGen__7
                 }
             };
 
-            pnlLogout.Clicked += (s, e) =>
-            {
-                DialogResult result = MessageBox.Show(
-                    "Are you sure you want to log out?",
-                    "Confirm Logout",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
+            pnlLogout.Clicked += (s, e) => ConfirmLogout();
 
-                if (result == DialogResult.Yes)
-                {
-                    Close();
-                }
-            };
+            EduConnectLayout.Dashboard(
+                this,
+                () => pnlBook.Activate(),
+                () => pnlManageBooking.Activate(),
+                () => ConfirmLogout());
+        }
+
+        private void ConfirmLogout()
+        {
+            DialogResult answer = MessageBox.Show(
+                "Do you want to sign out of EduConnect?",
+                "Confirm sign out",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (answer == DialogResult.Yes)
+                Close();
         }
 
         private void label2_Click(object sender, EventArgs e)
@@ -83,6 +93,65 @@ namespace NextGen__7
 
         private void StudentDashboard_Load(object sender, EventArgs e)
         {
+            string displayName = "Name unavailable";
+
+            try
+            {
+                ConnectionStringSettings settings =
+                    ConfigurationManager.ConnectionStrings[
+                        "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
+
+                if (settings == null)
+                    throw new InvalidOperationException(
+                        "The student database connection is not configured.");
+
+                using (OleDbConnection connection =
+                    new OleDbConnection(settings.ConnectionString))
+                {
+                    connection.Open();
+
+                    string studentIDColumn = BookingData.GetColumn(
+                        connection, null, "STUDENT", "StudentID");
+
+                    using (OleDbCommand command = new OleDbCommand(
+                        "SELECT [FirstName], [LastName] FROM [STUDENT] " +
+                        "WHERE [" + studentIDColumn + "] = ?",
+                        connection))
+                    {
+                        command.Parameters.Add(
+                            "@StudentID", OleDbType.Integer).Value = studentID;
+
+                        using (OleDbDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                string first = reader.IsDBNull(0) ? "" :
+                                    Convert.ToString(reader[0]).Trim();
+                                string last = reader.IsDBNull(1) ? "" :
+                                    Convert.ToString(reader[1]).Trim();
+
+                                displayName = (first + " " + last).Trim();
+
+                                if (string.IsNullOrWhiteSpace(displayName))
+                                    displayName = "Name not provided";
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Your student name could not be loaded. " +
+                    "Your tutoring features remain available.\n\n" +
+                    ex.Message,
+                    "Student profile",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+            }
+
+            EduConnectLayout.UpdateStudentProfile(
+                this, displayName, studentNo);
         }
 
         private void pictureBox2_Click(object sender, EventArgs e)
