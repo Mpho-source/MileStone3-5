@@ -44,6 +44,9 @@ namespace NextGen__7
                 if (settings == null)
                     throw new InvalidOperationException("Database connection is not configured.");
 
+                bool isAdmin = false;
+                string adminName = null;
+                int studentId = 0;
                 using (var connection = new OleDbConnection(settings.ConnectionString))
                 {
                     connection.Open();
@@ -60,40 +63,44 @@ namespace NextGen__7
                                     MessageBox.Show("This account is inactive.", "Sign in unavailable");
                                     return;
                                 }
-                                string name = (Convert.ToString(reader[0]) + " " + Convert.ToString(reader[1])).Trim();
-                                Hide();
-                                try
-                                {
-                                    using (var dashboard = new AdminDashboard(accountNo, name))
-                                        dashboard.ShowDialog(this);
-                                }
-                                finally { ResetLogin(); }
-                                return;
+                                isAdmin = true;
+                                adminName = (Convert.ToString(reader[0]) + " " + Convert.ToString(reader[1])).Trim();
                             }
                         }
                     }
-
-                    using (var student = new OleDbCommand(
-                        "SELECT [StudentID] FROM [STUDENT] WHERE [StudentNo] = ?", connection))
+                    if (!isAdmin)
                     {
-                        student.Parameters.Add("@StudentNo", OleDbType.VarWChar).Value = accountNo;
-                        object value = student.ExecuteScalar();
-                        if (value == null || value == DBNull.Value)
+                        using (var student = new OleDbCommand(
+                            "SELECT [StudentID] FROM [STUDENT] WHERE [StudentNo] = ?", connection))
                         {
-                            MessageBox.Show("Account not found. Check the account number and try again.",
-                                "Sign in unsuccessful", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            return;
+                            student.Parameters.Add("@StudentNo", OleDbType.VarWChar).Value = accountNo;
+                            object value = student.ExecuteScalar();
+                            if (value == null || value == DBNull.Value)
+                            {
+                                MessageBox.Show("Account not found. Check your account number.",
+                                    "Sign in unsuccessful", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return;
+                            }
+                            studentId = Convert.ToInt32(value);
                         }
-                        CurrentStudentID = Convert.ToInt32(value);
-                        CurrentStudentNo = accountNo;
                     }
                 }
 
                 Hide();
                 try
                 {
-                    using (var dashboard = new StudentDashboard())
-                        dashboard.ShowDialog(this);
+                    if (isAdmin)
+                    {
+                        using (var dashboard = new AdminDashboard(accountNo, adminName))
+                            dashboard.ShowDialog(this);
+                    }
+                    else
+                    {
+                        CurrentStudentID = studentId;
+                        CurrentStudentNo = accountNo;
+                        using (var dashboard = new StudentDashboard())
+                            dashboard.ShowDialog(this);
+                    }
                 }
                 finally { ResetLogin(); }
             }
@@ -109,7 +116,6 @@ namespace NextGen__7
         {
             ClearSession();
             txtStudentNo.Clear();
-            txtPassword.Clear();
             Show();
             txtStudentNo.Focus();
         }
