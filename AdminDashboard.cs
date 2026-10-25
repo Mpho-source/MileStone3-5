@@ -138,9 +138,11 @@ namespace NextGen__7
                 var report = new DataTable();
                 using (var db = new OleDbConnection(connectionString))
                 using (var command = new OleDbCommand(
-                    "SELECT [TutorID], [SessionStatus], Count(*) AS [SessionCount] FROM [TUTORING_SESSION] " +
-                    "WHERE [SessionDate] >= ? AND [SessionDate] < ? " +
-                    "GROUP BY [TutorID], [SessionStatus] ORDER BY [TutorID], [SessionStatus]", db))
+                    "SELECT [TutorID], " +
+                    "SUM(IIF([SessionStatus] = 'Scheduled', 1, 0)) AS [ScheduledCount], " +
+                    "SUM(IIF([SessionStatus] = 'Completed', 1, 0)) AS [CompletedCount] " +
+                    "FROM [TUTORING_SESSION] WHERE [SessionDate] >= ? AND [SessionDate] < ? " +
+                    "GROUP BY [TutorID] ORDER BY [TutorID]", db))
                 {
                     command.Parameters.Add("@Start", OleDbType.Date).Value = fromDate.Value.Date;
                     command.Parameters.Add("@End", OleDbType.Date).Value = toDate.Value.Date.AddDays(1);
@@ -149,7 +151,7 @@ namespace NextGen__7
                 current = report;
                 selectedTable = "REPORT";
                 grid.DataSource = report;
-                MessageBox.Show("Session totals grouped by tutor and status. Use Export CSV to save.");
+                MessageBox.Show("Scheduled and completed session counts per tutor. Use Export CSV to save.");
             }
             catch (Exception ex) { MessageBox.Show("Report failed: " + ex.Message); }
         }
