@@ -30,9 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Login));
             this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
             this.txtStudentNo = new System.Windows.Forms.TextBox();
-            this.txtPassword = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -52,19 +50,11 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(137, 21);
             this.label5.TabIndex = 5;
-            this.label5.Text = "Student Number";
+            this.label5.Text = "Account Number";
             this.label5.Click += new System.EventHandler(this.label5_Click);
             // 
             // label6
             // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.label6.Location = new System.Drawing.Point(321, 368);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(82, 21);
-            this.label6.TabIndex = 6;
-            this.label6.Text = "Password";
             // 
             // txtStudentNo
             // 
@@ -78,12 +68,6 @@
             // 
             // txtPassword
             // 
-            this.txtPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtPassword.Location = new System.Drawing.Point(206, 409);
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(355, 23);
-            this.txtPassword.TabIndex = 8;
             // 
             // label4
             // 
@@ -116,7 +100,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(90, 17);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Student Portal";
+            this.label2.Text = "EduConnect Portal";
             this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // label1
@@ -171,11 +155,9 @@
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.txtPassword);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtStudentNo);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Name = "Login";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -189,9 +171,7 @@
 
         #endregion
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox txtStudentNo;
-        private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
