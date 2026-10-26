@@ -16,6 +16,14 @@ namespace NextGen__7
     {
         private readonly string connectionString;
         private DataTable result;
+        private bool loadingStudentChoices;
+
+        private sealed class StudentTrendChoice
+        {
+            internal string Number;
+            internal string Label;
+            public override string ToString() { return Label; }
+        }
         private string reportTitle = "";
         private int printRow;
         private readonly Font printBody = new Font("Segoe UI", 9F);
@@ -37,6 +45,12 @@ namespace NextGen__7
             toDate.ValueChanged += (s, e) => UpdateCriteria();
             numYear.ValueChanged += (s, e) => UpdateCriteria();
             btnGenerate.Click += (s, e) => Generate();
+            cmbStudentChoice.SelectedIndexChanged += (s, e) =>
+            {
+                if (loadingStudentChoices || result == null ||
+                    cmbReport.SelectedIndex != 2) return;
+                ShowTrendChart(result);
+            };
             btnToggleView.Click += (s, e) => ToggleView();
             btnPreview.Click += (s, e) => PreviewReport();
             btnPrint.Click += (s, e) => PrintReport();
@@ -113,6 +127,13 @@ namespace NextGen__7
             lblTo.Enabled = workload;
             numYear.Enabled = trend;
             lblYear.Enabled = trend;
+            lblStudentChoice.Visible = trend;
+            cmbStudentChoice.Visible = trend;
+            lblFrom.Visible = workload;
+            fromDate.Visible = workload;
+            lblTo.Visible = workload;
+            toDate.Visible = workload;
+            lblTrendSummary.Visible = false;
             UpdateCriteria();
             btnToggleView.Visible = trend;
             btnToggleView.Enabled = false;
@@ -135,8 +156,7 @@ namespace NextGen__7
                     fromDate.Value.ToString("dd MMM yyyy") + " to " +
                     toDate.Value.ToString("dd MMM yyyy") + ".";
             else if (cmbReport.SelectedIndex == 2)
-                lblReportCriteria.Text = "Uses available GPA records and tutor-recorded attendance for four terms in " +
-                    numYear.Value + ". Missing data is not estimated.";
+                lblReportCriteria.Text = "GPA and recorded attendance for " + numYear.Value + ". Attendance currently follows calendar quarters; missing data is not zero.";
         }
 
         private void Generate()
@@ -205,7 +225,15 @@ namespace NextGen__7
                 }
                 grid.DataSource = result;
                 grid.ClearSelection();
-                btnToggleView.Enabled = cmbReport.SelectedIndex == 2 && result.Rows.Count > 0;
+                bool hasTrend = cmbReport.SelectedIndex == 2 && result.Rows.Count > 0;
+                btnToggleView.Enabled = hasTrend;
+                if (hasTrend)
+                {
+                    BindTrendChoices(result);
+                    ShowTrendChart(result);
+                }
+                else
+                    lblTrendSummary.Visible = false;
                 btnToggleView.Text = chartTrends.Visible ? "Show table" : "Show chart";
                 grid.AutoResizeColumnHeadersHeight();
                 if (result.Rows.Count == 0)
@@ -395,6 +423,9 @@ namespace NextGen__7
                         request["StudentID"] == DBNull.Value) continue;
                     DateTime when = Convert.ToDateTime(row["SessionDate"]);
                     if (when.Year != year) continue;
+                    // An attendance value on an unfinished booking is not a held session.
+                    if (!Convert.ToString(row["SessionStatus"]).Trim().Equals(
+                        "Completed", StringComparison.OrdinalIgnoreCase)) continue;
                     string status = Convert.ToString(row["AttendanceStatus"]).Trim();
                     if (!status.Equals("Attended", StringComparison.OrdinalIgnoreCase) &&
                         !status.Equals("Absent", StringComparison.OrdinalIgnoreCase)) continue;
@@ -445,50 +476,223 @@ namespace NextGen__7
             }
             var view = output.DefaultView; view.Sort = "[Student] ASC, [Term] ASC";
             output = view.ToTable();
-            ShowTrendChart(output);
             return output;
         }
 
-        private void ShowTrendChart(DataTable source)
+        private void BindTrendChoices(DataTable data)
         {
+            string previous = (cmbStudentChoice.SelectedItem as StudentTrendChoice)?.Number;
+            loadingStudentChoices = true;
+            try
+            {
+                cmbStudentChoice.Items.Clear();
+                cmbStudentChoice.Items.Add(new StudentTrendChoice
+                {
+                    Number = "",
+                    Label = "All students (average)"
+                });
+                var students = data.AsEnumerable()
+                    .GroupBy(r => Convert.ToString(r["Student number"]))
+                    .Select(g => new StudentTrendChoice
+                    {
+                        Number = g.Key,
+                        Label = Convert.ToString(g.First()["Student"]) + " (" + g.Key + ")"
+                    })
+                    .OrderBy(item => item.Label, StringComparer.OrdinalIgnoreCase);
+                foreach (StudentTrendChoice item in students)
+                    cmbStudentChoice.Items.Add(item);
+
+                int index = 0;
+                for (int i = 1; i < cmbStudentChoice.Items.Count; i++)
+                {
+                    if (((StudentTrendChoice)cmbStudentChoice.Items[i]).Number == previous)
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+                cmbStudentChoice.SelectedIndex = index;
+            }
+            finally
+            {
+                loadingStudentChoices = false;
+            }
+        }
+
+        private void ShowTrendChart(DataTable data)
+        {
+            var selected = cmbStudentChoice.SelectedItem as StudentTrendChoice;
+            bool individual = selected != null && !string.IsNullOrEmpty(selected.Number);
+            var rows = data.AsEnumerable()
+                .Where(r => !individual ||
+                    Convert.ToString(r["Student number"]) == selected.Number).ToList();
+
             chartTrends.Series.Clear();
             chartTrends.ChartAreas.Clear();
             chartTrends.Legends.Clear();
-            var area = new ChartArea("Four terms");
-            area.AxisX.Title = "Academic term";
-            area.AxisY.Title = "Percentage (%)";
+            chartTrends.Titles.Clear();
+            chartTrends.AntiAliasing = AntiAliasingStyles.All;
+            chartTrends.BackColor = Color.White;
+
+            var area = new ChartArea("Academic terms");
+            area.BackColor = Color.White;
+            area.Position = new ElementPosition(8, 16, 88, 67);
+            area.InnerPlotPosition = new ElementPosition(9, 3, 88, 83);
+            area.AxisX.Minimum = 0.5;
+            area.AxisX.Maximum = 4.5;
+            area.AxisX.Interval = 1;
+            area.AxisX.Title = "ACADEMIC TERM";
+            area.AxisX.TitleFont = new Font("Segoe UI", 9F, FontStyle.Bold);
+            area.AxisX.LabelStyle.Font = new Font("Segoe UI", 10F);
+            area.AxisX.LineColor = Color.FromArgb(157, 173, 197);
+            area.AxisX.MajorTickMark.Enabled = false;
+            area.AxisX.MajorGrid.Enabled = false;
+            for (int term = 1; term <= 4; term++)
+                area.AxisX.CustomLabels.Add(term - 0.45, term + 0.45, "Term " + term);
+
             area.AxisY.Minimum = 0;
             area.AxisY.Maximum = 100;
             area.AxisY.Interval = 20;
-            area.AxisX.Interval = 1;
-            area.AxisX.Minimum = 0.5;
-            area.AxisX.Maximum = 4.5;
-            area.AxisX.MajorGrid.Enabled = false;
+            area.AxisY.Title = "PERCENTAGE (%)";
+            area.AxisY.TitleFont = new Font("Segoe UI", 9F, FontStyle.Bold);
+            area.AxisY.LabelStyle.Font = new Font("Segoe UI", 9F);
+            area.AxisY.LabelStyle.Format = "0'%'"; 
+            area.AxisY.LineColor = Color.FromArgb(157, 173, 197);
+            area.AxisY.MajorTickMark.Enabled = false;
+            area.AxisY.MajorGrid.LineColor = Color.FromArgb(230, 235, 243);
+            area.AxisY.MajorGrid.LineDashStyle = ChartDashStyle.Solid;
             chartTrends.ChartAreas.Add(area);
-            chartTrends.Legends.Add(new Legend("Indicators"));
-            var gpaSeries = new Series("Average GPA") {
-                ChartType = SeriesChartType.Line, BorderWidth = 3, MarkerStyle = MarkerStyle.Circle,
-                MarkerSize = 9, ChartArea = "Four terms" };
-            var attendanceSeries = new Series("Average attendance") {
-                ChartType = SeriesChartType.Line, BorderWidth = 3, MarkerStyle = MarkerStyle.Circle,
-                MarkerSize = 9, ChartArea = "Four terms" };
+
+            string title = individual ? selected.Label :
+                "All students - four-term overview";
+            chartTrends.Titles.Add(new Title(
+                title, Docking.Top,
+                new Font("Segoe UI", 13F, FontStyle.Bold),
+                Color.FromArgb(31, 56, 100)));
+            var legend = new Legend("Indicators")
+            {
+                Docking = Docking.Bottom,
+                Alignment = StringAlignment.Center,
+                Font = new Font("Segoe UI", 10F),
+                BackColor = Color.White
+            };
+            chartTrends.Legends.Add(legend);
+
+            var gpaSeries = new Series(individual ? "GPA" : "Average GPA")
+            {
+                ChartType = SeriesChartType.Line,
+                ChartArea = "Academic terms",
+                Legend = "Indicators",
+                Color = Color.FromArgb(35, 93, 177),
+                BorderWidth = 4,
+                MarkerStyle = MarkerStyle.Circle,
+                MarkerSize = 9,
+                MarkerColor = Color.White,
+                MarkerBorderColor = Color.FromArgb(35, 93, 177),
+                MarkerBorderWidth = 3,
+                IsVisibleInLegend = true
+            };
+            var attendanceSeries = new Series(individual ? "Tutoring attendance" : "Recorded attendance")
+            {
+                ChartType = SeriesChartType.Line,
+                ChartArea = "Academic terms",
+                Legend = "Indicators",
+                Color = Color.FromArgb(17, 142, 133),
+                BorderWidth = 4,
+                MarkerStyle = MarkerStyle.Diamond,
+                MarkerSize = 10,
+                MarkerColor = Color.White,
+                MarkerBorderColor = Color.FromArgb(17, 142, 133),
+                MarkerBorderWidth = 3,
+                BorderDashStyle = ChartDashStyle.Dash,
+                IsVisibleInLegend = true
+            };
+
+            int attendanceTerms = 0, totalAttended = 0, totalRecorded = 0;
+            var gpas = new List<KeyValuePair<int, double>>();
             for (int term = 1; term <= 4; term++)
             {
-                var rows = source.AsEnumerable().Where(r =>
-                    Convert.ToString(r["Term"]) == "Term " + term).ToList();
-                if (rows.Count == 0) continue;
-                gpaSeries.Points.AddXY(term, rows.Average(r => Convert.ToDouble(r["GPA (%)"])));
-                var withAttendance = rows.Where(r => r["Attendance (%)"] != DBNull.Value).ToList();
-                if (withAttendance.Count > 0)
-                    attendanceSeries.Points.AddXY(term,
-                        withAttendance.Average(r => Convert.ToDouble(r["Attendance (%)"])));
+                int capturedTerm = term;
+                var termRows = rows.Where(r =>
+                    Convert.ToString(r["Term"]) == "Term " + capturedTerm).ToList();
+
+                var gpa = gpaSeries.Points.AddXY(term, termRows.Count == 0 ?
+                    0 : termRows.Average(r => Convert.ToDouble(r["GPA (%)"])));
+                if (termRows.Count == 0)
+                    gpaSeries.Points[gpa].IsEmpty = true;
+                else
+                {
+                    double value = termRows.Average(r => Convert.ToDouble(r["GPA (%)"]));
+                    gpaSeries.Points[gpa].ToolTip =
+                        "Term " + term + " - GPA: " + value.ToString("0.0") + "%";
+                    gpas.Add(new KeyValuePair<int, double>(term, value));
+                }
+
+                int recorded = termRows.Sum(r => Convert.ToInt32(r["Recorded sessions"]));
+                int attended = termRows.Sum(r => Convert.ToInt32(r["Attended"]));
+                totalRecorded += recorded;
+                totalAttended += attended;
+                int point = attendanceSeries.Points.AddXY(term,
+                    recorded == 0 ? 0 : Math.Round(100.0 * attended / recorded, 1));
+                if (recorded == 0)
+                    attendanceSeries.Points[point].IsEmpty = true;
+                else
+                {
+                    attendanceTerms++;
+                    attendanceSeries.Points[point].ToolTip =
+                        "Term " + term + " - Attended " + attended +
+                        " of " + recorded + " completed session(s)";
+                }
             }
+
             chartTrends.Series.Add(gpaSeries);
             chartTrends.Series.Add(attendanceSeries);
-            chartTrends.Visible = source.Rows.Count != 0;
-            grid.Visible = !chartTrends.Visible;
-            if (chartTrends.Visible)
-                lblStatus.Text = "Use Show table to display each student and term.";
+
+            string recording = totalRecorded == 0 ?
+                "No attendance has been recorded. The attendance line is hidden, not treated as 0%." :
+                totalAttended + " of " + totalRecorded + " completed sessions attended (" +
+                (100.0 * totalAttended / totalRecorded).ToString("0.0") +
+                "%). Attendance available for " + attendanceTerms + " of 4 terms.";
+
+            if (individual)
+            {
+                string progress = gpas.Count < 2 ? "GPA trend needs at least two term results." :
+                    "GPA change: " + (gpas.Last().Value - gpas.First().Value).ToString("+0.0;-0.0;0.0") +
+                    " percentage points (first to latest available term).";
+                string interpretation = "Insufficient data for a progress category.";
+                // Conservative descriptive flags, never claims of causation.
+                if (gpas.Count >= 2 && attendanceTerms >= 2)
+                {
+                    double delta = gpas.Last().Value - gpas.First().Value;
+                    double attendanceRate = totalRecorded == 0 ? 0 :
+                        100.0 * totalAttended / totalRecorded;
+                    if (gpas.Last().Value < 50 && attendanceRate < 70)
+                        interpretation = "Indicative: Intervention - low latest GPA and attendance.";
+                    else if (delta <= -3 && attendanceRate >= 70)
+                        interpretation = "Indicative: Tutor review - falling GPA despite attendance.";
+                    else if (delta >= 3 && attendanceRate >= 70)
+                        interpretation = "Indicative: Progressing - rising GPA with attendance.";
+                    else
+                        interpretation = "Indicative: Monitor - review this student's results.";
+                }
+                lblTrendSummary.Text = progress + "  " + recording +
+                    Environment.NewLine + interpretation +
+                    " Flags are screening aids, not proof of tutoring effectiveness.";
+            }
+            else
+            {
+                lblTrendSummary.Text = "Cohort view: average available student GPA for each term.  " +
+                    recording + Environment.NewLine +
+                    "Select a student above to review their GPA, attendance and indicative support category.";
+            }
+
+            lblTrendSummary.Visible = true;
+            chartTrends.Visible = true;
+            chartTrends.BringToFront();
+            grid.Visible = false;
+            btnToggleView.Text = "Show table";
+            lblStatus.Text = individual ? "Student trend from recorded academic and session data." :
+                "Cohort trends - no missing attendance values have been estimated.";
         }
 
         private void ToggleView()
@@ -498,11 +702,12 @@ namespace NextGen__7
             bool showChart = !chartTrends.Visible;
             chartTrends.Visible = showChart;
             grid.Visible = !showChart;
+            lblTrendSummary.Visible = showChart;
             if (showChart) chartTrends.BringToFront();
             else grid.BringToFront();
             btnToggleView.Text = showChart ? "Show table" : "Show chart";
             lblStatus.Text = showChart
-                ? "Four-term average GPA and recorded tutoring attendance."
+                ? "Four-term GPA and recorded tutoring attendance trends."
                 : "Student GPA and attendance by academic term.";
         }
 
