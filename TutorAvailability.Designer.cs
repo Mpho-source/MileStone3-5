@@ -22,15 +22,15 @@ namespace NextGen__7
             this.dtpStart = new System.Windows.Forms.DateTimePicker();
             this.lblEnd = new System.Windows.Forms.Label();
             this.dtpEnd = new System.Windows.Forms.DateTimePicker();
-            this.btnAdd = new System.Windows.Forms.Button();
+            this.btnAdd = new NextGen__7.BusyButton();
             this.lblInstructions = new System.Windows.Forms.Label();
             this.pnlGrid = new System.Windows.Forms.Panel();
             this.gridSlots = new System.Windows.Forms.DataGridView();
             this.pnlFooter = new System.Windows.Forms.Panel();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.btnDisable = new System.Windows.Forms.Button();
-            this.btnRefresh = new System.Windows.Forms.Button();
-            this.btnBack = new System.Windows.Forms.Button();
+            this.btnDisable = new NextGen__7.BusyButton();
+            this.btnRefresh = new NextGen__7.BusyButton();
+            this.btnBack = new NextGen__7.BusyButton();
             ((System.ComponentModel.ISupportInitialize)(this.gridSlots)).BeginInit();
             this.SuspendLayout();
             this.pnlHeader.Name = "pnlHeader";
@@ -197,14 +197,14 @@ namespace NextGen__7
         private System.Windows.Forms.DateTimePicker dtpStart;
         private System.Windows.Forms.Label lblEnd;
         private System.Windows.Forms.DateTimePicker dtpEnd;
-        private System.Windows.Forms.Button btnAdd;
+        private NextGen__7.BusyButton btnAdd;
         private System.Windows.Forms.Label lblInstructions;
         private System.Windows.Forms.Panel pnlGrid;
         private System.Windows.Forms.DataGridView gridSlots;
         private System.Windows.Forms.Panel pnlFooter;
         private System.Windows.Forms.Label lblStatus;
-        private System.Windows.Forms.Button btnDisable;
-        private System.Windows.Forms.Button btnRefresh;
-        private System.Windows.Forms.Button btnBack;
+        private NextGen__7.BusyButton btnDisable;
+        private NextGen__7.BusyButton btnRefresh;
+        private NextGen__7.BusyButton btnBack;
     }
 }
