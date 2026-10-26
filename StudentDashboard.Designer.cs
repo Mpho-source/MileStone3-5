@@ -145,29 +145,29 @@
             this.pnlLogout.CornerRadius = 15;
             this.pnlLogout.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pnlLogout.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
-            this.pnlLogout.Location = new System.Drawing.Point(55, 396);
+            this.pnlLogout.Location = new System.Drawing.Point(818, 544);
             this.pnlLogout.Name = "pnlLogout";
             this.pnlLogout.NormalColor = System.Drawing.Color.White;
-            this.pnlLogout.Size = new System.Drawing.Size(136, 60);
+            this.pnlLogout.Size = new System.Drawing.Size(216, 80);
             this.pnlLogout.TabIndex = 5;
             // 
             // label11
             // 
-            this.label11.AutoSize = true;
+            this.label11.AutoSize = false;
             this.label11.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label11.ForeColor = System.Drawing.Color.Navy;
-            this.label11.Location = new System.Drawing.Point(70, 22);
+            this.label11.Location = new System.Drawing.Point(75, 19);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(52, 17);
+            this.label11.Size = new System.Drawing.Size(127, 41);
             this.label11.TabIndex = 1;
             this.label11.Text = "Logout";
             // 
             // pictureBox4
             // 
             this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
-            this.pictureBox4.Location = new System.Drawing.Point(12, 12);
+            this.pictureBox4.Location = new System.Drawing.Point(19, 18);
             this.pictureBox4.Name = "pictureBox4";
-            this.pictureBox4.Size = new System.Drawing.Size(38, 32);
+            this.pictureBox4.Size = new System.Drawing.Size(43, 43);
             this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox4.TabIndex = 0;
             this.pictureBox4.TabStop = false;
@@ -183,50 +183,50 @@
             this.pnlManageBooking.CornerRadius = 15;
             this.pnlManageBooking.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pnlManageBooking.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
-            this.pnlManageBooking.Location = new System.Drawing.Point(28, 298);
+            this.pnlManageBooking.Location = new System.Drawing.Point(557, 278);
             this.pnlManageBooking.Name = "pnlManageBooking";
             this.pnlManageBooking.NormalColor = System.Drawing.Color.White;
-            this.pnlManageBooking.Size = new System.Drawing.Size(613, 76);
+            this.pnlManageBooking.Size = new System.Drawing.Size(477, 235);
             this.pnlManageBooking.TabIndex = 4;
             // 
             // label10
             // 
-            this.label10.AutoSize = true;
+            this.label10.AutoSize = false;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(541, 23);
+            this.label10.Location = new System.Drawing.Point(415, 87);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(27, 29);
+            this.label10.Size = new System.Drawing.Size(39, 45);
             this.label10.TabIndex = 5;
             this.label10.Text = ">";
             // 
             // label9
             // 
-            this.label9.AutoSize = true;
+            this.label9.AutoSize = false;
             this.label9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label9.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label9.Location = new System.Drawing.Point(84, 49);
+            this.label9.Location = new System.Drawing.Point(28, 163);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(200, 15);
+            this.label9.Size = new System.Drawing.Size(410, 51);
             this.label9.TabIndex = 3;
             this.label9.Text = "View, update or cancel your requests";
             // 
             // label8
             // 
-            this.label8.AutoSize = true;
+            this.label8.AutoSize = false;
             this.label8.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.ForeColor = System.Drawing.Color.Navy;
-            this.label8.Location = new System.Drawing.Point(83, 14);
+            this.label8.Location = new System.Drawing.Point(27, 117);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(160, 20);
+            this.label8.Size = new System.Drawing.Size(395, 42);
             this.label8.TabIndex = 2;
             this.label8.Text = "Manage My Bookings";
             // 
             // pictureBox3
             // 
             this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
-            this.pictureBox3.Location = new System.Drawing.Point(10, 14);
+            this.pictureBox3.Location = new System.Drawing.Point(26, 34);
             this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(67, 50);
+            this.pictureBox3.Size = new System.Drawing.Size(65, 65);
             this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox3.TabIndex = 0;
             this.pictureBox3.TabStop = false;
@@ -242,50 +242,50 @@
             this.pnlBook.CornerRadius = 15;
             this.pnlBook.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pnlBook.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
-            this.pnlBook.Location = new System.Drawing.Point(21, 189);
+            this.pnlBook.Location = new System.Drawing.Point(56, 278);
             this.pnlBook.Name = "pnlBook";
             this.pnlBook.NormalColor = System.Drawing.Color.White;
-            this.pnlBook.Size = new System.Drawing.Size(620, 87);
+            this.pnlBook.Size = new System.Drawing.Size(477, 235);
             this.pnlBook.TabIndex = 3;
             // 
             // label7
             // 
-            this.label7.AutoSize = true;
+            this.label7.AutoSize = false;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(548, 28);
+            this.label7.Location = new System.Drawing.Point(415, 87);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(27, 29);
+            this.label7.Size = new System.Drawing.Size(39, 45);
             this.label7.TabIndex = 4;
             this.label7.Text = ">";
             // 
             // label6
             // 
-            this.label6.AutoSize = true;
+            this.label6.AutoSize = false;
             this.label6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label6.Location = new System.Drawing.Point(91, 51);
+            this.label6.Location = new System.Drawing.Point(28, 163);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(212, 15);
+            this.label6.Size = new System.Drawing.Size(410, 51);
             this.label6.TabIndex = 2;
             this.label6.Text = "Request academic support for a course";
             // 
             // label5
             // 
-            this.label5.AutoSize = true;
+            this.label5.AutoSize = false;
             this.label5.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.Navy;
-            this.label5.Location = new System.Drawing.Point(90, 17);
+            this.label5.Location = new System.Drawing.Point(27, 117);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(177, 20);
+            this.label5.Size = new System.Drawing.Size(395, 42);
             this.label5.TabIndex = 1;
             this.label5.Text = "Book a Tutoring Session";
             // 
             // pictureBox2
             // 
             this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(17, 17);
+            this.pictureBox2.Location = new System.Drawing.Point(26, 34);
             this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(67, 49);
+            this.pictureBox2.Size = new System.Drawing.Size(65, 65);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox2.TabIndex = 0;
             this.pictureBox2.TabStop = false;
