@@ -142,7 +142,7 @@ namespace NextGen__7
             this.cmbSignInRole.Location = new System.Drawing.Point(35, 202);
             this.cmbSignInRole.Size = new System.Drawing.Size(384, 32);
             this.cmbSignInRole.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbSignInRole.Items.AddRange(new object[] { "Student", "Staff" });
+            this.cmbSignInRole.Items.AddRange(new object[] { "Student", "Staff", "Tutor" });
             this.label5.Name = "label5";
             this.label5.Text = "Student number";
             this.label5.Location = new System.Drawing.Point(35, 242);
