@@ -22,7 +22,8 @@ namespace NextGen__7
         public ManageBookings(int studentID, string studentNo)
         {
             InitializeComponent();
-            EduConnectTheme.Apply(this);
+            if (System.ComponentModel.LicenseManager.UsageMode ==
+                System.ComponentModel.LicenseUsageMode.Designtime) return;
 
             if (studentID <= 0 || string.IsNullOrWhiteSpace(studentNo))
                 throw new InvalidOperationException("Invalid student session.");
@@ -44,13 +45,15 @@ namespace NextGen__7
             btnEditBooking.Click += btnEditBooking_Click;
             btnCancelBooking.Click += btnCancelBooking_Click;
 
-            statusFilter = EduConnectLayout.Manage(
-                this, () => Close(), () =>
-                {
-                    using (BookingTutoringSession page =
-                        new BookingTutoringSession(studentID, studentNo))
-                        page.ShowDialog(this);
-                });
+            statusFilter = cmbBookingStatusFilter;
+            statusFilter.SelectedIndex = 0;
+            btnNavDashboard.Click += (sender, e) => Close();
+            btnNavBook.Click += (sender, e) =>
+            {
+                using (var page = new BookingTutoringSession(studentID, studentNo))
+                    page.ShowDialog(this);
+            };
+            btnNavBack.Click += (sender, e) => Close();
             statusFilter.SelectedIndexChanged += (s, e) =>
                 ApplyStatusFilter();
             dgvBookings.SelectionChanged += (s, e) => UpdateActionAvailability();
