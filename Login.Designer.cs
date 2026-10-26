@@ -22,8 +22,8 @@ namespace NextGen__7
         private System.Windows.Forms.Label lblRole;
         private System.Windows.Forms.TextBox txtStudentNo;
         private System.Windows.Forms.TextBox txtPassword;
-        private System.Windows.Forms.Button btnLogin;
-        private System.Windows.Forms.Button btnAdminSetup;
+        private NextGen__7.BusyButton btnLogin;
+        private NextGen__7.BusyButton btnAdminSetup;
 
         protected override void Dispose(bool disposing)
         {
@@ -52,8 +52,8 @@ namespace NextGen__7
             this.cmbSignInRole = new System.Windows.Forms.ComboBox();
             this.txtStudentNo = new System.Windows.Forms.TextBox();
             this.txtPassword = new System.Windows.Forms.TextBox();
-            this.btnLogin = new System.Windows.Forms.Button();
-            this.btnAdminSetup = new System.Windows.Forms.Button();
+            this.btnLogin = new NextGen__7.BusyButton();
+            this.btnAdminSetup = new NextGen__7.BusyButton();
             this.SuspendLayout();
             this.pnlNavigation.Name = "pnlNavigation";
             this.pnlNavigation.Dock = System.Windows.Forms.DockStyle.Top;
