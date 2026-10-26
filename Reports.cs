@@ -100,6 +100,45 @@ namespace NextGen__7
             {
                 MessageBox.Show("The start date must not exceed the end date."); return;
             }
+            // A missing academic-record table is a setup requirement, not a crashed report.
+            if (cmbReport.SelectedIndex == 2)
+            {
+                try
+                {
+                    bool trackingReady;
+                    using (var database = new OleDbConnection(connectionString))
+                    {
+                        database.Open();
+                        trackingReady = AcademicTracking.HasTable(database, "STUDENTACADEMICRECORD") &&
+                            AcademicTracking.HasColumn(database, "TUTORING_SESSION", "AttendanceStatus");
+                    }
+                    if (!trackingReady)
+                    {
+                        result = null;
+                        grid.DataSource = null;
+                        chartTrends.Visible = false;
+                        grid.Visible = true;
+                        btnToggleView.Enabled = false;
+                        lblStatus.Text = "Report 3 needs academic data. Open Academic records > Set up tracking.";
+                        MessageBox.Show("The database does not yet contain the information for Report 3.\n\n" +
+                            "1. Click Academic records.\n" +
+                            "2. Select Set up tracking and confirm.\n" +
+                            "3. Record students' real GPA values for Terms 1–4.\n" +
+                            "4. Record attended or absent tutoring sessions.\n" +
+                            "5. Return here and generate the report.\n\n" +
+                            "No values will be invented.", "Academic data required",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+                }
+                catch (OleDbException ex)
+                {
+                    lblStatus.Text = "Could not verify academic data.";
+                    MessageBox.Show("Could not check academic data.\n\n" + ex.Message,
+                        "Database problem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
             try
             {
                 chartTrends.Visible = false;
@@ -127,19 +166,31 @@ namespace NextGen__7
                 grid.AutoResizeColumnHeadersHeight();
                 if (result.Rows.Count == 0)
                 {
-                    lblStatus.Text = "No records match this report. No data has been invented.";
-                    MessageBox.Show("No matching records. Check your date range or academic data.",
-                        "Report has no results", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    lblStatus.Text = cmbReport.SelectedIndex == 0
+                        ? "No requests are both Submitted and at least 7 days old."
+                        : cmbReport.SelectedIndex == 1
+                            ? "No tutors or sessions found. Review dates and assigned tutors."
+                            : "No GPA records found for the selected academic year.";
+                }
+                else if (cmbReport.SelectedIndex == 1)
+                {
+                    int scheduled = result.AsEnumerable().Sum(row => row.Field<int>("Scheduled"));
+                    int completed = result.AsEnumerable().Sum(row => row.Field<int>("Completed"));
+                    lblStatus.Text = scheduled + " scheduled, " + completed + " completed | " +
+                        fromDate.Value.ToShortDateString() + " to " + toDate.Value.ToShortDateString();
+                    if (scheduled == 0 && completed == 0)
+                        MessageBox.Show("The TUTOR table has " + result.Rows.Count +
+                            " tutors, but no Scheduled or Completed tutoring sessions fall in " +
+                            "the selected period.\n\n" +
+                            "Check TUTORING_SESSION: TutorID, SessionDate, and SessionStatus. " +
+                            "Book a session with an available tutor or select a period containing sessions.",
+                            "No matching tutor sessions", MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
                 }
                 else
-                {
-                    lblStatus.Text = result.Rows.Count + " records  |  " +
-                        (cmbReport.SelectedIndex == 1 ?
-                            fromDate.Value.ToShortDateString() + " to " +
-                            toDate.Value.ToShortDateString() :
-                            cmbReport.SelectedIndex == 2 ? numYear.Value + " academic year" :
-                            "as of " + DateTime.Today.ToShortDateString());
-                }
+                    lblStatus.Text = result.Rows.Count + " matching records | " +
+                        (cmbReport.SelectedIndex == 2 ? numYear.Value + " academic year" :
+                         "Submitted requests aged 7+ days");
             }
             catch (Exception ex)
             {
