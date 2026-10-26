@@ -91,6 +91,115 @@ namespace NextGen__7
             return password;
         }
 
+        internal static bool HasAccount(OleDbConnection db, int tutorId)
+        {
+            if (tutorId <= 0 || !HasLoginTable(db)) return false;
+            using (var cmd = new OleDbCommand(
+                "SELECT COUNT(*) FROM [TUTOR_LOGIN] WHERE [TutorID]=?", db))
+            {
+                cmd.Parameters.Add("@TutorID", OleDbType.Integer).Value = tutorId;
+                return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+            }
+        }
+
+        private static void ValidatePassword(string password)
+        {
+            if (string.IsNullOrEmpty(password) || password.Length < 12 ||
+                password.Length > 128)
+                throw new ArgumentException(
+                    "Use a new password of 12 to 128 characters.");
+
+            bool upper = false, lower = false, digit = false;
+            foreach (char c in password)
+            {
+                if (char.IsUpper(c)) upper = true;
+                if (char.IsLower(c)) lower = true;
+                if (char.IsDigit(c)) digit = true;
+            }
+            if (!upper || !lower || !digit)
+                throw new ArgumentException(
+                    "Include at least one uppercase letter, lowercase letter and number.");
+        }
+
+        // The signed-in tutor must prove knowledge of the existing password.
+        internal static void ChangePassword(OleDbConnection db, int tutorId,
+            string currentPassword, string newPassword)
+        {
+            if (tutorId <= 0) throw new ArgumentOutOfRangeException("tutorId");
+            ValidatePassword(newPassword);
+            if (currentPassword == newPassword)
+                throw new ArgumentException("Your new password must differ from the current one.");
+
+            string storedSalt;
+            string storedHash;
+            int iterations;
+            using (var cmd = new OleDbCommand(
+                "SELECT [Salt],[PasswordHash],[Iterations] " +
+                "FROM [TUTOR_LOGIN] WHERE [TutorID]=?", db))
+            {
+                cmd.Parameters.Add("@TutorID", OleDbType.Integer).Value = tutorId;
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (!reader.Read())
+                        throw new InvalidOperationException("Tutor account was not found.");
+                    storedSalt = Convert.ToString(reader[0]);
+                    storedHash = Convert.ToString(reader[1]);
+                    iterations = Convert.ToInt32(reader[2]);
+                }
+            }
+
+            if (iterations < 10000 || iterations > 2000000 ||
+                !FixedTimeEqual(
+                    DerivePassword(currentPassword,
+                        Convert.FromBase64String(storedSalt), iterations),
+                    Convert.FromBase64String(storedHash)))
+                throw new UnauthorizedAccessException("The current password is incorrect.");
+
+            byte[] salt = new byte[16];
+            using (var rng = RandomNumberGenerator.Create()) rng.GetBytes(salt);
+            string newSalt = Convert.ToBase64String(salt);
+            string newHash = Convert.ToBase64String(DerivePassword(newPassword, salt, Iterations));
+            using (var cmd = new OleDbCommand(
+                "UPDATE [TUTOR_LOGIN] SET [Salt]=?, [PasswordHash]=?, " +
+                "[Iterations]=? WHERE [TutorID]=? AND [Salt]=? AND [PasswordHash]=?", db))
+            {
+                cmd.Parameters.Add("@Salt", OleDbType.VarWChar).Value = newSalt;
+                cmd.Parameters.Add("@Hash", OleDbType.VarWChar).Value = newHash;
+                cmd.Parameters.Add("@Iterations", OleDbType.Integer).Value = Iterations;
+                cmd.Parameters.Add("@TutorID", OleDbType.Integer).Value = tutorId;
+                cmd.Parameters.Add("@OldSalt", OleDbType.VarWChar).Value = storedSalt;
+                cmd.Parameters.Add("@OldHash", OleDbType.VarWChar).Value = storedHash;
+                if (cmd.ExecuteNonQuery() != 1)
+                    throw new InvalidOperationException(
+                        "The account changed while updating. Please sign in again.");
+            }
+        }
+
+        // Administrator recovery replaces the existing password with a new
+        // one-time temporary password. It cannot reveal the old password.
+        internal static string ResetPassword(OleDbConnection db, int tutorId)
+        {
+            if (!HasAccount(db, tutorId))
+                throw new InvalidOperationException("The tutor does not have a login yet.");
+
+            string temporary = NewTemporaryPassword();
+            byte[] salt = new byte[16];
+            using (var rng = RandomNumberGenerator.Create()) rng.GetBytes(salt);
+            using (var cmd = new OleDbCommand(
+                "UPDATE [TUTOR_LOGIN] SET [Salt]=?, [PasswordHash]=?, " +
+                "[Iterations]=? WHERE [TutorID]=?", db))
+            {
+                cmd.Parameters.Add("@Salt", OleDbType.VarWChar).Value = Convert.ToBase64String(salt);
+                cmd.Parameters.Add("@Hash", OleDbType.VarWChar).Value =
+                    Convert.ToBase64String(DerivePassword(temporary, salt, Iterations));
+                cmd.Parameters.Add("@Iterations", OleDbType.Integer).Value = Iterations;
+                cmd.Parameters.Add("@TutorID", OleDbType.Integer).Value = tutorId;
+                if (cmd.ExecuteNonQuery() != 1)
+                    throw new InvalidOperationException("Unable to reset the tutor account.");
+            }
+            return temporary;
+        }
+
         internal static bool TryAuthenticate(OleDbConnection db, int tutorId,
             string password, out string tutorName)
         {
