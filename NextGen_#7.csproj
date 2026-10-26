@@ -54,6 +54,9 @@
   <ItemGroup>
     <Compile Include="BookingData.cs" />
     <Compile Include="TutorAuthentication.cs" />
+    <Compile Include="RolePasswords.cs" />
+    <Compile Include="AccountPasswordsForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="AccountPasswordsForm.Designer.cs"><DependentUpon>AccountPasswordsForm.cs</DependentUpon></Compile>
     <Compile Include="TutorSessions.cs"><SubType>Form</SubType></Compile>
     <Compile Include="TutorSessions.Designer.cs"><DependentUpon>TutorSessions.cs</DependentUpon></Compile>
     <Compile Include="TutorChangePassword.cs"><SubType>Form</SubType></Compile>
