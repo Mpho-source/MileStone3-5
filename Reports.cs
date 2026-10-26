@@ -400,8 +400,9 @@ namespace NextGen__7
                 db.Open();
                 if (!HasTable(db, "STUDENTACADEMICRECORD") ||
                     !HasColumn(db, "TUTORING_SESSION", "AttendanceStatus"))
-                    throw new InvalidOperationException("Academic tracking has not been set up. " +
-                        "Choose Academic records to enable it and enter actual GPA/attendance.");
+                    throw new InvalidOperationException(
+                        "The database does not contain both academic results and " +
+                        "tutor-recorded session attendance. No values will be invented.");
                 var studentTable = ReadTable(db, "STUDENT");
                 var students = Index(studentTable, "StudentID");
                 var studentsByNumber = new Dictionary<string, DataRow>(
@@ -519,6 +520,25 @@ namespace NextGen__7
             {
                 loadingStudentChoices = false;
             }
+        }
+
+        private static string ClassifyTrend(List<DataRow> studentRows)
+        {
+            var gpas = studentRows.OrderBy(r => Convert.ToString(r["Term"])).ToList();
+            int recordedTerms = studentRows.Count(r =>
+                Convert.ToInt32(r["Recorded sessions"]) > 0);
+            if (gpas.Count < 2 || recordedTerms < 2) return "Insufficient data";
+            int total = studentRows.Sum(r => Convert.ToInt32(r["Recorded sessions"]));
+            int attended = studentRows.Sum(r => Convert.ToInt32(r["Attended"]));
+            double attendancePct = total == 0 ? 0 : 100.0 * attended / total;
+            double first = Convert.ToDouble(gpas.First()["GPA (%)"]);
+            double latest = Convert.ToDouble(gpas.Last()["GPA (%)"]);
+            double change = latest - first;
+            // Indicative thresholds, not official university academic policy.
+            if (latest < 50 && attendancePct < 70) return "Intervention";
+            if (change <= -3 && attendancePct >= 70) return "Tutor review";
+            if (change >= 3 && attendancePct >= 70) return "Progressing";
+            return "Monitor";
         }
 
         private void ShowTrendChart(DataTable data)
@@ -661,31 +681,23 @@ namespace NextGen__7
                 string progress = gpas.Count < 2 ? "GPA trend needs at least two term results." :
                     "GPA change: " + (gpas.Last().Value - gpas.First().Value).ToString("+0.0;-0.0;0.0") +
                     " percentage points (first to latest available term).";
-                string interpretation = "Insufficient data for a progress category.";
-                // Conservative descriptive flags, never claims of causation.
-                if (gpas.Count >= 2 && attendanceTerms >= 2)
-                {
-                    double delta = gpas.Last().Value - gpas.First().Value;
-                    double attendanceRate = totalRecorded == 0 ? 0 :
-                        100.0 * totalAttended / totalRecorded;
-                    if (gpas.Last().Value < 50 && attendanceRate < 70)
-                        interpretation = "Indicative: Intervention - low latest GPA and attendance.";
-                    else if (delta <= -3 && attendanceRate >= 70)
-                        interpretation = "Indicative: Tutor review - falling GPA despite attendance.";
-                    else if (delta >= 3 && attendanceRate >= 70)
-                        interpretation = "Indicative: Progressing - rising GPA with attendance.";
-                    else
-                        interpretation = "Indicative: Monitor - review this student's results.";
-                }
+                string category = ClassifyTrend(rows);
                 lblTrendSummary.Text = progress + "  " + recording +
-                    Environment.NewLine + interpretation +
-                    " Flags are screening aids, not proof of tutoring effectiveness.";
+                    Environment.NewLine + "Indicative: " + category +
+                    " (review flags use ±3 GPA points and a 70% attendance guide). " +
+                    "This does not prove tutoring caused a GPA change.";
             }
             else
             {
-                lblTrendSummary.Text = "Cohort view: average available student GPA for each term.  " +
+                var flags = rows.GroupBy(r => Convert.ToString(r["Student number"]))
+                    .Select(group => ClassifyTrend(group.ToList())).ToList();
+                lblTrendSummary.Text = "Cohort: average available GPA per term.  " +
                     recording + Environment.NewLine +
-                    "Select a student above to review their GPA, attendance and indicative support category.";
+                    "Indicative student flags - Progressing: " + flags.Count(f => f == "Progressing") +
+                    ", Intervention: " + flags.Count(f => f == "Intervention") +
+                    ", Tutor review: " + flags.Count(f => f == "Tutor review") +
+                    ", insufficient data: " + flags.Count(f => f == "Insufficient data") +
+                    ". Select a student for details.";
             }
 
             lblTrendSummary.Visible = true;
