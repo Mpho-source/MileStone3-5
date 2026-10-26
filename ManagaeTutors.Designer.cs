@@ -34,6 +34,7 @@ namespace NextGen__7
             this.btnAssignCourse = new System.Windows.Forms.Button();
             this.btnAvailability = new System.Windows.Forms.Button();
             this.btnCreateTutorLogin = new System.Windows.Forms.Button();
+            this.btnResetTutorLogin = new System.Windows.Forms.Button();
             this.lblAssignedCourses = new System.Windows.Forms.Label();
             this.pnlFooter = new System.Windows.Forms.Panel();
             this.btnNew = new System.Windows.Forms.Button();
@@ -197,12 +198,21 @@ namespace NextGen__7
             this.btnCreateTutorLogin.Name = "btnCreateTutorLogin";
             this.btnCreateTutorLogin.Text = "Create tutor sign-in";
             this.btnCreateTutorLogin.Location = new System.Drawing.Point(26, 449);
-            this.btnCreateTutorLogin.Size = new System.Drawing.Size(372, 39);
+            this.btnCreateTutorLogin.Size = new System.Drawing.Size(174, 39);
             this.btnCreateTutorLogin.BackColor = System.Drawing.Color.FromArgb(83,104,132);
             this.btnCreateTutorLogin.ForeColor = System.Drawing.Color.White;
             this.btnCreateTutorLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCreateTutorLogin.Enabled = false;
+            this.btnResetTutorLogin.Name = "btnResetTutorLogin";
+            this.btnResetTutorLogin.Text = "Reset password";
+            this.btnResetTutorLogin.Location = new System.Drawing.Point(211, 449);
+            this.btnResetTutorLogin.Size = new System.Drawing.Size(187, 39);
+            this.btnResetTutorLogin.BackColor = System.Drawing.Color.FromArgb(83,104,132);
+            this.btnResetTutorLogin.ForeColor = System.Drawing.Color.White;
+            this.btnResetTutorLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnResetTutorLogin.Enabled = false;
             this.pnlEditor.Controls.Add(this.btnCreateTutorLogin);
+            this.pnlEditor.Controls.Add(this.btnResetTutorLogin);
             this.pnlEditor.Controls.Add(this.btnAvailability);
             this.pnlEditor.Controls.Add(this.lblEditorHeading);
             this.pnlEditor.Controls.Add(this.lblFirstName);
@@ -305,6 +315,7 @@ namespace NextGen__7
         private System.Windows.Forms.Button btnAssignCourse;
         private System.Windows.Forms.Button btnAvailability;
         private System.Windows.Forms.Button btnCreateTutorLogin;
+        private System.Windows.Forms.Button btnResetTutorLogin;
         private System.Windows.Forms.Label lblAssignedCourses;
         private System.Windows.Forms.Panel pnlFooter;
         private System.Windows.Forms.Button btnNew;
