@@ -8,169 +8,26 @@ using System.Windows.Forms;
 
 namespace NextGen__7
 {
-    public class EditBooking : Form
+    public partial class EditBooking : Form
     {
         private readonly int studentID;
         private readonly int requestID;
         private readonly string connectionString;
 
-        private ComboBox cmbCourse;
-        private ComboBox cmbSupportType;
-        private ComboBox cmbSessionTime;
-        private DateTimePicker dtpSessionDate;
-        private Button btnSaveChanges;
-        private Button btnBack;
+        public EditBooking()
+        {
+            InitializeComponent();
+        }
 
-        public EditBooking(
-            int studentID,
-            int requestID,
-            string connectionString)
+        public EditBooking(int studentID, int requestID, string connectionString) : this()
         {
             this.studentID = studentID;
             this.requestID = requestID;
             this.connectionString = connectionString;
-
-            BuildForm();
-            EduConnectTheme.Apply(this);
-            EduConnectLayout.Edit(this);
-            Load += EditBooking_Load;
+            dtpSessionDate.MinDate = DateTime.Today;
         }
 
-        private Label MakeLabel(string text, int top)
-        {
-            return new Label
-            {
-                Text = text,
-                Left = 35,
-                Top = top,
-                Width = 420,
-                Height = 22,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold)
-            };
-        }
-
-        private ComboBox MakeCombo(int top)
-        {
-            return new ComboBox
-            {
-                Left = 35,
-                Top = top,
-                Width = 420,
-                Height = 30,
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Font = new Font("Segoe UI", 10)
-            };
-        }
-
-        private void BuildForm()
-        {
-            Text = "Edit Tutoring Booking";
-            StartPosition = FormStartPosition.CenterParent;
-            ClientSize = new Size(490, 540);
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
-            MinimizeBox = false;
-            BackColor = Color.FromArgb(230, 237, 249);
-
-            Label heading = new Label
-            {
-                Name = "lblEditHeading",
-                Text = "Edit Tutoring Booking",
-                Left = 35,
-                Top = 20,
-                Width = 420,
-                Height = 40,
-                Font = new Font(
-                    "Segoe UI", 18, FontStyle.Bold),
-                ForeColor = Color.FromArgb(31, 56, 100)
-            };
-
-            Controls.Add(heading);
-
-            Label lblEditCourse = MakeLabel("Course", 80);
-            lblEditCourse.Name = "lblEditCourse";
-            Controls.Add(lblEditCourse);
-            cmbCourse = MakeCombo(105);
-            cmbCourse.Name = "cmbCourse";
-            Controls.Add(cmbCourse);
-
-            Label lblEditSupport = MakeLabel("Support Type", 155);
-            lblEditSupport.Name = "lblEditSupport";
-            Controls.Add(lblEditSupport);
-            cmbSupportType = MakeCombo(180);
-            cmbSupportType.Name = "cmbSupportType";
-            Controls.Add(cmbSupportType);
-
-            Label lblEditDate = MakeLabel("Session Date", 230);
-            lblEditDate.Name = "lblEditDate";
-            Controls.Add(lblEditDate);
-
-            dtpSessionDate = new DateTimePicker
-            {
-                Name = "dtpSessionDate",
-                Left = 35,
-                Top = 255,
-                Width = 420,
-                Format = DateTimePickerFormat.Custom,
-                CustomFormat = "dd MMM yyyy",
-                MinDate = DateTime.Today,
-                Font = new Font("Segoe UI", 10)
-            };
-
-            Controls.Add(dtpSessionDate);
-
-            Label lblEditTime = MakeLabel("Session Time", 305);
-            lblEditTime.Name = "lblEditTime";
-            Controls.Add(lblEditTime);
-            cmbSessionTime = MakeCombo(330);
-            cmbSessionTime.Name = "cmbSessionTime";
-
-            cmbSessionTime.Items.AddRange(new object[]
-            {
-                "09:00 - 10:00",
-                "10:15 - 11:15",
-                "11:30 - 12:30",
-                "13:00 - 14:00",
-                "14:15 - 15:15",
-                "15:30 - 16:30",
-                "16:45 - 17:45"
-            });
-
-            Controls.Add(cmbSessionTime);
-
-            btnSaveChanges = new Button
-            {
-                Name = "btnSaveChanges",
-                Text = "Save Changes",
-                Left = 35,
-                Top = 415,
-                Width = 200,
-                Height = 45,
-                Font = new Font(
-                    "Segoe UI", 10, FontStyle.Bold)
-            };
-
-            btnBack = new Button
-            {
-                Name = "btnBack",
-                Text = "Cancel",
-                Left = 255,
-                Top = 415,
-                Width = 200,
-                Height = 45,
-                Font = new Font(
-                    "Segoe UI", 10, FontStyle.Bold)
-            };
-
-            btnSaveChanges.Click += btnSaveChanges_Click;
-            btnBack.Click += (sender, e) => Close();
-
-            Controls.Add(btnSaveChanges);
-            Controls.Add(btnBack);
-
-            AcceptButton = btnSaveChanges;
-            CancelButton = btnBack;
-        }
+        private void btnBack_Click(object sender, EventArgs e) { Close(); }
 
         private void EditBooking_Load(object sender, EventArgs e)
         {
