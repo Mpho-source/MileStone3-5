@@ -204,40 +204,72 @@ namespace NextGen__7
         private void DisableSlot()
         {
             if (gridSlots.SelectedRows.Count != 1)
-            {
-                MessageBox.Show("Select an availability slot first."); return;
-            }
+            { MessageBox.Show("Select an availability slot first."); return; }
             var row = gridSlots.SelectedRows[0];
-            if (MessageBox.Show("Mark the selected slot unavailable? Any existing " +
-                "session bookings should be reviewed first.", "Confirm",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
             if (availabilityIdColumn == null)
             {
-                MessageBox.Show("This table has no supported availability ID; a slot " +
-                    "cannot safely be changed by an ambiguous date/time.");
-                return;
+                MessageBox.Show("The table does not expose a supported AvailabilityID, " +
+                    "so this slot cannot be safely updated."); return;
             }
+            if (!Convert.ToBoolean(row.Cells["IsAvailable"].Value))
+            { MessageBox.Show("This availability slot is already disabled."); return; }
             int id = Convert.ToInt32(row.Cells[availabilityIdColumn].Value);
+            DateTime date = Convert.ToDateTime(row.Cells["AvailableDate"].Value).Date;
+            TimeSpan slotStart = BookingData.ReadTime(row.Cells["StartTime"].Value);
+            TimeSpan slotEnd = BookingData.ReadTime(row.Cells["EndTime"].Value);
             try
             {
                 using (var db = new OleDbConnection(connectionString))
-                using (var cmd = new OleDbCommand(
-                    "UPDATE [TUTOR_AVAILABILITY] SET [IsAvailable]=? " +
-                    "WHERE [" + availabilityIdColumn + "]=? AND [TutorID]=?", db))
                 {
-                    cmd.Parameters.Add("@Available", OleDbType.Boolean).Value = false;
-                    cmd.Parameters.Add("@ID", OleDbType.Integer).Value = id;
-                    cmd.Parameters.Add("@Tutor", OleDbType.Integer).Value = tutorId;
                     db.Open();
-                    if (cmd.ExecuteNonQuery() != 1)
-                        throw new InvalidOperationException("The selected slot was not found.");
+                    // Do not remove availability committed to an existing session.
+                    using (var check = new OleDbCommand(
+                        "SELECT [StartTime],[EndTime] FROM [TUTORING_SESSION] " +
+                        "WHERE [TutorID]=? AND [SessionDate]>=? AND [SessionDate]<? " +
+                        "AND [SessionStatus]='Scheduled'", db))
+                    {
+                        check.Parameters.Add("@TutorID", OleDbType.Integer).Value = tutorId;
+                        check.Parameters.Add("@Date", OleDbType.Date).Value = date;
+                        check.Parameters.Add("@NextDay", OleDbType.Date).Value = date.AddDays(1);
+                        using (var reader = check.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                if (reader.IsDBNull(0) || reader.IsDBNull(1)) continue;
+                                TimeSpan bookedStart = BookingData.ReadTime(reader[0]);
+                                TimeSpan bookedEnd = BookingData.ReadTime(reader[1]);
+                                if (slotStart < bookedEnd && slotEnd > bookedStart)
+                                {
+                                    MessageBox.Show("This slot contains a scheduled tutoring session. " +
+                                        "Resolve the existing booking before removing availability.");
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    if (MessageBox.Show("Mark this slot unavailable?", "Confirm",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                        return;
+                    using (var cmd = new OleDbCommand(
+                        "UPDATE [TUTOR_AVAILABILITY] SET [IsAvailable]=? WHERE [" +
+                        availabilityIdColumn + "]=? AND [TutorID]=?", db))
+                    {
+                        cmd.Parameters.Add("@Available", OleDbType.Boolean).Value = false;
+                        cmd.Parameters.Add("@ID", OleDbType.Integer).Value = id;
+                        cmd.Parameters.Add("@Tutor", OleDbType.Integer).Value = tutorId;
+                        if (cmd.ExecuteNonQuery() != 1)
+                            throw new InvalidOperationException("The selected slot was not found.");
+                    }
                 }
                 LoadSlots();
+                lblStatus.Text = "Availability updated.";
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Unable to change availability.\n\n" + ex.Message);
+                MessageBox.Show("Unable to change availability.\n\n" + ex.Message,
+                    "Database error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
     }
 }
