@@ -24,8 +24,8 @@ namespace NextGen__7
             this.lblSetupKey = new System.Windows.Forms.Label();
             this.txtSetupKey = new System.Windows.Forms.TextBox();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.btnSave = new System.Windows.Forms.Button();
-            this.btnClose = new System.Windows.Forms.Button();
+            this.btnSave = new NextGen__7.BusyButton();
+            this.btnClose = new NextGen__7.BusyButton();
             this.SuspendLayout();
             this.lblHeading.Name = "lblHeading";
             this.lblHeading.Text = "Manage passwords";
@@ -141,7 +141,7 @@ namespace NextGen__7
         private System.Windows.Forms.Label lblSetupKey;
         private System.Windows.Forms.TextBox txtSetupKey;
         private System.Windows.Forms.Label lblStatus;
-        private System.Windows.Forms.Button btnSave;
-        private System.Windows.Forms.Button btnClose;
+        private NextGen__7.BusyButton btnSave;
+        private NextGen__7.BusyButton btnClose;
     }
 }
