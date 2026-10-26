@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace NextGen__7
 {
@@ -13,140 +16,444 @@ namespace NextGen__7
     {
         private readonly string connectionString;
         private DataTable result;
+        private string reportTitle = "";
         private int printRow;
+        private readonly Font printBody = new Font("Segoe UI", 9F);
+        private readonly Font printHead = new Font("Segoe UI", 9F, FontStyle.Bold);
 
         public Reports()
         {
             InitializeComponent();
-            if (System.ComponentModel.LicenseManager.UsageMode ==
-                System.ComponentModel.LicenseUsageMode.Designtime) return;
-            var config = ConfigurationManager.ConnectionStrings[
+            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
+            var settings = ConfigurationManager.ConnectionStrings[
                 "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
-            if (config == null) throw new InvalidOperationException("Database connection missing.");
-            connectionString = config.ConnectionString;
+            if (settings == null) throw new InvalidOperationException("Missing database connection.");
+            connectionString = settings.ConnectionString;
+            numYear.Value = Math.Max(2020, Math.Min(2100, DateTime.Today.Year));
             fromDate.Value = DateTime.Today.AddMonths(-1);
             toDate.Value = DateTime.Today;
+            cmbReport.SelectedIndexChanged += (s, e) => ChangeReport();
+            btnGenerate.Click += (s, e) => Generate();
+            btnAcademic.Click += (s, e) => OpenAcademicTracking();
+            btnPrint.Click += (s, e) => PrintReport();
+            btnBack.Click += (s, e) => Close();
+            cmbReport.SelectedIndex = 0;
+            grid.EnableHeadersVisualStyles = false;
+            grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(31, 56, 100);
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(221, 235, 251);
+            grid.DefaultCellStyle.SelectionForeColor = Color.FromArgb(31, 56, 100);
         }
 
-        private void btnGenerate_Click(object sender, EventArgs e) { Generate(); }
-        private void btnPrint_Click(object sender, EventArgs e) { Preview(); }
-        private void btnBack_Click(object sender, EventArgs e) { Close(); }
+        private DataTable ReadTable(OleDbConnection db, string name)
+        {
+            var table = new DataTable();
+            using (var adapter = new OleDbDataAdapter("SELECT * FROM [" + name + "]", db))
+                adapter.Fill(table);
+            return table;
+        }
 
-        private static string Column(DataTable table, string name)
+        private static string Column(DataTable table, string logical)
         {
             foreach (DataColumn col in table.Columns)
-                if (col.ColumnName.Trim('\uFEFF', ' ').Equals(name,
+                if (col.ColumnName.Trim('\uFEFF', ' ').Equals(logical,
                     StringComparison.OrdinalIgnoreCase)) return col.ColumnName;
-            throw new InvalidOperationException(name + " column not found.");
+            throw new InvalidOperationException("Missing " + logical + " column in " + table.TableName);
+        }
+
+        private static Dictionary<int, DataRow> Index(DataTable table, string logical)
+        {
+            var output = new Dictionary<int, DataRow>();
+            string key = Column(table, logical);
+            foreach (DataRow row in table.Rows)
+                if (row[key] != DBNull.Value)
+                    output[Convert.ToInt32(row[key])] = row;
+            return output;
+        }
+
+        private void ChangeReport()
+        {
+            bool workload = cmbReport.SelectedIndex == 1;
+            bool trend = cmbReport.SelectedIndex == 2;
+            fromDate.Enabled = workload;
+            toDate.Enabled = workload;
+            lblFrom.Enabled = workload;
+            lblTo.Enabled = workload;
+            numYear.Enabled = trend;
+            lblYear.Enabled = trend;
+            btnAcademic.Enabled = trend;
+            grid.DataSource = null;
+            result = null;
+            chartTrends.Visible = false;
+            grid.Visible = true;
+            lblStatus.Text = trend
+                ? "GPA and attendance must be recorded before a trend can be calculated."
+                : "Select Generate report to retrieve the latest data.";
         }
 
         private void Generate()
         {
-            if (fromDate.Value.Date > toDate.Value.Date)
+            if (cmbReport.SelectedIndex == 1 && fromDate.Value.Date > toDate.Value.Date)
             {
-                MessageBox.Show("The start date must not be after the end date."); return;
+                MessageBox.Show("The start date must not exceed the end date."); return;
             }
             try
             {
-                var tutors = new DataTable();
-                var sessions = new DataTable();
-                using (var db = new OleDbConnection(connectionString))
+                chartTrends.Visible = false;
+                grid.Visible = true;
+                switch (cmbReport.SelectedIndex)
                 {
-                    db.Open();
-                    using (var adapter = new OleDbDataAdapter("SELECT * FROM [TUTOR]", db))
-                        adapter.Fill(tutors);
-                    using (var cmd = new OleDbCommand(
-                        "SELECT [TutorID], [SessionStatus] FROM [TUTORING_SESSION] " +
-                        "WHERE [SessionDate] >= ? AND [SessionDate] < ?", db))
-                    {
-                        cmd.Parameters.Add("@Start", OleDbType.Date).Value = fromDate.Value.Date;
-                        cmd.Parameters.Add("@End", OleDbType.Date).Value = toDate.Value.Date.AddDays(1);
-                        using (var adapter = new OleDbDataAdapter(cmd)) adapter.Fill(sessions);
-                    }
+                    case 0:
+                        reportTitle = "Outstanding Tutoring Requests (7+ Days)";
+                        result = OutstandingRequests();
+                        break;
+                    case 1:
+                        reportTitle = "Tutor Workload by Reporting Period";
+                        result = TutorWorkload();
+                        break;
+                    case 2:
+                        reportTitle = "Student GPA and Tutoring Attendance Trend";
+                        result = AcademicTrend();
+                        break;
+                    default: return;
                 }
+                grid.DataSource = result;
+                grid.ClearSelection();
+                grid.AutoResizeColumnHeadersHeight();
+                if (result.Rows.Count == 0)
+                {
+                    lblStatus.Text = "No records match this report. No data has been invented.";
+                    MessageBox.Show("No matching records. Check your date range or academic data.",
+                        "Report has no results", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    lblStatus.Text = result.Rows.Count + " records  |  " +
+                        (cmbReport.SelectedIndex == 1 ?
+                            fromDate.Value.ToShortDateString() + " to " +
+                            toDate.Value.ToShortDateString() :
+                            cmbReport.SelectedIndex == 2 ? numYear.Value + " academic year" :
+                            "as of " + DateTime.Today.ToShortDateString());
+                }
+            }
+            catch (Exception ex)
+            {
+                result = null;
+                grid.DataSource = null;
+                chartTrends.Visible = false;
+                grid.Visible = true;
+                lblStatus.Text = "Unable to generate report.";
+                MessageBox.Show("The report could not be generated.\n\n" + ex.Message,
+                    "Report error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
+        private DataTable OutstandingRequests()
+        {
+            var output = new DataTable();
+            output.Columns.Add("Request ID", typeof(int));
+            output.Columns.Add("Student number", typeof(string));
+            output.Columns.Add("Student", typeof(string));
+            output.Columns.Add("Course", typeof(string));
+            output.Columns.Add("Submitted", typeof(DateTime));
+            output.Columns.Add("Age (days)", typeof(int));
+            output.Columns.Add("Status", typeof(string));
+            using (var db = new OleDbConnection(connectionString))
+            {
+                db.Open();
+                var students = Index(ReadTable(db, "STUDENT"), "StudentID");
+                var courses = Index(ReadTable(db, "COURSE"), "CourseID");
+                var requests = ReadTable(db, "TUTORING_REQUEST");
+                string id = Column(requests, "RequestID");
+                foreach (DataRow row in requests.Rows)
+                {
+                    string status = Convert.ToString(row["Status"]).Trim();
+                    if (!status.Equals("Submitted", StringComparison.OrdinalIgnoreCase) ||
+                        row["RequestDate"] == DBNull.Value) continue;
+                    DateTime submitted = Convert.ToDateTime(row["RequestDate"]);
+                    int age = (DateTime.Today - submitted.Date).Days;
+                    if (age < 7) continue;
+                    DataRow student = null, course = null;
+                    if (row["StudentID"] != DBNull.Value)
+                        students.TryGetValue(Convert.ToInt32(row["StudentID"]), out student);
+                    if (row["CourseID"] != DBNull.Value)
+                    {
+                        int courseId;
+                        if (int.TryParse(Convert.ToString(row["CourseID"]), out courseId))
+                            courses.TryGetValue(courseId, out course);
+                    }
+                    string studentName = student == null ? "Unknown" :
+                        (Convert.ToString(student["FirstName"]) + " " +
+                        Convert.ToString(student["LastName"])).Trim();
+                    output.Rows.Add(Convert.ToInt32(row[id]),
+                        student == null ? "-" : Convert.ToString(student["StudentNo"]),
+                        studentName, course == null ? "-" :
+                        Convert.ToString(course["CourseCode"]), submitted, age, status);
+                }
+            }
+            var view = output.DefaultView;
+            view.Sort = "[Submitted] ASC";
+            return view.ToTable();
+        }
+
+        private DataTable TutorWorkload()
+        {
+            var output = new DataTable();
+            output.Columns.Add("Tutor ID", typeof(int));
+            output.Columns.Add("Tutor", typeof(string));
+            output.Columns.Add("Scheduled", typeof(int));
+            output.Columns.Add("Completed", typeof(int));
+            output.Columns.Add("Total sessions", typeof(int));
+            output.Columns.Add("Completion rate", typeof(string));
+            using (var db = new OleDbConnection(connectionString))
+            {
+                db.Open();
+                var tutors = ReadTable(db, "TUTOR");
+                var sessions = new DataTable();
+                using (var cmd = new OleDbCommand(
+                    "SELECT [TutorID], [SessionStatus] FROM [TUTORING_SESSION] " +
+                    "WHERE [SessionDate]>=? AND [SessionDate]<?", db))
+                {
+                    cmd.Parameters.Add("@Start", OleDbType.Date).Value = fromDate.Value.Date;
+                    cmd.Parameters.Add("@End", OleDbType.Date).Value = toDate.Value.Date.AddDays(1);
+                    using (var da = new OleDbDataAdapter(cmd)) da.Fill(sessions);
+                }
                 var counts = new Dictionary<int, int[]>();
                 var names = new Dictionary<int, string>();
-                string idColumn = Column(tutors, "TutorID");
-                foreach (DataRow row in tutors.Rows)
+                string id = Column(tutors, "TutorID");
+                foreach (DataRow tutor in tutors.Rows)
                 {
-                    int tutorId = Convert.ToInt32(row[idColumn]);
-                    counts[tutorId] = new int[2];
-                    names[tutorId] = (Convert.ToString(row["FirstName"]) + " " +
-                        Convert.ToString(row["LastName"])).Trim();
+                    int tid = Convert.ToInt32(tutor[id]);
+                    counts[tid] = new int[2];
+                    names[tid] = (Convert.ToString(tutor["FirstName"]) + " " +
+                                  Convert.ToString(tutor["LastName"])).Trim();
                 }
                 foreach (DataRow session in sessions.Rows)
                 {
                     if (session["TutorID"] == DBNull.Value) continue;
-                    int id = Convert.ToInt32(session["TutorID"]);
-                    if (!counts.ContainsKey(id))
+                    int tid = Convert.ToInt32(session["TutorID"]);
+                    if (!counts.ContainsKey(tid))
                     {
-                        counts[id] = new int[2]; names[id] = "Unknown tutor";
+                        counts[tid] = new int[2]; names[tid] = "Unknown tutor";
                     }
                     string status = Convert.ToString(session["SessionStatus"]).Trim();
                     if (status.Equals("Scheduled", StringComparison.OrdinalIgnoreCase))
-                        counts[id][0]++;
+                        counts[tid][0]++;
                     else if (status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
-                        counts[id][1]++;
+                        counts[tid][1]++;
                 }
+                foreach (int tid in counts.Keys.OrderBy(a => names[a]))
+                {
+                    int scheduled = counts[tid][0], completed = counts[tid][1];
+                    int total = scheduled + completed;
+                    output.Rows.Add(tid, names[tid], scheduled, completed, total,
+                        total == 0 ? "—" : ((100.0 * completed / total).ToString("0.0") + "%"));
+                }
+            }
+            return output;
+        }
 
-                result = new DataTable();
-                result.Columns.Add("Tutor ID", typeof(int));
-                result.Columns.Add("Tutor", typeof(string));
-                result.Columns.Add("Scheduled", typeof(int));
-                result.Columns.Add("Completed", typeof(int));
-                var ids = new List<int>(counts.Keys);
-                ids.Sort();
-                foreach (int id in ids)
-                    result.Rows.Add(id, names[id], counts[id][0], counts[id][1]);
-                grid.DataSource = result;
+        private DataTable AcademicTrend()
+        {
+            var output = new DataTable();
+            output.Columns.Add("Student number", typeof(string));
+            output.Columns.Add("Student", typeof(string));
+            output.Columns.Add("Term", typeof(string));
+            output.Columns.Add("GPA (%)", typeof(double));
+            output.Columns.Add("Attended", typeof(int));
+            output.Columns.Add("Recorded sessions", typeof(int));
+            output.Columns.Add("Attendance (%)", typeof(double));
+            int year = (int)numYear.Value;
+            using (var db = new OleDbConnection(connectionString))
+            {
+                db.Open();
+                if (!AcademicTracking.HasTable(db, "STUDENTACADEMICRECORD") ||
+                    !AcademicTracking.HasColumn(db, "TUTORING_SESSION", "AttendanceStatus"))
+                    throw new InvalidOperationException("Academic tracking has not been set up. " +
+                        "Choose Academic records to enable it and enter actual GPA/attendance.");
+                var students = Index(ReadTable(db, "STUDENT"), "StudentID");
+                var records = ReadTable(db, "STUDENTACADEMICRECORD");
+                var sessions = ReadTable(db, "TUTORING_SESSION");
+                var requests = Index(ReadTable(db, "TUTORING_REQUEST"), "RequestID");
+                string sessionRequestId = Column(sessions, "RequestID");
+                var attendance = new Dictionary<string, int[]>();
+                foreach (DataRow row in sessions.Rows)
+                {
+                    if (row[sessionRequestId] == DBNull.Value ||
+                        row["SessionDate"] == DBNull.Value) continue;
+                    DataRow request;
+                    if (!requests.TryGetValue(Convert.ToInt32(row[sessionRequestId]), out request) ||
+                        request["StudentID"] == DBNull.Value) continue;
+                    DateTime when = Convert.ToDateTime(row["SessionDate"]);
+                    if (when.Year != year) continue;
+                    string status = Convert.ToString(row["AttendanceStatus"]).Trim();
+                    if (!status.Equals("Attended", StringComparison.OrdinalIgnoreCase) &&
+                        !status.Equals("Absent", StringComparison.OrdinalIgnoreCase)) continue;
+                    string key = Convert.ToInt32(request["StudentID"]) + "-T" +
+                        ((when.Month - 1) / 3 + 1);
+                    if (!attendance.ContainsKey(key)) attendance[key] = new int[2];
+                    attendance[key][1]++;
+                    if (status.Equals("Attended", StringComparison.OrdinalIgnoreCase))
+                        attendance[key][0]++;
+                }
+                var points = new Dictionary<string, double>();
+                foreach (DataRow rec in records.Rows)
+                {
+                    if (rec["StudentID"] == DBNull.Value || rec["GPA"] == DBNull.Value) continue;
+                    int studentID = Convert.ToInt32(rec["StudentID"]);
+                    DataRow student;
+                    if (!students.TryGetValue(studentID, out student)) continue;
+                    string period = Convert.ToString(rec["AcademicPeriod"]).Trim();
+                    if (!period.StartsWith(year + "-T", StringComparison.OrdinalIgnoreCase)) continue;
+                    int term;
+                    if (!int.TryParse(period.Substring((year + "-T").Length), out term) ||
+                        term < 1 || term > 4) continue;
+                    double gpa = Convert.ToDouble(rec["GPA"]);
+                    string key = studentID + "-T" + term;
+                    int[] stats;
+                    if (!attendance.TryGetValue(key, out stats)) stats = new int[2];
+                    object percent = stats[1] == 0 ? (object)DBNull.Value :
+                        Math.Round(100.0 * stats[0] / stats[1], 1);
+                    output.Rows.Add(Convert.ToString(student["StudentNo"]),
+                        (Convert.ToString(student["FirstName"]) + " " +
+                        Convert.ToString(student["LastName"])).Trim(),
+                        "Term " + term, gpa, stats[0], stats[1], percent);
+                }
+            }
+            var view = output.DefaultView; view.Sort = "[Student] ASC, [Term] ASC";
+            output = view.ToTable();
+            ShowTrendChart(output);
+            return output;
+        }
+
+        private void ShowTrendChart(DataTable source)
+        {
+            chartTrends.Series.Clear();
+            chartTrends.ChartAreas.Clear();
+            chartTrends.Legends.Clear();
+            var area = new ChartArea("Four terms");
+            area.AxisX.Title = "Academic term";
+            area.AxisY.Title = "Percentage (%)";
+            area.AxisY.Minimum = 0;
+            area.AxisY.Maximum = 100;
+            area.AxisY.Interval = 20;
+            area.AxisX.Interval = 1;
+            area.AxisX.Minimum = 0.5;
+            area.AxisX.Maximum = 4.5;
+            area.AxisX.MajorGrid.Enabled = false;
+            chartTrends.ChartAreas.Add(area);
+            chartTrends.Legends.Add(new Legend("Indicators"));
+            var gpaSeries = new Series("Average GPA") {
+                ChartType = SeriesChartType.Line, BorderWidth = 3, MarkerStyle = MarkerStyle.Circle,
+                MarkerSize = 9, ChartArea = "Four terms" };
+            var attendanceSeries = new Series("Average attendance") {
+                ChartType = SeriesChartType.Line, BorderWidth = 3, MarkerStyle = MarkerStyle.Circle,
+                MarkerSize = 9, ChartArea = "Four terms" };
+            for (int term = 1; term <= 4; term++)
+            {
+                var rows = source.AsEnumerable().Where(r =>
+                    Convert.ToString(r["Term"]) == "Term " + term).ToList();
+                if (rows.Count == 0) continue;
+                gpaSeries.Points.AddXY(term, rows.Average(r => Convert.ToDouble(r["GPA (%)"])));
+                var withAttendance = rows.Where(r => r["Attendance (%)"] != DBNull.Value).ToList();
+                if (withAttendance.Count > 0)
+                    attendanceSeries.Points.AddXY(term,
+                        withAttendance.Average(r => Convert.ToDouble(r["Attendance (%)"])));
+            }
+            chartTrends.Series.Add(gpaSeries);
+            chartTrends.Series.Add(attendanceSeries);
+            chartTrends.Visible = source.Rows.Count != 0;
+            grid.Visible = !chartTrends.Visible;
+            // Click the chart to switch between the trend chart and the tabular GridView.
+            chartTrends.Click -= SwitchToGrid;
+            chartTrends.Click += SwitchToGrid;
+            if (chartTrends.Visible)
+                lblStatus.Text = "Click the chart to view the full student-by-term GridView.";
+        }
+
+        private void SwitchToGrid(object sender, EventArgs e)
+        {
+            chartTrends.Visible = false;
+            grid.Visible = true;
+            lblStatus.Text = "Student GPA and attendance by term (only recorded values).";
+        }
+
+        private void OpenAcademicTracking()
+        {
+            using (var form = new AcademicTracking(connectionString))
+                form.ShowDialog(this);
+            if (cmbReport.SelectedIndex == 2) Generate();
+        }
+
+        private void PrintReport()
+        {
+            if (result == null || result.Rows.Count == 0)
+            {
+                MessageBox.Show("Generate a report with results before printing."); return;
+            }
+            try
+            {
+                printRow = 0;
+                using (var dialog = new PrintDialog { Document = printer, UseEXDialog = true })
+                {
+                    if (dialog.ShowDialog(this) == DialogResult.OK) printer.Print();
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Unable to generate report.\n\n" + ex.Message,
-                    "Reports", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Printing failed.\n\n" + ex.Message,
+                    "Print error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void Preview()
-        {
-            if (result == null)
-            {
-                MessageBox.Show("Generate the report first."); return;
-            }
-            printRow = 0;
-            using (var preview = new PrintPreviewDialog { Document = printer,
-                WindowState = FormWindowState.Maximized })
-                preview.ShowDialog(this);
         }
 
         private void PrintPage(object sender, PrintPageEventArgs e)
         {
+            int left = e.MarginBounds.Left, width = e.MarginBounds.Width;
             int y = e.MarginBounds.Top;
-            using (var headingFont = new Font("Segoe UI", 17, FontStyle.Bold))
-            using (var bodyFont = new Font("Segoe UI", 10))
+            using (var titleFont = new Font("Segoe UI", 16F, FontStyle.Bold))
             {
-                e.Graphics.DrawString("EduConnect - Tutor Session Report", headingFont, Brushes.Black,
-                    e.MarginBounds.Left, y);
-                y += 46;
-                string period = fromDate.Value.ToShortDateString() + " - " + toDate.Value.ToShortDateString();
-                e.Graphics.DrawString("Period: " + period, bodyFont, Brushes.Black, e.MarginBounds.Left, y);
-                y += 40;
-                e.Graphics.DrawString("Tutor ID       Tutor                           Scheduled      Completed",
-                    bodyFont, Brushes.Black, e.MarginBounds.Left, y);
-                y += 32;
-                while (result != null && printRow < result.Rows.Count && y + 32 < e.MarginBounds.Bottom)
+                e.Graphics.DrawString(reportTitle, titleFont, Brushes.Black,
+                    new RectangleF(left, y, width, 55));
+                y += 53;
+            }
+            string context = cmbReport.SelectedIndex == 1 ?
+                fromDate.Value.ToShortDateString() + " - " + toDate.Value.ToShortDateString() :
+                cmbReport.SelectedIndex == 2 ? numYear.Value + " academic year" :
+                "Report date: " + DateTime.Today.ToShortDateString();
+            e.Graphics.DrawString(context, printBody, Brushes.DimGray, left, y);
+            y += 34;
+            int columns = result.Columns.Count;
+            int columnWidth = Math.Max(48, width / columns);
+            for (int c = 0; c < columns; c++)
+            {
+                var rect = new RectangleF(left + c * columnWidth, y, columnWidth - 3, 34);
+                e.Graphics.DrawString(result.Columns[c].ColumnName, printHead,
+                    Brushes.Black, rect);
+            }
+            y += 39;
+            e.Graphics.DrawLine(Pens.Gray, left, y, left + width, y);
+            y += 9;
+            while (printRow < result.Rows.Count && y + 44 < e.MarginBounds.Bottom)
+            {
+                DataRow row = result.Rows[printRow++];
+                for (int c = 0; c < columns; c++)
                 {
-                    DataRow row = result.Rows[printRow++];
-                    string line = string.Format("{0,-12} {1,-30} {2,-13} {3}",
-                        row[0], Convert.ToString(row[1]).Length > 28 ?
-                        Convert.ToString(row[1]).Substring(0, 28) : Convert.ToString(row[1]),
-                        row[2], row[3]);
-                    e.Graphics.DrawString(line, bodyFont, Brushes.Black, e.MarginBounds.Left, y);
-                    y += 28;
+                    string value = row[c] == DBNull.Value ? "—" :
+                        row[c] is DateTime ? ((DateTime)row[c]).ToString("dd MMM yyyy") :
+                        Convert.ToString(row[c]);
+                    if (value.Length > 25) value = value.Substring(0, 22) + "...";
+                    var rect = new RectangleF(left + c * columnWidth, y, columnWidth - 3, 37);
+                    e.Graphics.DrawString(value, printBody, Brushes.Black, rect);
                 }
-                e.HasMorePages = result != null && printRow < result.Rows.Count;
-                if (!e.HasMorePages) printRow = 0;
+                y += 37;
+            }
+            e.HasMorePages = printRow < result.Rows.Count;
+            if (!e.HasMorePages)
+            {
+                y += 15;
+                e.Graphics.DrawString("Total rows: " + result.Rows.Count,
+                    printHead, Brushes.Black, left, Math.Min(y, e.MarginBounds.Bottom - 25));
+                printRow = 0;
             }
         }
     }
