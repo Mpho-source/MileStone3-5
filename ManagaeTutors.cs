@@ -34,6 +34,7 @@ namespace NextGen__7
             btnBack.Click += (s, e) => Close();
             btnRefresh.Click += (s, e) => LoadTutors();
             btnAssignCourse.Click += (s, e) => AssignCourse();
+            btnAvailability.Click += (s, e) => OpenAvailability();
             txtSearch.TextChanged += (s, e) => ApplySearch();
             Load += (s, e) => { LoadCourses(); LoadTutors(); };
         }
@@ -165,6 +166,7 @@ namespace NextGen__7
                 btnSave.Text = "Save changes";
                 lblMessage.Text = "Editing tutor #" + selectedId;
                 btnAssignCourse.Enabled = true;
+                btnAvailability.Enabled = true;
                 LoadTutorCourses();
             }
             catch (Exception ex) { lblMessage.Text = "Could not select tutor: " + ex.Message; }
@@ -187,6 +189,7 @@ namespace NextGen__7
             btnSave.Text = "Save tutor";
             lblAssignedCourses.Text = "Save this tutor before assigning a course.";
             btnAssignCourse.Enabled = false;
+            btnAvailability.Enabled = false;
             cmbCourse.SelectedIndex = -1;
         }
 
@@ -335,6 +338,18 @@ namespace NextGen__7
                 MessageBox.Show("Tutor not saved.\n\n" + ex.Message,
                     "Save error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void OpenAvailability()
+        {
+            if (selectedId <= 0)
+            {
+                MessageBox.Show("Save or select a tutor before changing availability.");
+                return;
+            }
+            string name = (txtFirstName.Text.Trim() + " " + txtLastName.Text.Trim()).Trim();
+            using (var form = new TutorAvailability(selectedId, name))
+                form.ShowDialog(this);
         }
 
         private void AssignCourse()
