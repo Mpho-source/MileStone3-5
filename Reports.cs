@@ -135,7 +135,7 @@ namespace NextGen__7
                     fromDate.Value.ToString("dd MMM yyyy") + " to " +
                     toDate.Value.ToString("dd MMM yyyy") + ".";
             else if (cmbReport.SelectedIndex == 2)
-                lblReportCriteria.Text = "Compares imported GPA and session-recorded attendance for four terms in " +
+                lblReportCriteria.Text = "Uses available GPA records and tutor-recorded attendance for four terms in " +
                     numYear.Value + ". Missing data is not estimated.";
         }
 
