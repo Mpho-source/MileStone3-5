@@ -7,58 +7,26 @@ using System.Windows.Forms;
 
 namespace NextGen__7
 {
-    public sealed class AdminRequests : Form
+    public partial class AdminRequests : Form
     {
         private readonly string connectionString;
-        private readonly DataGridView requests;
         private string requestIdColumn;
         public AdminRequests()
         {
+            InitializeComponent();
+            if (System.ComponentModel.LicenseManager.UsageMode ==
+                System.ComponentModel.LicenseUsageMode.Designtime) return;
+
             var settings = ConfigurationManager.ConnectionStrings[
                 "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
             if (settings == null) throw new InvalidOperationException("Database connection missing.");
             connectionString = settings.ConnectionString;
-            Text = "EduConnect | Tutoring requests";
-            StartPosition = FormStartPosition.CenterParent;
-            MinimumSize = new Size(900, 650);
-            Size = new Size(1100, 750);
-            BackColor = EduConnectTheme.Background;
-            Font = new Font("Segoe UI", 10);
-
-            var banner = new Panel { Dock = DockStyle.Top, Height = 92,
-                BackColor = EduConnectTheme.Navy };
-            var title = new Label { Text = "Tutoring requests", Font = new Font("Segoe UI", 20, FontStyle.Bold),
-                ForeColor = Color.White, Location = new Point(26, 13), Size = new Size(650, 42) };
-            var subtitle = new Label { Text = "Review and verify requests from students",
-                ForeColor = Color.Gainsboro, Location = new Point(29, 57), Size = new Size(700, 25) };
-            banner.Controls.Add(title); banner.Controls.Add(subtitle);
-            Controls.Add(banner);
-
-            var buttons = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 66,
-                Padding = new Padding(20, 10, 10, 4), BackColor = Color.White };
-            AddButton(buttons, "Refresh", (s, e) => Reload());
-            AddButton(buttons, "Verify selected request", (s, e) => Verify());
-            AddButton(buttons, "Back", (s, e) => Close());
-            Controls.Add(buttons);
-
-            requests = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false, BackgroundColor = Color.White };
-            Controls.Add(requests);
-            requests.BringToFront();
-            EduConnectTheme.StyleGrid(requests);
-            Load += (s, e) => Reload();
         }
 
-        private static void AddButton(FlowLayoutPanel panel, string label, EventHandler handler)
-        {
-            var button = new Button { Text = label, AutoSize = true,
-                Height = 38, Margin = new Padding(4, 2, 9, 0) };
-            button.Click += handler;
-            EduConnectTheme.StyleButton(button);
-            panel.Controls.Add(button);
-        }
+        private void AdminRequests_Load(object sender, EventArgs e) { Reload(); }
+        private void btnRefresh_Click(object sender, EventArgs e) { Reload(); }
+        private void btnVerify_Click(object sender, EventArgs e) { Verify(); }
+        private void btnBack_Click(object sender, EventArgs e) { Close(); }
 
         private void Reload()
         {
