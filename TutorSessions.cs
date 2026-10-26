@@ -30,10 +30,17 @@ namespace NextGen__7
                 throw new InvalidOperationException("Database connection is not configured.");
             connectionString = cfg.ConnectionString;
             btnRefresh.Click += (sender, e) => LoadSessions();
+            btnChangePassword.Click += (sender, e) => ChangePassword();
             btnRecord.Click += (sender, e) => RecordSession();
             btnLogout.Click += (sender, e) => Close();
             gridSessions.SelectionChanged += (sender, e) => UpdateSelection();
             Load += (sender, e) => LoadSessions();
+        }
+
+        private void ChangePassword()
+        {
+            using (var dialog = new TutorChangePassword(tutorId, connectionString))
+                dialog.ShowDialog(this);
         }
 
         private static DataTable ReadTable(OleDbConnection db, string table)
