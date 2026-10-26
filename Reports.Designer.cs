@@ -23,16 +23,16 @@ namespace NextGen__7
             this.toDate = new System.Windows.Forms.DateTimePicker();
             this.lblYear = new System.Windows.Forms.Label();
             this.numYear = new System.Windows.Forms.NumericUpDown();
-            this.btnGenerate = new System.Windows.Forms.Button();
-            this.btnToggleView = new System.Windows.Forms.Button();
+            this.btnGenerate = new NextGen__7.BusyButton();
+            this.btnToggleView = new NextGen__7.BusyButton();
             this.pnlContent = new System.Windows.Forms.Panel();
             this.grid = new System.Windows.Forms.DataGridView();
             this.chartTrends = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.pnlFooter = new System.Windows.Forms.Panel();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.btnPreview = new System.Windows.Forms.Button();
-            this.btnPrint = new System.Windows.Forms.Button();
-            this.btnBack = new System.Windows.Forms.Button();
+            this.btnPreview = new NextGen__7.BusyButton();
+            this.btnPrint = new NextGen__7.BusyButton();
+            this.btnBack = new NextGen__7.BusyButton();
             this.printer = new System.Drawing.Printing.PrintDocument();
             ((System.ComponentModel.ISupportInitialize)(this.grid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numYear)).BeginInit();
@@ -227,16 +227,16 @@ namespace NextGen__7
         private System.Windows.Forms.DateTimePicker toDate;
         private System.Windows.Forms.Label lblYear;
         private System.Windows.Forms.NumericUpDown numYear;
-        private System.Windows.Forms.Button btnGenerate;
-        private System.Windows.Forms.Button btnToggleView;
+        private NextGen__7.BusyButton btnGenerate;
+        private NextGen__7.BusyButton btnToggleView;
         private System.Windows.Forms.Panel pnlContent;
         private System.Windows.Forms.DataGridView grid;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartTrends;
         private System.Windows.Forms.Panel pnlFooter;
         private System.Windows.Forms.Label lblStatus;
-        private System.Windows.Forms.Button btnPreview;
-        private System.Windows.Forms.Button btnPrint;
-        private System.Windows.Forms.Button btnBack;
+        private NextGen__7.BusyButton btnPreview;
+        private NextGen__7.BusyButton btnPrint;
+        private NextGen__7.BusyButton btnBack;
         private System.Drawing.Printing.PrintDocument printer;
     }
 }
