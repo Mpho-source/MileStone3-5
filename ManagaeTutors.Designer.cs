@@ -40,7 +40,6 @@ namespace NextGen__7
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnBack = new System.Windows.Forms.Button();
             this.lblMessage = new System.Windows.Forms.Label();
-            this.lblDatabase = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.gridTutors)).BeginInit();
             this.SuspendLayout();
             this.pnlHeader.Name = "pnlHeader";
@@ -253,12 +252,6 @@ namespace NextGen__7
             this.lblMessage.Size = new System.Drawing.Size(490,28);
             this.lblMessage.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblMessage.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
-            this.lblDatabase.Name = "lblDatabase";
-            this.lblDatabase.Text = "Database: Edu_Connect.accdb";
-            this.lblDatabase.Location = new System.Drawing.Point(30,68);
-            this.lblDatabase.Size = new System.Drawing.Size(1155,26);
-            this.lblDatabase.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblDatabase.ForeColor = System.Drawing.Color.FromArgb(83, 104, 132);
             this.pnlFooter.Controls.Add(this.btnNew);
             this.pnlFooter.Controls.Add(this.btnSave);
             this.pnlFooter.Controls.Add(this.btnCancel);
@@ -309,6 +302,5 @@ namespace NextGen__7
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnBack;
         private System.Windows.Forms.Label lblMessage;
-        private System.Windows.Forms.Label lblDatabase;
     }
 }
