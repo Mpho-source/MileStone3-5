@@ -66,11 +66,18 @@ namespace NextGen__7
 
             pnlLogout.Clicked += (s, e) => ConfirmLogout();
 
-            EduConnectLayout.Dashboard(
-                this,
-                () => pnlBook.Activate(),
-                () => pnlManageBooking.Activate(),
-                () => ConfirmLogout());
+            btnNavBook.Click += (sender, e) => pnlBook.Activate();
+            btnNavManage.Click += (sender, e) => pnlManageBooking.Activate();
+            btnNavLogout.Click += (sender, e) => ConfirmLogout();
+            ConnectPanelChildren(pnlBook);
+            ConnectPanelChildren(pnlManageBooking);
+            ConnectPanelChildren(pnlLogout);
+        }
+
+        private void ConnectPanelChildren(RoundedPanel panel)
+        {
+            foreach (Control child in panel.Controls)
+                child.Click += (sender, e) => panel.Activate();
         }
 
         private void ConfirmLogout()
@@ -152,8 +159,13 @@ namespace NextGen__7
                     MessageBoxIcon.Warning);
             }
 
-            EduConnectLayout.UpdateStudentProfile(
-                this, displayName, studentNo);
+            lblDashboardStudentName.Text = displayName;
+            lblDashboardStudentNumber.Text = "Student number: " + studentNo;
+            string[] words = displayName.Split(new char[] { ' ' },
+                StringSplitOptions.RemoveEmptyEntries);
+            lblDashboardStudentAvatar.Text = words.Length > 1 ?
+                (words[0].Substring(0, 1) + words[words.Length - 1].Substring(0, 1)).ToUpperInvariant() :
+                (words.Length > 0 ? words[0].Substring(0, 1).ToUpperInvariant() : "ST");
         }
 
         private void pictureBox2_Click(object sender, EventArgs e)
