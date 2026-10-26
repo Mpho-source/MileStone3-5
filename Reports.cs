@@ -36,6 +36,7 @@ namespace NextGen__7
             btnGenerate.Click += (s, e) => Generate();
             btnAcademic.Click += (s, e) => OpenAcademicTracking();
             btnToggleView.Click += (s, e) => ToggleView();
+            btnPreview.Click += (s, e) => PreviewReport();
             btnPrint.Click += (s, e) => PrintReport();
             btnBack.Click += (s, e) => Close();
             cmbReport.SelectedIndex = 0;
@@ -469,6 +470,34 @@ namespace NextGen__7
             if (cmbReport.SelectedIndex == 2) Generate();
         }
 
+        private void PreviewReport()
+        {
+            if (result == null || result.Rows.Count == 0)
+            {
+                MessageBox.Show("Generate a report with results before previewing.",
+                    "No report data", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            try
+            {
+                printRow = 0;
+                printer.DefaultPageSettings.Landscape = result.Columns.Count > 5;
+                using (var preview = new PrintPreviewDialog())
+                {
+                    preview.Document = printer;
+                    preview.Text = "EduConnect | " + reportTitle;
+                    preview.WindowState = FormWindowState.Maximized;
+                    preview.UseAntiAlias = true;
+                    preview.ShowDialog(this);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Print preview could not open.\n\n" + ex.Message,
+                    "Preview error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void PrintReport()
         {
             if (result == null || result.Rows.Count == 0)
@@ -478,6 +507,7 @@ namespace NextGen__7
             try
             {
                 printRow = 0;
+                printer.DefaultPageSettings.Landscape = result.Columns.Count > 5;
                 using (var dialog = new PrintDialog { Document = printer, UseEXDialog = true })
                 {
                     if (dialog.ShowDialog(this) == DialogResult.OK) printer.Print();
