@@ -1,265 +1,302 @@
-﻿namespace NextGen__7
+namespace NextGen__7
 {
     partial class ManagaeTutors
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
+            if (disposing && components != null) components.Dispose();
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.lblTitle = new System.Windows.Forms.Label();
             this.lblSubtitle = new System.Windows.Forms.Label();
-            this.btnBack = new System.Windows.Forms.Button();
-            this.btnAddTutor = new System.Windows.Forms.Button();
-            this.btnUpdateTutor = new System.Windows.Forms.Button();
+            this.pnlSearch = new System.Windows.Forms.Panel();
+            this.lblSearch = new System.Windows.Forms.Label();
+            this.txtSearch = new System.Windows.Forms.TextBox();
+            this.btnRefresh = new System.Windows.Forms.Button();
+            this.lblTutorCount = new System.Windows.Forms.Label();
+            this.pnlGrid = new System.Windows.Forms.Panel();
             this.gridTutors = new System.Windows.Forms.DataGridView();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
+            this.pnlEditor = new System.Windows.Forms.Panel();
+            this.lblEditorHeading = new System.Windows.Forms.Label();
+            this.lblFirstName = new System.Windows.Forms.Label();
+            this.lblLastName = new System.Windows.Forms.Label();
+            this.lblEmail = new System.Windows.Forms.Label();
             this.txtFirstName = new System.Windows.Forms.TextBox();
             this.txtLastName = new System.Windows.Forms.TextBox();
             this.txtEmail = new System.Windows.Forms.TextBox();
-            this.txtSubjectSpecialty = new System.Windows.Forms.TextBox();
-            this.chkIsActive = new System.Windows.Forms.CheckBox();
+            this.lblCourseSection = new System.Windows.Forms.Label();
+            this.cmbCourse = new System.Windows.Forms.ComboBox();
+            this.btnAssignCourse = new System.Windows.Forms.Button();
+            this.lblAssignedCourses = new System.Windows.Forms.Label();
+            this.pnlFooter = new System.Windows.Forms.Panel();
             this.btnNew = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.btnDelete = new System.Windows.Forms.Button();
+            this.btnBack = new System.Windows.Forms.Button();
+            this.lblMessage = new System.Windows.Forms.Label();
+            this.lblDatabase = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.gridTutors)).BeginInit();
             this.SuspendLayout();
-            // Designer-visible header and navigation
             this.pnlHeader.Name = "pnlHeader";
+            this.pnlHeader.Location = new System.Drawing.Point(0,0);
+            this.pnlHeader.Size = new System.Drawing.Size(1220,110);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlHeader.Height = 104;
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(31, 56, 100);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Text = "Manage Tutors";
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.Text = "Manage tutors";
+            this.lblTitle.Location = new System.Drawing.Point(34,18);
+            this.lblTitle.Size = new System.Drawing.Size(570,47);
+            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 23F, System.Drawing.FontStyle.Bold);
             this.lblTitle.ForeColor = System.Drawing.Color.White;
-            this.lblTitle.Location = new System.Drawing.Point(28, 15);
-            this.lblTitle.Size = new System.Drawing.Size(530, 43);
             this.lblSubtitle.Name = "lblSubtitle";
-            this.lblSubtitle.Text = "ADD NEW TUTORS | EDIT EXISTING TUTORS";
+            this.lblSubtitle.Text = "Maintain tutor profiles and assign courses for academic support";
+            this.lblSubtitle.Location = new System.Drawing.Point(37,70);
+            this.lblSubtitle.Size = new System.Drawing.Size(840,27);
+            this.lblSubtitle.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblSubtitle.ForeColor = System.Drawing.Color.Gainsboro;
-            this.lblSubtitle.Location = new System.Drawing.Point(30, 64);
-            this.lblSubtitle.Size = new System.Drawing.Size(540, 24);
-            this.btnBack.Name = "btnBack";
-            this.btnBack.Text = "Back";
-            this.btnBack.Size = new System.Drawing.Size(115, 39);
-            this.btnBack.Location = new System.Drawing.Point(1140, 33);
-            this.btnBack.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            this.btnBack.BackColor = System.Drawing.Color.White;
-            this.btnBack.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
             this.pnlHeader.Controls.Add(this.lblTitle);
             this.pnlHeader.Controls.Add(this.lblSubtitle);
-            this.pnlHeader.Controls.Add(this.btnBack);
-            this.btnAddTutor.Name = "btnAddTutor";
-            this.btnAddTutor.Text = "Add New Tutor";
-            this.btnAddTutor.Location = new System.Drawing.Point(32, 712);
-            this.btnAddTutor.Size = new System.Drawing.Size(160, 40);
-            this.btnUpdateTutor.Name = "btnUpdateTutor";
-            this.btnUpdateTutor.Text = "Edit Tutor";
-            this.btnUpdateTutor.Location = new System.Drawing.Point(204, 712);
-            this.btnUpdateTutor.Size = new System.Drawing.Size(140, 40);
-            // 
-            // gridTutors
-            // 
-            this.gridTutors.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gridTutors.Location = new System.Drawing.Point(31, 146);
+            this.pnlSearch.Name = "pnlSearch";
+            this.pnlSearch.Location = new System.Drawing.Point(28,132);
+            this.pnlSearch.Size = new System.Drawing.Size(1160,65);
+            this.pnlSearch.BackColor = System.Drawing.Color.White;
+            this.lblSearch.Name = "lblSearch";
+            this.lblSearch.Text = "Find tutor";
+            this.lblSearch.Location = new System.Drawing.Point(16,20);
+            this.lblSearch.Size = new System.Drawing.Size(116,28);
+            this.lblSearch.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblSearch.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.txtSearch.Name = "txtSearch";
+            this.txtSearch.Location = new System.Drawing.Point(138,13);
+            this.txtSearch.Size = new System.Drawing.Size(330,39);
+            this.txtSearch.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Text = "Refresh list";
+            this.btnRefresh.Location = new System.Drawing.Point(490,13);
+            this.btnRefresh.Size = new System.Drawing.Size(138,39);
+            this.btnRefresh.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRefresh.BackColor = System.Drawing.Color.FromArgb(35, 93, 177);
+            this.btnRefresh.ForeColor = System.Drawing.Color.White;
+            this.btnRefresh.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lblTutorCount.Name = "lblTutorCount";
+            this.lblTutorCount.Text = "0 tutors";
+            this.lblTutorCount.Location = new System.Drawing.Point(900,19);
+            this.lblTutorCount.Size = new System.Drawing.Size(230,30);
+            this.lblTutorCount.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.lblTutorCount.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.pnlSearch.Controls.Add(this.lblSearch);
+            this.pnlSearch.Controls.Add(this.txtSearch);
+            this.pnlSearch.Controls.Add(this.btnRefresh);
+            this.pnlSearch.Controls.Add(this.lblTutorCount);
+            this.pnlGrid.Name = "pnlGrid";
+            this.pnlGrid.Location = new System.Drawing.Point(28,213);
+            this.pnlGrid.Size = new System.Drawing.Size(710,462);
+            this.pnlGrid.BackColor = System.Drawing.Color.White;
+            this.pnlGrid.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.gridTutors.Name = "gridTutors";
+            this.gridTutors.Location = new System.Drawing.Point(18,19);
+            this.gridTutors.Size = new System.Drawing.Size(672,424);
+            this.gridTutors.BackgroundColor = System.Drawing.Color.White;
+            this.gridTutors.AllowUserToAddRows = false;
+            this.gridTutors.AllowUserToDeleteRows = false;
+            this.gridTutors.MultiSelect = false;
             this.gridTutors.ReadOnly = true;
-            this.gridTutors.RowHeadersWidth = 51;
-            this.gridTutors.RowTemplate.Height = 24;
-            this.gridTutors.Size = new System.Drawing.Size(582, 394);
-            this.gridTutors.TabIndex = 0;
-            this.gridTutors.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(836, 210);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(72, 16);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "First Name";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(838, 262);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(72, 16);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Last Name";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(836, 320);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(41, 16);
-            this.label3.TabIndex = 3;
-            this.label3.Text = "Email";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(838, 392);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(111, 16);
-            this.label4.TabIndex = 4;
-            this.label4.Text = "Subject Specialty";
-            // 
-            // txtFirstName
-            // 
-            this.txtFirstName.Location = new System.Drawing.Point(1049, 208);
+            this.gridTutors.RowHeadersVisible = false;
+            this.gridTutors.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.gridTutors.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.gridTutors.ColumnHeadersHeight = 44;
+            this.gridTutors.RowTemplate.Height = 35;
+            this.gridTutors.EnableHeadersVisualStyles = false;
+            this.gridTutors.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.gridTutors.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+            this.gridTutors.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(219, 235, 252);
+            this.gridTutors.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.pnlGrid.Controls.Add(this.gridTutors);
+            this.pnlEditor.Name = "pnlEditor";
+            this.pnlEditor.Location = new System.Drawing.Point(756,213);
+            this.pnlEditor.Size = new System.Drawing.Size(432,462);
+            this.pnlEditor.BackColor = System.Drawing.Color.White;
+            this.pnlEditor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblEditorHeading.Name = "lblEditorHeading";
+            this.lblEditorHeading.Text = "New tutor";
+            this.lblEditorHeading.Location = new System.Drawing.Point(24,17);
+            this.lblEditorHeading.Size = new System.Drawing.Size(375,40);
+            this.lblEditorHeading.Font = new System.Drawing.Font("Segoe UI", 19F, System.Drawing.FontStyle.Bold);
+            this.lblEditorHeading.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.lblFirstName.Name = "lblFirstName";
+            this.lblFirstName.Text = "First name";
+            this.lblFirstName.Location = new System.Drawing.Point(26,69);
+            this.lblFirstName.Size = new System.Drawing.Size(365,22);
+            this.lblFirstName.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblFirstName.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
             this.txtFirstName.Name = "txtFirstName";
-            this.txtFirstName.Size = new System.Drawing.Size(100, 22);
-            this.txtFirstName.TabIndex = 5;
-            // 
-            // txtLastName
-            // 
-            this.txtLastName.Location = new System.Drawing.Point(1049, 262);
+            this.txtFirstName.Location = new System.Drawing.Point(26,97);
+            this.txtFirstName.Size = new System.Drawing.Size(375,38);
+            this.txtFirstName.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblLastName.Name = "lblLastName";
+            this.lblLastName.Text = "Last name";
+            this.lblLastName.Location = new System.Drawing.Point(26,149);
+            this.lblLastName.Size = new System.Drawing.Size(365,22);
+            this.lblLastName.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblLastName.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
             this.txtLastName.Name = "txtLastName";
-            this.txtLastName.Size = new System.Drawing.Size(100, 22);
-            this.txtLastName.TabIndex = 6;
-            // 
-            // txtEmail
-            // 
-            this.txtEmail.Location = new System.Drawing.Point(1049, 329);
+            this.txtLastName.Location = new System.Drawing.Point(26,177);
+            this.txtLastName.Size = new System.Drawing.Size(375,38);
+            this.txtLastName.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblEmail.Name = "lblEmail";
+            this.lblEmail.Text = "Email address";
+            this.lblEmail.Location = new System.Drawing.Point(26,229);
+            this.lblEmail.Size = new System.Drawing.Size(365,22);
+            this.lblEmail.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblEmail.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
             this.txtEmail.Name = "txtEmail";
-            this.txtEmail.Size = new System.Drawing.Size(100, 22);
-            this.txtEmail.TabIndex = 7;
-            // 
-            // txtSubjectSpecialty
-            // 
-            this.txtSubjectSpecialty.Location = new System.Drawing.Point(1049, 403);
-            this.txtSubjectSpecialty.Name = "txtSubjectSpecialty";
-            this.txtSubjectSpecialty.Size = new System.Drawing.Size(100, 22);
-            this.txtSubjectSpecialty.TabIndex = 8;
-            // 
-            // chkIsActive
-            // 
-            this.chkIsActive.AutoSize = true;
-            this.chkIsActive.Location = new System.Drawing.Point(845, 512);
-            this.chkIsActive.Name = "chkIsActive";
-            this.chkIsActive.Size = new System.Drawing.Size(66, 20);
-            this.chkIsActive.TabIndex = 9;
-            this.chkIsActive.Text = "Active";
-            this.chkIsActive.UseVisualStyleBackColor = true;
-            // 
-            // btnNew
-            // 
-            this.btnNew.Location = new System.Drawing.Point(678, 616);
+            this.txtEmail.Location = new System.Drawing.Point(26,257);
+            this.txtEmail.Size = new System.Drawing.Size(375,38);
+            this.txtEmail.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblCourseSection.Name = "lblCourseSection";
+            this.lblCourseSection.Text = "Assign a course";
+            this.lblCourseSection.Location = new System.Drawing.Point(26,309);
+            this.lblCourseSection.Size = new System.Drawing.Size(370,23);
+            this.lblCourseSection.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblCourseSection.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.cmbCourse.Name = "cmbCourse";
+            this.cmbCourse.Location = new System.Drawing.Point(26,338);
+            this.cmbCourse.Size = new System.Drawing.Size(375,37);
+            this.cmbCourse.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.btnAssignCourse.Name = "btnAssignCourse";
+            this.btnAssignCourse.Text = "Assign course";
+            this.btnAssignCourse.Location = new System.Drawing.Point(26,389);
+            this.btnAssignCourse.Size = new System.Drawing.Size(160,40);
+            this.btnAssignCourse.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnAssignCourse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAssignCourse.BackColor = System.Drawing.Color.FromArgb(35, 93, 177);
+            this.btnAssignCourse.ForeColor = System.Drawing.Color.White;
+            this.btnAssignCourse.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lblAssignedCourses.Name = "lblAssignedCourses";
+            this.lblAssignedCourses.Text = "Save this tutor before assigning a course.";
+            this.lblAssignedCourses.Location = new System.Drawing.Point(196,387);
+            this.lblAssignedCourses.Size = new System.Drawing.Size(214,51);
+            this.lblAssignedCourses.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblAssignedCourses.ForeColor = System.Drawing.Color.FromArgb(83, 104, 132);
+            this.pnlEditor.Controls.Add(this.lblEditorHeading);
+            this.pnlEditor.Controls.Add(this.lblFirstName);
+            this.pnlEditor.Controls.Add(this.txtFirstName);
+            this.pnlEditor.Controls.Add(this.lblLastName);
+            this.pnlEditor.Controls.Add(this.txtLastName);
+            this.pnlEditor.Controls.Add(this.lblEmail);
+            this.pnlEditor.Controls.Add(this.txtEmail);
+            this.pnlEditor.Controls.Add(this.lblCourseSection);
+            this.pnlEditor.Controls.Add(this.cmbCourse);
+            this.pnlEditor.Controls.Add(this.btnAssignCourse);
+            this.pnlEditor.Controls.Add(this.lblAssignedCourses);
+            this.pnlFooter.Name = "pnlFooter";
+            this.pnlFooter.Location = new System.Drawing.Point(0,686);
+            this.pnlFooter.Size = new System.Drawing.Size(1220,104);
+            this.pnlFooter.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlFooter.BackColor = System.Drawing.Color.White;
             this.btnNew.Name = "btnNew";
-            this.btnNew.Size = new System.Drawing.Size(75, 23);
-            this.btnNew.TabIndex = 10;
-            this.btnNew.Text = "New";
-            this.btnNew.UseVisualStyleBackColor = true;
-            // 
-            // btnSave
-            // 
-            this.btnSave.Location = new System.Drawing.Point(813, 616);
+            this.btnNew.Text = "New tutor";
+            this.btnNew.Location = new System.Drawing.Point(30,15);
+            this.btnNew.Size = new System.Drawing.Size(142,43);
+            this.btnNew.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnNew.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNew.BackColor = System.Drawing.Color.White;
+            this.btnNew.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.btnNew.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 11;
-            this.btnSave.Text = "Save";
-            this.btnSave.UseVisualStyleBackColor = true;
-            // 
-            // btnCancel
-            // 
-            this.btnCancel.Location = new System.Drawing.Point(936, 616);
+            this.btnSave.Text = "Save tutor";
+            this.btnSave.Location = new System.Drawing.Point(187,15);
+            this.btnSave.Size = new System.Drawing.Size(160,43);
+            this.btnSave.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSave.BackColor = System.Drawing.Color.FromArgb(35, 93, 177);
+            this.btnSave.ForeColor = System.Drawing.Color.White;
+            this.btnSave.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.TabIndex = 12;
-            this.btnCancel.Text = "Cancel";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            // 
-            // btnDelete
-            // 
-            this.btnDelete.Location = new System.Drawing.Point(1091, 616);
-            this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(108, 23);
-            this.btnDelete.TabIndex = 13;
-            this.btnDelete.Text = "Deactivate";
-            this.btnDelete.UseVisualStyleBackColor = true;
-            // 
-            // ManagaeTutors
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.btnCancel.Text = "Clear form";
+            this.btnCancel.Location = new System.Drawing.Point(362,15);
+            this.btnCancel.Size = new System.Drawing.Size(145,43);
+            this.btnCancel.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCancel.BackColor = System.Drawing.Color.White;
+            this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.btnCancel.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Text = "Back";
+            this.btnBack.Location = new System.Drawing.Point(1041,15);
+            this.btnBack.Size = new System.Drawing.Size(140,43);
+            this.btnBack.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnBack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnBack.BackColor = System.Drawing.Color.White;
+            this.btnBack.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.btnBack.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Text = "Ready";
+            this.lblMessage.Location = new System.Drawing.Point(534,16);
+            this.lblMessage.Size = new System.Drawing.Size(490,28);
+            this.lblMessage.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lblMessage.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.lblDatabase.Name = "lblDatabase";
+            this.lblDatabase.Text = "Database: Edu_Connect.accdb";
+            this.lblDatabase.Location = new System.Drawing.Point(30,68);
+            this.lblDatabase.Size = new System.Drawing.Size(1155,26);
+            this.lblDatabase.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblDatabase.ForeColor = System.Drawing.Color.FromArgb(83, 104, 132);
+            this.pnlFooter.Controls.Add(this.btnNew);
+            this.pnlFooter.Controls.Add(this.btnSave);
+            this.pnlFooter.Controls.Add(this.btnCancel);
+            this.pnlFooter.Controls.Add(this.btnBack);
+            this.pnlFooter.Controls.Add(this.lblMessage);
+            this.pnlFooter.Controls.Add(this.lblDatabase);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1292, 756);
-            this.Controls.Add(this.btnAddTutor);
-            this.Controls.Add(this.btnUpdateTutor);
-            this.Controls.Add(this.btnDelete);
-            this.Controls.Add(this.btnCancel);
-            this.Controls.Add(this.btnSave);
-            this.Controls.Add(this.btnNew);
-            this.Controls.Add(this.chkIsActive);
-            this.Controls.Add(this.txtSubjectSpecialty);
-            this.Controls.Add(this.txtEmail);
-            this.Controls.Add(this.txtLastName);
-            this.Controls.Add(this.txtFirstName);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.gridTutors);
-            this.Controls.Add(this.pnlHeader);
-            this.Name = "ManagaeTutors";
+            this.ClientSize = new System.Drawing.Size(1220, 790);
+            this.MinimumSize = new System.Drawing.Size(1220, 790);
             this.Text = "EduConnect | Manage tutors";
-            this.MinimumSize = new System.Drawing.Size(1050, 700);
+            this.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.BackColor = System.Drawing.Color.FromArgb(230, 237, 249);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Controls.Add(this.pnlGrid);
+            this.Controls.Add(this.pnlEditor);
+            this.Controls.Add(this.pnlSearch);
+            this.Controls.Add(this.pnlFooter);
+            this.Controls.Add(this.pnlHeader);
             ((System.ComponentModel.ISupportInitialize)(this.gridTutors)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
-
         }
-
-        #endregion
-
         private System.Windows.Forms.Panel pnlHeader;
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.Label lblSubtitle;
-        private System.Windows.Forms.Button btnBack;
-        private System.Windows.Forms.Button btnAddTutor;
-        private System.Windows.Forms.Button btnUpdateTutor;
+        private System.Windows.Forms.Panel pnlSearch;
+        private System.Windows.Forms.Label lblSearch;
+        private System.Windows.Forms.TextBox txtSearch;
+        private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Label lblTutorCount;
+        private System.Windows.Forms.Panel pnlGrid;
         private System.Windows.Forms.DataGridView gridTutors;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Panel pnlEditor;
+        private System.Windows.Forms.Label lblEditorHeading;
+        private System.Windows.Forms.Label lblFirstName;
+        private System.Windows.Forms.Label lblLastName;
+        private System.Windows.Forms.Label lblEmail;
         private System.Windows.Forms.TextBox txtFirstName;
         private System.Windows.Forms.TextBox txtLastName;
         private System.Windows.Forms.TextBox txtEmail;
-        private System.Windows.Forms.TextBox txtSubjectSpecialty;
-        private System.Windows.Forms.CheckBox chkIsActive;
+        private System.Windows.Forms.Label lblCourseSection;
+        private System.Windows.Forms.ComboBox cmbCourse;
+        private System.Windows.Forms.Button btnAssignCourse;
+        private System.Windows.Forms.Label lblAssignedCourses;
+        private System.Windows.Forms.Panel pnlFooter;
         private System.Windows.Forms.Button btnNew;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.Button btnDelete;
+        private System.Windows.Forms.Button btnBack;
+        private System.Windows.Forms.Label lblMessage;
+        private System.Windows.Forms.Label lblDatabase;
     }
 }
