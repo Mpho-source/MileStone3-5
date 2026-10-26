@@ -33,6 +33,9 @@ namespace NextGen__7
             fromDate.Value = DateTime.Today.AddMonths(-1);
             toDate.Value = DateTime.Today;
             cmbReport.SelectedIndexChanged += (s, e) => ChangeReport();
+            fromDate.ValueChanged += (s, e) => UpdateCriteria();
+            toDate.ValueChanged += (s, e) => UpdateCriteria();
+            numYear.ValueChanged += (s, e) => UpdateCriteria();
             btnGenerate.Click += (s, e) => Generate();
             btnAcademic.Click += (s, e) => OpenAcademicTracking();
             btnToggleView.Click += (s, e) => ToggleView();
@@ -84,6 +87,7 @@ namespace NextGen__7
             numYear.Enabled = trend;
             lblYear.Enabled = trend;
             btnAcademic.Enabled = trend;
+            UpdateCriteria();
             btnToggleView.Visible = trend;
             btnToggleView.Enabled = false;
             grid.DataSource = null;
@@ -93,6 +97,20 @@ namespace NextGen__7
             lblStatus.Text = trend
                 ? "GPA and attendance must be recorded before a trend can be calculated."
                 : "Select Generate report to retrieve the latest data.";
+        }
+
+        private void UpdateCriteria()
+        {
+            if (cmbReport.SelectedIndex == 0)
+                lblReportCriteria.Text = "Eligible records: Status = Submitted, RequestDate on or before " +
+                    DateTime.Today.AddDays(-7).ToString("dd MMM yyyy") + ".";
+            else if (cmbReport.SelectedIndex == 1)
+                lblReportCriteria.Text = "Counts sessions with status Scheduled or Completed from " +
+                    fromDate.Value.ToString("dd MMM yyyy") + " to " +
+                    toDate.Value.ToString("dd MMM yyyy") + ".";
+            else if (cmbReport.SelectedIndex == 2)
+                lblReportCriteria.Text = "Uses recorded GPA and tutoring attendance for four academic terms in " +
+                    numYear.Value + ". Missing data is not estimated.";
         }
 
         private void Generate()
