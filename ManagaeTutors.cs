@@ -4,7 +4,6 @@ using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
-using System.IO;
 using System.Net.Mail;
 using System.Windows.Forms;
 
@@ -104,10 +103,6 @@ namespace NextGen__7
                 ClearEditor();
                 ApplySearch();
                 lblTutorCount.Text = table.Rows.Count + " tutors";
-                lblDatabase.Text = "Saving to " +
-                    Path.Combine(Convert.ToString(AppDomain.CurrentDomain.GetData("DataDirectory")),
-                        "Edu_Connect.accdb");
-                lblDatabase.AutoEllipsis = true;
                 lblMessage.Text = "Select a tutor to edit, or choose New Tutor.";
             }
             catch (Exception ex)
