@@ -54,7 +54,8 @@
     <Compile Include="BookingData.cs" />
     <Compile Include="AdminDashboard.cs"><SubType>Form</SubType></Compile>
     <Compile Include="AdminDashboard.Designer.cs"><DependentUpon>AdminDashboard.cs</DependentUpon></Compile>
-    <Compile Include="AdminRequests.cs" />
+    <Compile Include="AdminRequests.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="AdminRequests.Designer.cs"><DependentUpon>AdminRequests.cs</DependentUpon></Compile>
     <Compile Include="EduConnectTheme.cs" />
     <Compile Include="EduConnectLayout.cs" />
     <Compile Include="BookingResult.cs">
