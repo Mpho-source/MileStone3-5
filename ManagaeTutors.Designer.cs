@@ -28,6 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.pnlHeader = new System.Windows.Forms.Panel();
+            this.lblTitle = new System.Windows.Forms.Label();
+            this.lblSubtitle = new System.Windows.Forms.Label();
+            this.btnBack = new System.Windows.Forms.Button();
+            this.btnAddTutor = new System.Windows.Forms.Button();
+            this.btnUpdateTutor = new System.Windows.Forms.Button();
             this.gridTutors = new System.Windows.Forms.DataGridView();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -44,11 +50,45 @@
             this.btnDelete = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.gridTutors)).BeginInit();
             this.SuspendLayout();
+            // Designer-visible header and navigation
+            this.pnlHeader.Name = "pnlHeader";
+            this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlHeader.Height = 104;
+            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Text = "Manage Tutors";
+            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.ForeColor = System.Drawing.Color.White;
+            this.lblTitle.Location = new System.Drawing.Point(28, 15);
+            this.lblTitle.Size = new System.Drawing.Size(530, 43);
+            this.lblSubtitle.Name = "lblSubtitle";
+            this.lblSubtitle.Text = "ADD NEW TUTORS | EDIT EXISTING TUTORS";
+            this.lblSubtitle.ForeColor = System.Drawing.Color.Gainsboro;
+            this.lblSubtitle.Location = new System.Drawing.Point(30, 64);
+            this.lblSubtitle.Size = new System.Drawing.Size(540, 24);
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Text = "Back";
+            this.btnBack.Size = new System.Drawing.Size(115, 39);
+            this.btnBack.Location = new System.Drawing.Point(1140, 33);
+            this.btnBack.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            this.btnBack.BackColor = System.Drawing.Color.White;
+            this.btnBack.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.pnlHeader.Controls.Add(this.lblTitle);
+            this.pnlHeader.Controls.Add(this.lblSubtitle);
+            this.pnlHeader.Controls.Add(this.btnBack);
+            this.btnAddTutor.Name = "btnAddTutor";
+            this.btnAddTutor.Text = "Add New Tutor";
+            this.btnAddTutor.Location = new System.Drawing.Point(32, 712);
+            this.btnAddTutor.Size = new System.Drawing.Size(160, 40);
+            this.btnUpdateTutor.Name = "btnUpdateTutor";
+            this.btnUpdateTutor.Text = "Edit Tutor";
+            this.btnUpdateTutor.Location = new System.Drawing.Point(204, 712);
+            this.btnUpdateTutor.Size = new System.Drawing.Size(140, 40);
             // 
             // gridTutors
             // 
             this.gridTutors.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gridTutors.Location = new System.Drawing.Point(31, 44);
+            this.gridTutors.Location = new System.Drawing.Point(31, 146);
             this.gridTutors.Name = "gridTutors";
             this.gridTutors.ReadOnly = true;
             this.gridTutors.RowHeadersWidth = 51;
@@ -60,7 +100,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(836, 108);
+            this.label1.Location = new System.Drawing.Point(836, 210);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(72, 16);
             this.label1.TabIndex = 1;
@@ -69,7 +109,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(838, 160);
+            this.label2.Location = new System.Drawing.Point(838, 262);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(72, 16);
             this.label2.TabIndex = 2;
@@ -78,7 +118,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(836, 218);
+            this.label3.Location = new System.Drawing.Point(836, 320);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(41, 16);
             this.label3.TabIndex = 3;
@@ -87,7 +127,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(838, 290);
+            this.label4.Location = new System.Drawing.Point(838, 392);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(111, 16);
             this.label4.TabIndex = 4;
@@ -95,28 +135,28 @@
             // 
             // txtFirstName
             // 
-            this.txtFirstName.Location = new System.Drawing.Point(1049, 106);
+            this.txtFirstName.Location = new System.Drawing.Point(1049, 208);
             this.txtFirstName.Name = "txtFirstName";
             this.txtFirstName.Size = new System.Drawing.Size(100, 22);
             this.txtFirstName.TabIndex = 5;
             // 
             // txtLastName
             // 
-            this.txtLastName.Location = new System.Drawing.Point(1049, 160);
+            this.txtLastName.Location = new System.Drawing.Point(1049, 262);
             this.txtLastName.Name = "txtLastName";
             this.txtLastName.Size = new System.Drawing.Size(100, 22);
             this.txtLastName.TabIndex = 6;
             // 
             // txtEmail
             // 
-            this.txtEmail.Location = new System.Drawing.Point(1049, 227);
+            this.txtEmail.Location = new System.Drawing.Point(1049, 329);
             this.txtEmail.Name = "txtEmail";
             this.txtEmail.Size = new System.Drawing.Size(100, 22);
             this.txtEmail.TabIndex = 7;
             // 
             // txtSubjectSpecialty
             // 
-            this.txtSubjectSpecialty.Location = new System.Drawing.Point(1049, 301);
+            this.txtSubjectSpecialty.Location = new System.Drawing.Point(1049, 403);
             this.txtSubjectSpecialty.Name = "txtSubjectSpecialty";
             this.txtSubjectSpecialty.Size = new System.Drawing.Size(100, 22);
             this.txtSubjectSpecialty.TabIndex = 8;
@@ -124,7 +164,7 @@
             // chkIsActive
             // 
             this.chkIsActive.AutoSize = true;
-            this.chkIsActive.Location = new System.Drawing.Point(845, 410);
+            this.chkIsActive.Location = new System.Drawing.Point(845, 512);
             this.chkIsActive.Name = "chkIsActive";
             this.chkIsActive.Size = new System.Drawing.Size(66, 20);
             this.chkIsActive.TabIndex = 9;
@@ -133,7 +173,7 @@
             // 
             // btnNew
             // 
-            this.btnNew.Location = new System.Drawing.Point(678, 514);
+            this.btnNew.Location = new System.Drawing.Point(678, 616);
             this.btnNew.Name = "btnNew";
             this.btnNew.Size = new System.Drawing.Size(75, 23);
             this.btnNew.TabIndex = 10;
@@ -142,7 +182,7 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(813, 514);
+            this.btnSave.Location = new System.Drawing.Point(813, 616);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 11;
@@ -151,7 +191,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(936, 514);
+            this.btnCancel.Location = new System.Drawing.Point(936, 616);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 12;
@@ -160,7 +200,7 @@
             // 
             // btnDelete
             // 
-            this.btnDelete.Location = new System.Drawing.Point(1091, 514);
+            this.btnDelete.Location = new System.Drawing.Point(1091, 616);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(108, 23);
             this.btnDelete.TabIndex = 13;
@@ -171,7 +211,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1292, 654);
+            this.ClientSize = new System.Drawing.Size(1292, 756);
+            this.Controls.Add(this.btnAddTutor);
+            this.Controls.Add(this.btnUpdateTutor);
             this.Controls.Add(this.btnDelete);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
@@ -186,8 +228,11 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.gridTutors);
+            this.Controls.Add(this.pnlHeader);
             this.Name = "ManagaeTutors";
-            this.Text = "ManagaeTutors";
+            this.Text = "EduConnect | Manage tutors";
+            this.MinimumSize = new System.Drawing.Size(1050, 700);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             ((System.ComponentModel.ISupportInitialize)(this.gridTutors)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -196,6 +241,12 @@
 
         #endregion
 
+        private System.Windows.Forms.Panel pnlHeader;
+        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Label lblSubtitle;
+        private System.Windows.Forms.Button btnBack;
+        private System.Windows.Forms.Button btnAddTutor;
+        private System.Windows.Forms.Button btnUpdateTutor;
         private System.Windows.Forms.DataGridView gridTutors;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
