@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -156,7 +157,8 @@ namespace NextGen__7
                     fromDate.Value.ToString("dd MMM yyyy") + " to " +
                     toDate.Value.ToString("dd MMM yyyy") + ".";
             else if (cmbReport.SelectedIndex == 2)
-                lblReportCriteria.Text = "GPA and recorded attendance for " + numYear.Value + ". Attendance currently follows calendar quarters; missing data is not zero.";
+                lblReportCriteria.Text = "GPA / attendance for " + numYear.Value +
+                    ". Provisional grouping: Jan-Mar, Apr-Jun, Jul-Sep, Oct-Dec (confirm actual term dates).";
         }
 
         private void Generate()
@@ -777,6 +779,33 @@ namespace NextGen__7
                 "Report date: " + DateTime.Today.ToShortDateString();
             e.Graphics.DrawString(context, printBody, Brushes.DimGray, left, y);
             y += 34;
+            if (cmbReport.SelectedIndex == 2 && chartTrends.Visible)
+            {
+                // Preview or print the actual visual trend, not an unrelated
+                // seven-column raw-data table while Show chart is selected.
+                using (var stream = new MemoryStream())
+                {
+                    chartTrends.SaveImage(stream, ChartImageFormat.Png);
+                    stream.Position = 0;
+                    using (var picture = Image.FromStream(stream))
+                    {
+                        float scale = Math.Min((float)width / picture.Width,
+                            (float)(e.MarginBounds.Bottom - y - 130) / picture.Height);
+                        int pictureWidth = Math.Max(1, (int)(picture.Width * scale));
+                        int pictureHeight = Math.Max(1, (int)(picture.Height * scale));
+                        e.Graphics.DrawImage(picture, new Rectangle(
+                            left + (width - pictureWidth) / 2, y,
+                            pictureWidth, pictureHeight));
+                        y += pictureHeight + 22;
+                    }
+                }
+                e.Graphics.DrawString(lblTrendSummary.Text, printBody, Brushes.Black,
+                    new RectangleF(left, y, width, Math.Max(60,
+                        e.MarginBounds.Bottom - y)));
+                e.HasMorePages = false;
+                printRow = 0;
+                return;
+            }
             int columns = result.Columns.Count;
             int columnWidth = Math.Max(48, width / columns);
             for (int c = 0; c < columns; c++)
