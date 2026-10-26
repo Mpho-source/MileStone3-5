@@ -1,0 +1,147 @@
+namespace NextGen__7
+{
+    partial class AccountPasswordsForm
+    {
+        private System.ComponentModel.IContainer components = null;
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && components != null) components.Dispose();
+            base.Dispose(disposing);
+        }
+
+        private void InitializeComponent()
+        {
+            this.lblHeading = new System.Windows.Forms.Label();
+            this.lblDescription = new System.Windows.Forms.Label();
+            this.lblRole = new System.Windows.Forms.Label();
+            this.cmbRole = new System.Windows.Forms.ComboBox();
+            this.lblAccountNumber = new System.Windows.Forms.Label();
+            this.txtAccount = new System.Windows.Forms.TextBox();
+            this.lblPassword = new System.Windows.Forms.Label();
+            this.txtPassword = new System.Windows.Forms.TextBox();
+            this.lblConfirm = new System.Windows.Forms.Label();
+            this.txtConfirm = new System.Windows.Forms.TextBox();
+            this.lblSetupKey = new System.Windows.Forms.Label();
+            this.txtSetupKey = new System.Windows.Forms.TextBox();
+            this.lblStatus = new System.Windows.Forms.Label();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnClose = new System.Windows.Forms.Button();
+            this.SuspendLayout();
+            this.lblHeading.Name = "lblHeading";
+            this.lblHeading.Text = "Manage passwords";
+            this.lblHeading.Location = new System.Drawing.Point(30,20);
+            this.lblHeading.Size = new System.Drawing.Size(650,50);
+            this.lblHeading.Font = new System.Drawing.Font("Segoe UI",23F,System.Drawing.FontStyle.Bold);
+            this.lblHeading.ForeColor = System.Drawing.Color.FromArgb(31,56,100);
+            this.lblDescription.Name = "lblDescription";
+            this.lblDescription.Text = "Set login passwords for existing students and staff.";
+            this.lblDescription.Location = new System.Drawing.Point(32,79);
+            this.lblDescription.Size = new System.Drawing.Size(650,49);
+            this.lblDescription.ForeColor = System.Drawing.Color.FromArgb(83,104,132);
+            this.lblRole.Name = "lblRole";
+            this.lblRole.Text = "Role";
+            this.lblRole.Location = new System.Drawing.Point(32,129);
+            this.lblRole.Size = new System.Drawing.Size(300,25);
+            this.lblRole.ForeColor = System.Drawing.Color.FromArgb(31,56,100);
+            this.lblRole.Font = new System.Drawing.Font("Segoe UI",10F,System.Drawing.FontStyle.Bold);
+            this.cmbRole.Name = "cmbRole";
+            this.cmbRole.Location = new System.Drawing.Point(32,158);
+            this.cmbRole.Size = new System.Drawing.Size(295,36);
+            this.cmbRole.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.lblAccountNumber.Name = "lblAccountNumber";
+            this.lblAccountNumber.Text = "Student number";
+            this.lblAccountNumber.Location = new System.Drawing.Point(348,129);
+            this.lblAccountNumber.Size = new System.Drawing.Size(300,25);
+            this.lblAccountNumber.ForeColor = System.Drawing.Color.FromArgb(31,56,100);
+            this.lblAccountNumber.Font = new System.Drawing.Font("Segoe UI",10F,System.Drawing.FontStyle.Bold);
+            this.txtAccount.Name = "txtAccount";
+            this.txtAccount.Location = new System.Drawing.Point(348,158);
+            this.txtAccount.Size = new System.Drawing.Size(317,36);
+            this.lblPassword.Name = "lblPassword";
+            this.lblPassword.Text = "Password";
+            this.lblPassword.Location = new System.Drawing.Point(32,207);
+            this.lblPassword.Size = new System.Drawing.Size(300,25);
+            this.lblPassword.ForeColor = System.Drawing.Color.FromArgb(31,56,100);
+            this.lblPassword.Font = new System.Drawing.Font("Segoe UI",10F,System.Drawing.FontStyle.Bold);
+            this.txtPassword.Name = "txtPassword";
+            this.txtPassword.Location = new System.Drawing.Point(32,235);
+            this.txtPassword.Size = new System.Drawing.Size(633,36);
+            this.lblConfirm.Name = "lblConfirm";
+            this.lblConfirm.Text = "Confirm password";
+            this.lblConfirm.Location = new System.Drawing.Point(32,285);
+            this.lblConfirm.Size = new System.Drawing.Size(300,25);
+            this.lblConfirm.ForeColor = System.Drawing.Color.FromArgb(31,56,100);
+            this.lblConfirm.Font = new System.Drawing.Font("Segoe UI",10F,System.Drawing.FontStyle.Bold);
+            this.txtConfirm.Name = "txtConfirm";
+            this.txtConfirm.Location = new System.Drawing.Point(32,313);
+            this.txtConfirm.Size = new System.Drawing.Size(633,36);
+            this.lblSetupKey.Name = "lblSetupKey";
+            this.lblSetupKey.Text = "First-admin setup key (required only during initialization)";
+            this.lblSetupKey.Location = new System.Drawing.Point(32,363);
+            this.lblSetupKey.Size = new System.Drawing.Size(300,25);
+            this.lblSetupKey.ForeColor = System.Drawing.Color.FromArgb(31,56,100);
+            this.lblSetupKey.Font = new System.Drawing.Font("Segoe UI",10F,System.Drawing.FontStyle.Bold);
+            this.txtSetupKey.Name = "txtSetupKey";
+            this.txtSetupKey.Location = new System.Drawing.Point(32,391);
+            this.txtSetupKey.Size = new System.Drawing.Size(633,36);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Text = "Use at least 12 characters with uppercase, lowercase and a number.";
+            this.lblStatus.Location = new System.Drawing.Point(32,445);
+            this.lblStatus.Size = new System.Drawing.Size(633,56);
+            this.lblStatus.ForeColor = System.Drawing.Color.FromArgb(83,104,132);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Text = "Save password";
+            this.btnSave.Location = new System.Drawing.Point(371,515);
+            this.btnSave.Size = new System.Drawing.Size(180,46);
+            this.btnSave.BackColor = System.Drawing.Color.FromArgb(35,93,177);
+            this.btnSave.ForeColor = System.Drawing.Color.White;
+            this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Text = "Close";
+            this.btnClose.Location = new System.Drawing.Point(558,515);
+            this.btnClose.Size = new System.Drawing.Size(107,46);
+            this.btnClose.BackColor = System.Drawing.Color.FromArgb(83,104,132);
+            this.btnClose.ForeColor = System.Drawing.Color.White;
+            this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.ClientSize = new System.Drawing.Size(698,585);
+            this.MinimumSize = new System.Drawing.Size(698,585);
+            this.MaximumSize = new System.Drawing.Size(698,585);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Font = new System.Drawing.Font("Segoe UI",10F);
+            this.Text = "EduConnect | Account passwords";
+            this.BackColor = System.Drawing.Color.White;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Controls.Add(this.lblHeading);
+            this.Controls.Add(this.lblDescription);
+            this.Controls.Add(this.lblRole);
+            this.Controls.Add(this.cmbRole);
+            this.Controls.Add(this.lblAccountNumber);
+            this.Controls.Add(this.txtAccount);
+            this.Controls.Add(this.lblPassword);
+            this.Controls.Add(this.txtPassword);
+            this.Controls.Add(this.lblConfirm);
+            this.Controls.Add(this.txtConfirm);
+            this.Controls.Add(this.lblSetupKey);
+            this.Controls.Add(this.txtSetupKey);
+            this.Controls.Add(this.lblStatus);
+            this.Controls.Add(this.btnSave);
+            this.Controls.Add(this.btnClose);
+            this.ResumeLayout(false);
+        }
+        private System.Windows.Forms.Label lblHeading;
+        private System.Windows.Forms.Label lblDescription;
+        private System.Windows.Forms.Label lblRole;
+        private System.Windows.Forms.ComboBox cmbRole;
+        private System.Windows.Forms.Label lblAccountNumber;
+        private System.Windows.Forms.TextBox txtAccount;
+        private System.Windows.Forms.Label lblPassword;
+        private System.Windows.Forms.TextBox txtPassword;
+        private System.Windows.Forms.Label lblConfirm;
+        private System.Windows.Forms.TextBox txtConfirm;
+        private System.Windows.Forms.Label lblSetupKey;
+        private System.Windows.Forms.TextBox txtSetupKey;
+        private System.Windows.Forms.Label lblStatus;
+        private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.Button btnClose;
+    }
+}
