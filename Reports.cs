@@ -35,6 +35,7 @@ namespace NextGen__7
             cmbReport.SelectedIndexChanged += (s, e) => ChangeReport();
             btnGenerate.Click += (s, e) => Generate();
             btnAcademic.Click += (s, e) => OpenAcademicTracking();
+            btnToggleView.Click += (s, e) => ToggleView();
             btnPrint.Click += (s, e) => PrintReport();
             btnBack.Click += (s, e) => Close();
             cmbReport.SelectedIndex = 0;
@@ -82,6 +83,8 @@ namespace NextGen__7
             numYear.Enabled = trend;
             lblYear.Enabled = trend;
             btnAcademic.Enabled = trend;
+            btnToggleView.Visible = trend;
+            btnToggleView.Enabled = false;
             grid.DataSource = null;
             result = null;
             chartTrends.Visible = false;
@@ -119,6 +122,8 @@ namespace NextGen__7
                 }
                 grid.DataSource = result;
                 grid.ClearSelection();
+                btnToggleView.Enabled = cmbReport.SelectedIndex == 2 && result.Rows.Count > 0;
+                btnToggleView.Text = chartTrends.Visible ? "Show table" : "Show chart";
                 grid.AutoResizeColumnHeadersHeight();
                 if (result.Rows.Count == 0)
                 {
@@ -142,6 +147,7 @@ namespace NextGen__7
                 grid.DataSource = null;
                 chartTrends.Visible = false;
                 grid.Visible = true;
+                btnToggleView.Enabled = false;
                 lblStatus.Text = "Unable to generate report.";
                 MessageBox.Show("The report could not be generated.\n\n" + ex.Message,
                     "Report error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -386,18 +392,23 @@ namespace NextGen__7
             chartTrends.Series.Add(attendanceSeries);
             chartTrends.Visible = source.Rows.Count != 0;
             grid.Visible = !chartTrends.Visible;
-            // Click the chart to switch between the trend chart and the tabular GridView.
-            chartTrends.Click -= SwitchToGrid;
-            chartTrends.Click += SwitchToGrid;
             if (chartTrends.Visible)
-                lblStatus.Text = "Click the chart to view the full student-by-term GridView.";
+                lblStatus.Text = "Use Show table to display each student and term.";
         }
 
-        private void SwitchToGrid(object sender, EventArgs e)
+        private void ToggleView()
         {
-            chartTrends.Visible = false;
-            grid.Visible = true;
-            lblStatus.Text = "Student GPA and attendance by term (only recorded values).";
+            if (result == null || result.Rows.Count == 0 ||
+                cmbReport.SelectedIndex != 2) return;
+            bool showChart = !chartTrends.Visible;
+            chartTrends.Visible = showChart;
+            grid.Visible = !showChart;
+            if (showChart) chartTrends.BringToFront();
+            else grid.BringToFront();
+            btnToggleView.Text = showChart ? "Show table" : "Show chart";
+            lblStatus.Text = showChart
+                ? "Four-term average GPA and recorded tutoring attendance."
+                : "Student GPA and attendance by academic term.";
         }
 
         private void OpenAcademicTracking()
