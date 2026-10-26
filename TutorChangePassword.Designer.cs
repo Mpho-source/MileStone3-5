@@ -22,8 +22,8 @@ namespace NextGen__7
             this.txtConfirm = new System.Windows.Forms.TextBox();
             this.lblRule = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.btnSave = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
+            this.btnSave = new NextGen__7.BusyButton();
+            this.btnCancel = new NextGen__7.BusyButton();
             this.SuspendLayout();
             this.pnlHeader.Name = "pnlHeader";
             this.pnlHeader.Location = new System.Drawing.Point(0,0);
@@ -127,7 +127,7 @@ namespace NextGen__7
         private System.Windows.Forms.TextBox txtConfirm;
         private System.Windows.Forms.Label lblRule;
         private System.Windows.Forms.Label lblStatus;
-        private System.Windows.Forms.Button btnSave;
-        private System.Windows.Forms.Button btnCancel;
+        private NextGen__7.BusyButton btnSave;
+        private NextGen__7.BusyButton btnCancel;
     }
 }
