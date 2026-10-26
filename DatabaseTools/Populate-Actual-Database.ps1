@@ -9,7 +9,7 @@ $dbPath = Join-Path $root 'Edu_Connect.accdb'
 $lockPath = Join-Path $root 'Edu_Connect.laccdb'
 $backupFolder = Join-Path $root 'DatabaseBackups'
 $tag = 'EDUCONNECT SYNTHETIC TEST ATTENDANCE - NOT REAL'
-$limit = 25
+$limit = 10
 
 if (-not [System.IO.File]::Exists($dbPath)) {
     throw "The actual application database is missing: $dbPath"
@@ -189,7 +189,10 @@ try {
     }
     $backup = Join-Path $backupFolder (
         'Edu_Connect_before_attendance_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.accdb')
+    # Release the ACE connection before copying, so the backup is a closed-file snapshot.
+    $connection.Close()
     [System.IO.File]::Copy($dbPath, $backup, $false)
+    $connection.Open()
     Write-Host "BACKUP CREATED: $backup" -ForegroundColor Cyan
 
     Write-Host "POPULATING THE ACTUAL DATABASE: $dbPath" -ForegroundColor Yellow
