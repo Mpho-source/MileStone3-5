@@ -182,7 +182,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Edu_Connect.accdb">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
