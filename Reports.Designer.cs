@@ -25,7 +25,6 @@ namespace NextGen__7
             this.numYear = new System.Windows.Forms.NumericUpDown();
             this.btnGenerate = new System.Windows.Forms.Button();
             this.btnToggleView = new System.Windows.Forms.Button();
-            this.btnAcademic = new System.Windows.Forms.Button();
             this.pnlContent = new System.Windows.Forms.Panel();
             this.grid = new System.Windows.Forms.DataGridView();
             this.chartTrends = new System.Windows.Forms.DataVisualization.Charting.Chart();
@@ -169,17 +168,9 @@ namespace NextGen__7
             this.btnToggleView.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnToggleView.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnToggleView.Visible = false;
-            this.btnAcademic.Name = "btnAcademic";
-            this.btnAcademic.Text = "Academic records";
-            this.btnAcademic.Location = new System.Drawing.Point(598, 19);
-            this.btnAcademic.Size = new System.Drawing.Size(149, 45);
-            this.btnAcademic.BackColor = System.Drawing.Color.FromArgb(78, 105, 145);
-            this.btnAcademic.ForeColor = System.Drawing.Color.White;
-            this.btnAcademic.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAcademic.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnPreview.Name = "btnPreview";
             this.btnPreview.Text = "Print preview";
-            this.btnPreview.Location = new System.Drawing.Point(757, 19);
+            this.btnPreview.Location = new System.Drawing.Point(604, 19);
             this.btnPreview.Size = new System.Drawing.Size(133, 45);
             this.btnPreview.BackColor = System.Drawing.Color.FromArgb(78, 105, 145);
             this.btnPreview.ForeColor = System.Drawing.Color.White;
@@ -187,7 +178,7 @@ namespace NextGen__7
             this.btnPreview.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnPrint.Name = "btnPrint";
             this.btnPrint.Text = "Print report";
-            this.btnPrint.Location = new System.Drawing.Point(898, 19);
+            this.btnPrint.Location = new System.Drawing.Point(747, 19);
             this.btnPrint.Size = new System.Drawing.Size(126, 45);
             this.btnPrint.BackColor = System.Drawing.Color.FromArgb(35, 93, 177);
             this.btnPrint.ForeColor = System.Drawing.Color.White;
@@ -195,7 +186,7 @@ namespace NextGen__7
             this.btnPrint.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnBack.Name = "btnBack";
             this.btnBack.Text = "Back";
-            this.btnBack.Location = new System.Drawing.Point(1031, 19);
+            this.btnBack.Location = new System.Drawing.Point(884, 19);
             this.btnBack.Size = new System.Drawing.Size(140, 45);
             this.btnBack.BackColor = System.Drawing.Color.FromArgb(78, 105, 145);
             this.btnBack.ForeColor = System.Drawing.Color.White;
@@ -203,7 +194,6 @@ namespace NextGen__7
             this.btnBack.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.pnlFooter.Controls.Add(this.btnToggleView);
             this.pnlFooter.Controls.Add(this.lblStatus);
-            this.pnlFooter.Controls.Add(this.btnAcademic);
             this.pnlFooter.Controls.Add(this.btnPreview);
             this.pnlFooter.Controls.Add(this.btnPrint);
             this.pnlFooter.Controls.Add(this.btnBack);
@@ -239,7 +229,6 @@ namespace NextGen__7
         private System.Windows.Forms.NumericUpDown numYear;
         private System.Windows.Forms.Button btnGenerate;
         private System.Windows.Forms.Button btnToggleView;
-        private System.Windows.Forms.Button btnAcademic;
         private System.Windows.Forms.Panel pnlContent;
         private System.Windows.Forms.DataGridView grid;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartTrends;
