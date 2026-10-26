@@ -111,7 +111,7 @@ namespace NextGen__7
         private static void NavButton(
             FlowLayoutPanel host, string label, bool active, Action action, int width)
         {
-            Button button = new Button
+            Button button = new BusyButton
             {
                 Text = label,
                 Name = "nav" + label.Replace(" ", ""),
