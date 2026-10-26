@@ -19,6 +19,12 @@ namespace NextGen__7
             RoleSelector = cmbSignInRole;
             txtPassword.UseSystemPasswordChar = true;
             btnLogin.Click += btnLogin_Click;
+            btnAdminSetup.Click += (sender, e) =>
+            {
+                using (var setup = new AccountPasswordsForm(true))
+                    setup.ShowDialog(this);
+                UpdateAdminSetupVisibility();
+            };
             AcceptButton = btnLogin;
             cmbSignInRole.SelectedIndexChanged += cmbSignInRole_SelectedIndexChanged;
             cmbSignInRole.SelectedIndex = 0;
@@ -48,8 +54,6 @@ namespace NextGen__7
                 MessageBox.Show("Enter your password.");
                 txtPassword.Focus(); return;
             }
-            // This classroom prototype has no password verifier in the database.
-            // Requiring a password input does not authenticate the password.
             btnLogin.Enabled = false;
             try
             {
@@ -81,6 +85,12 @@ namespace NextGen__7
                     }
                     else if (staff)
                     {
+                        if (!RolePasswords.Verify(db, "Staff", number, password))
+                        {
+                            MessageBox.Show("Invalid staff number or password, or no password " +
+                                "has been set for this account.");
+                            return;
+                        }
                         using (var cmd = new OleDbCommand(
                             "SELECT [FirstName], [LastName], [IsActive] FROM [ADMIN] WHERE [AdminNo] = ?", db))
                         {
@@ -103,6 +113,12 @@ namespace NextGen__7
                     }
                     else
                     {
+                        if (!RolePasswords.Verify(db, "Student", number, password))
+                        {
+                            MessageBox.Show("Invalid student number or password, or no password " +
+                                "has been set for this account.");
+                            return;
+                        }
                         using (var cmd = new OleDbCommand(
                             "SELECT [StudentID] FROM [STUDENT] WHERE [StudentNo] = ?", db))
                         {
@@ -166,7 +182,28 @@ namespace NextGen__7
             txtStudentNo.Focus();
         }
 
-        private void Login_Load(object sender, EventArgs e) { }
+        private void UpdateAdminSetupVisibility()
+        {
+            try
+            {
+                var settings = ConfigurationManager.ConnectionStrings[
+                    "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
+                using (var db = new OleDbConnection(settings.ConnectionString))
+                {
+                    db.Open();
+                    btnAdminSetup.Visible = !RolePasswords.HasAnyAdminLogin(db);
+                }
+            }
+            catch
+            {
+                btnAdminSetup.Visible = false;
+            }
+        }
+
+        private void Login_Load(object sender, EventArgs e)
+        {
+            UpdateAdminSetupVisibility();
+        }
         private void label5_Click(object sender, EventArgs e) { }
         private void label2_Click(object sender, EventArgs e) { }
         private void textBox1_TextChanged(object sender, EventArgs e) { }
