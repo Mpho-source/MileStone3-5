@@ -257,7 +257,6 @@ namespace NextGen__7
             this.pnlFooter.Controls.Add(this.btnCancel);
             this.pnlFooter.Controls.Add(this.btnBack);
             this.pnlFooter.Controls.Add(this.lblMessage);
-            this.pnlFooter.Controls.Add(this.lblDatabase);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1220, 790);
             this.MinimumSize = new System.Drawing.Size(1220, 790);
