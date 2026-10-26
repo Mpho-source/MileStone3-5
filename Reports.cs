@@ -27,6 +27,8 @@ namespace NextGen__7
         }
         private string reportTitle = "";
         private int printRow;
+        private bool printTrendCoverPending;
+        private List<DataRow> printRows = new List<DataRow>();
         private readonly Font printBody = new Font("Segoe UI", 9F);
         private readonly Font printHead = new Font("Segoe UI", 9F, FontStyle.Bold);
 
@@ -55,6 +57,7 @@ namespace NextGen__7
             btnToggleView.Click += (s, e) => ToggleView();
             btnPreview.Click += (s, e) => PreviewReport();
             btnPrint.Click += (s, e) => PrintReport();
+            printer.BeginPrint += (sender, e) => PreparePrintPages();
             btnBack.Click += (s, e) => Close();
             cmbReport.SelectedIndex = 0;
             grid.EnableHeadersVisualStyles = false;
@@ -775,6 +778,23 @@ namespace NextGen__7
             }
         }
 
+        private void PreparePrintPages()
+        {
+            printRow = 0;
+            printTrendCoverPending = cmbReport.SelectedIndex == 2;
+            printRows = new List<DataRow>();
+            if (result == null) return;
+            string studentNumber = "";
+            var selected = cmbStudentChoice.SelectedItem as StudentTrendChoice;
+            if (printTrendCoverPending && selected != null)
+                studentNumber = selected.Number ?? "";
+
+            foreach (DataRow row in result.Rows)
+                if (studentNumber.Length == 0 ||
+                    Convert.ToString(row["Student number"]) == studentNumber)
+                    printRows.Add(row);
+        }
+
         private void PrintPage(object sender, PrintPageEventArgs e)
         {
             int left = e.MarginBounds.Left, width = e.MarginBounds.Width;
@@ -791,33 +811,40 @@ namespace NextGen__7
                 "Report date: " + DateTime.Today.ToShortDateString();
             e.Graphics.DrawString(context, printBody, Brushes.DimGray, left, y);
             y += 34;
-            if (cmbReport.SelectedIndex == 2 && chartTrends.Visible)
+
+            if (printTrendCoverPending)
             {
-                // Preview or print the actual visual trend, not an unrelated
-                // seven-column raw-data table while Show chart is selected.
+                // For Report 3 print the four-term chart first regardless of whether
+                // the administrator was viewing the table or graph when printing.
                 using (var stream = new MemoryStream())
                 {
                     chartTrends.SaveImage(stream, ChartImageFormat.Png);
                     stream.Position = 0;
                     using (var picture = Image.FromStream(stream))
                     {
-                        float scale = Math.Min((float)width / picture.Width,
-                            (float)(e.MarginBounds.Bottom - y - 130) / picture.Height);
-                        int pictureWidth = Math.Max(1, (int)(picture.Width * scale));
-                        int pictureHeight = Math.Max(1, (int)(picture.Height * scale));
-                        e.Graphics.DrawImage(picture, new Rectangle(
-                            left + (width - pictureWidth) / 2, y,
-                            pictureWidth, pictureHeight));
-                        y += pictureHeight + 22;
+                        float factor = Math.Min((float)width / picture.Width,
+                            (float)(e.MarginBounds.Bottom - y - 125) / picture.Height);
+                        float scaledWidth = picture.Width * Math.Max(0.1f, factor);
+                        float scaledHeight = picture.Height * Math.Max(0.1f, factor);
+                        e.Graphics.DrawImage(picture,
+                            new RectangleF(left + (width - scaledWidth) / 2, y,
+                                scaledWidth, scaledHeight));
+                        y += (int)scaledHeight + 18;
                     }
                 }
-                e.Graphics.DrawString(lblTrendSummary.Text, printBody, Brushes.Black,
-                    new RectangleF(left, y, width, Math.Max(60,
-                        e.MarginBounds.Bottom - y)));
-                e.HasMorePages = false;
-                printRow = 0;
+
+                using (var summaryFont = new Font("Segoe UI", 10F))
+                {
+                    e.Graphics.DrawString(lblTrendSummary.Text, summaryFont,
+                        Brushes.Black,
+                        new RectangleF(left, y, width,
+                            Math.Max(45, e.MarginBounds.Bottom - y - 24)));
+                }
+                printTrendCoverPending = false;
+                e.HasMorePages = printRows.Count > 0;
                 return;
             }
+
             int columns = result.Columns.Count;
             int columnWidth = Math.Max(48, width / columns);
             for (int c = 0; c < columns; c++)
@@ -829,9 +856,10 @@ namespace NextGen__7
             y += 39;
             e.Graphics.DrawLine(Pens.Gray, left, y, left + width, y);
             y += 9;
-            while (printRow < result.Rows.Count && y + 44 < e.MarginBounds.Bottom)
+
+            while (printRow < printRows.Count && y + 44 < e.MarginBounds.Bottom)
             {
-                DataRow row = result.Rows[printRow++];
+                DataRow row = printRows[printRow++];
                 for (int c = 0; c < columns; c++)
                 {
                     string value = row[c] == DBNull.Value ? "—" :
@@ -843,12 +871,13 @@ namespace NextGen__7
                 }
                 y += 37;
             }
-            e.HasMorePages = printRow < result.Rows.Count;
+            e.HasMorePages = printRow < printRows.Count;
             if (!e.HasMorePages)
             {
                 y += 15;
-                e.Graphics.DrawString("Total rows: " + result.Rows.Count,
-                    printHead, Brushes.Black, left, Math.Min(y, e.MarginBounds.Bottom - 25));
+                e.Graphics.DrawString("Total rows: " + printRows.Count,
+                    printHead, Brushes.Black, left,
+                    Math.Min(y, e.MarginBounds.Bottom - 25));
                 printRow = 0;
             }
         }
