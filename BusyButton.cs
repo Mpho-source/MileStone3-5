@@ -107,11 +107,24 @@ namespace NextGen__7
             form.Controls.Add(shade);
             shade.BringToFront();
             form.UseWaitCursor = true;
+            form.Deactivate += OwnerDeactivated;
+            form.VisibleChanged += OwnerVisibilityChanged;
 
             // Paint a visible busy state before a synchronous OleDb operation
             // blocks the WinForms message loop; never use Application.DoEvents().
             shade.Refresh();
             card.Refresh();
+        }
+
+        private void OwnerDeactivated(object sender, EventArgs e)
+        {
+            // A modal dialog has taken over; the underlying page is no longer loading.
+            Dispose();
+        }
+
+        private void OwnerVisibilityChanged(object sender, EventArgs e)
+        {
+            if (!owner.Visible) Dispose();
         }
 
         public static IDisposable Show(Form form)
@@ -128,6 +141,8 @@ namespace NextGen__7
             disposed = true;
             if (owner != null && !owner.IsDisposed && !owner.Disposing)
             {
+                owner.Deactivate -= OwnerDeactivated;
+                owner.VisibleChanged -= OwnerVisibilityChanged;
                 if (overlay != null && !overlay.IsDisposed)
                 {
                     owner.Controls.Remove(overlay);
