@@ -37,7 +37,6 @@ namespace NextGen__7
             toDate.ValueChanged += (s, e) => UpdateCriteria();
             numYear.ValueChanged += (s, e) => UpdateCriteria();
             btnGenerate.Click += (s, e) => Generate();
-            btnAcademic.Click += (s, e) => OpenAcademicTracking();
             btnToggleView.Click += (s, e) => ToggleView();
             btnPreview.Click += (s, e) => PreviewReport();
             btnPrint.Click += (s, e) => PrintReport();
@@ -48,6 +47,34 @@ namespace NextGen__7
             grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(221, 235, 251);
             grid.DefaultCellStyle.SelectionForeColor = Color.FromArgb(31, 56, 100);
+        }
+
+        private static bool HasTable(OleDbConnection connection, string tableName)
+        {
+            DataTable schema = connection.GetSchema("Tables");
+            foreach (DataRow row in schema.Rows)
+            {
+                if (string.Equals(Convert.ToString(row["TABLE_NAME"]), tableName,
+                    StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
+        }
+
+        private static bool HasColumn(OleDbConnection connection, string table, string column)
+        {
+            using (var command = new OleDbCommand("SELECT * FROM [" + table + "] WHERE 1=0", connection))
+            using (var reader = command.ExecuteReader(CommandBehavior.SchemaOnly))
+            {
+                foreach (DataRow row in reader.GetSchemaTable().Rows)
+                {
+                    if (string.Equals(
+                        Convert.ToString(row["ColumnName"]).Trim('\uFEFF', ' '),
+                        column, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+            }
+            return false;
         }
 
         private DataTable ReadTable(OleDbConnection db, string name)
@@ -86,7 +113,6 @@ namespace NextGen__7
             lblTo.Enabled = workload;
             numYear.Enabled = trend;
             lblYear.Enabled = trend;
-            btnAcademic.Enabled = trend;
             UpdateCriteria();
             btnToggleView.Visible = trend;
             btnToggleView.Enabled = false;
@@ -95,7 +121,7 @@ namespace NextGen__7
             chartTrends.Visible = false;
             grid.Visible = true;
             lblStatus.Text = trend
-                ? "GPA and attendance must be recorded before a trend can be calculated."
+                ? "Displays available academic results and tutor-recorded session attendance."
                 : "Select Generate report to retrieve the latest data.";
         }
 
@@ -109,7 +135,7 @@ namespace NextGen__7
                     fromDate.Value.ToString("dd MMM yyyy") + " to " +
                     toDate.Value.ToString("dd MMM yyyy") + ".";
             else if (cmbReport.SelectedIndex == 2)
-                lblReportCriteria.Text = "Uses recorded GPA and tutoring attendance for four academic terms in " +
+                lblReportCriteria.Text = "Compares imported GPA and session-recorded attendance for four terms in " +
                     numYear.Value + ". Missing data is not estimated.";
         }
 
@@ -119,7 +145,7 @@ namespace NextGen__7
             {
                 MessageBox.Show("The start date must not exceed the end date."); return;
             }
-            // A missing academic-record table is a setup requirement, not a crashed report.
+            // Report 3 is read-only and uses academic records supplied separately.
             if (cmbReport.SelectedIndex == 2)
             {
                 try
@@ -128,8 +154,8 @@ namespace NextGen__7
                     using (var database = new OleDbConnection(connectionString))
                     {
                         database.Open();
-                        trackingReady = AcademicTracking.HasTable(database, "STUDENTACADEMICRECORD") &&
-                            AcademicTracking.HasColumn(database, "TUTORING_SESSION", "AttendanceStatus");
+                        trackingReady = HasTable(database, "STUDENTACADEMICRECORD") &&
+                            HasColumn(database, "TUTORING_SESSION", "AttendanceStatus");
                     }
                     if (!trackingReady)
                     {
@@ -138,14 +164,13 @@ namespace NextGen__7
                         chartTrends.Visible = false;
                         grid.Visible = true;
                         btnToggleView.Enabled = false;
-                        lblStatus.Text = "Report 3 needs academic data. Open Academic records > Set up tracking.";
-                        MessageBox.Show("The database does not yet contain the information for Report 3.\n\n" +
-                            "1. Click Academic records.\n" +
-                            "2. Select Set up tracking and confirm.\n" +
-                            "3. Record students' real GPA values for Terms 1–4.\n" +
-                            "4. Record attended or absent tutoring sessions.\n" +
-                            "5. Return here and generate the report.\n\n" +
-                            "No values will be invented.", "Academic data required",
+                        lblStatus.Text = "Academic results or attendance data source is not available.";
+                        MessageBox.Show(
+                            "This report needs existing academic results and attendance records.\n\n" +
+                            "GPA should come from an approved academic records source or import.\n" +
+                            "Attendance must be recorded as part of the tutoring session workflow.\n\n" +
+                            "This reporting screen does not create or edit those records.",
+                            "Report data unavailable",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
@@ -343,8 +368,8 @@ namespace NextGen__7
             using (var db = new OleDbConnection(connectionString))
             {
                 db.Open();
-                if (!AcademicTracking.HasTable(db, "STUDENTACADEMICRECORD") ||
-                    !AcademicTracking.HasColumn(db, "TUTORING_SESSION", "AttendanceStatus"))
+                if (!HasTable(db, "STUDENTACADEMICRECORD") ||
+                    !HasColumn(db, "TUTORING_SESSION", "AttendanceStatus"))
                     throw new InvalidOperationException("Academic tracking has not been set up. " +
                         "Choose Academic records to enable it and enter actual GPA/attendance.");
                 var studentTable = ReadTable(db, "STUDENT");
@@ -479,13 +504,6 @@ namespace NextGen__7
             lblStatus.Text = showChart
                 ? "Four-term average GPA and recorded tutoring attendance."
                 : "Student GPA and attendance by academic term.";
-        }
-
-        private void OpenAcademicTracking()
-        {
-            using (var form = new AcademicTracking(connectionString))
-                form.ShowDialog(this);
-            if (cmbReport.SelectedIndex == 2) Generate();
         }
 
         private void PreviewReport()
