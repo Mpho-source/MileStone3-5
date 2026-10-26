@@ -70,9 +70,8 @@
     <Compile Include="BookingTuringSession.Designer.cs">
       <DependentUpon>BookingTuringSession.cs</DependentUpon>
     </Compile>
-    <Compile Include="EditBooking.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="EditBooking.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="EditBooking.Designer.cs"><DependentUpon>EditBooking.cs</DependentUpon></Compile>
     <Compile Include="Edu_ConnectDataSet.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
