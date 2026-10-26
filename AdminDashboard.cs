@@ -5,6 +5,7 @@ namespace NextGen__7
 {
     public partial class AdminDashboard : Form
     {
+        private string signedInStaffNumber;
         public AdminDashboard()
         {
             InitializeComponent();
@@ -12,7 +13,21 @@ namespace NextGen__7
 
         public AdminDashboard(string staffNumber, string staffName) : this()
         {
+            signedInStaffNumber = staffNumber;
             lblStaffDetails.Text = staffName + "   |   " + staffNumber;
+            btnManageAccounts.Click += (sender, e) =>
+            {
+                using (var accounts = new AccountPasswordsForm(false))
+                    accounts.ShowDialog(this);
+            };
+            btnChangeStaffPassword.Click += (sender, e) =>
+            {
+                var cfg = System.Configuration.ConfigurationManager.ConnectionStrings[
+                    "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
+                using (var dialog = new TutorChangePassword(
+                    "Staff", signedInStaffNumber, cfg.ConnectionString))
+                    dialog.ShowDialog(this);
+            };
         }
 
         private void btnTutors_Click(object sender, EventArgs e)
