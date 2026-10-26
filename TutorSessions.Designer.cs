@@ -20,10 +20,10 @@ namespace NextGen__7
             this.cmbAttendance = new System.Windows.Forms.ComboBox();
             this.lblFeedback = new System.Windows.Forms.Label();
             this.txtFeedback = new System.Windows.Forms.TextBox();
-            this.btnRecord = new System.Windows.Forms.Button();
-            this.btnRefresh = new System.Windows.Forms.Button();
-            this.btnChangePassword = new System.Windows.Forms.Button();
-            this.btnLogout = new System.Windows.Forms.Button();
+            this.btnRecord = new NextGen__7.BusyButton();
+            this.btnRefresh = new NextGen__7.BusyButton();
+            this.btnChangePassword = new NextGen__7.BusyButton();
+            this.btnLogout = new NextGen__7.BusyButton();
             this.lblMessage = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.gridSessions)).BeginInit();
             this.SuspendLayout();
@@ -164,10 +164,10 @@ namespace NextGen__7
         private System.Windows.Forms.ComboBox cmbAttendance;
         private System.Windows.Forms.Label lblFeedback;
         private System.Windows.Forms.TextBox txtFeedback;
-        private System.Windows.Forms.Button btnRecord;
-        private System.Windows.Forms.Button btnRefresh;
-        private System.Windows.Forms.Button btnChangePassword;
-        private System.Windows.Forms.Button btnLogout;
+        private NextGen__7.BusyButton btnRecord;
+        private NextGen__7.BusyButton btnRefresh;
+        private NextGen__7.BusyButton btnChangePassword;
+        private NextGen__7.BusyButton btnLogout;
         private System.Windows.Forms.Label lblMessage;
     }
 }
