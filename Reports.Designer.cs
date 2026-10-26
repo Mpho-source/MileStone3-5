@@ -15,6 +15,7 @@ namespace NextGen__7
             this.lblSubtitle = new System.Windows.Forms.Label();
             this.pnlToolbar = new System.Windows.Forms.Panel();
             this.lblChoose = new System.Windows.Forms.Label();
+            this.lblReportCriteria = new System.Windows.Forms.Label();
             this.cmbReport = new System.Windows.Forms.ComboBox();
             this.lblFrom = new System.Windows.Forms.Label();
             this.fromDate = new System.Windows.Forms.DateTimePicker();
@@ -104,6 +105,13 @@ namespace NextGen__7
             this.btnGenerate.ForeColor = System.Drawing.Color.White;
             this.btnGenerate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGenerate.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblReportCriteria.Name = "lblReportCriteria";
+            this.lblReportCriteria.Text = "The selected report uses live records from Edu_Connect.accdb.";
+            this.lblReportCriteria.Location = new System.Drawing.Point(21, 91);
+            this.lblReportCriteria.Size = new System.Drawing.Size(1096, 22);
+            this.lblReportCriteria.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblReportCriteria.ForeColor = System.Drawing.Color.FromArgb(83, 104, 132);
+            this.pnlToolbar.Controls.Add(this.lblReportCriteria);
             this.pnlToolbar.Controls.Add(this.lblChoose);
             this.pnlToolbar.Controls.Add(this.cmbReport);
             this.pnlToolbar.Controls.Add(this.lblFrom);
@@ -221,6 +229,7 @@ namespace NextGen__7
         private System.Windows.Forms.Label lblSubtitle;
         private System.Windows.Forms.Panel pnlToolbar;
         private System.Windows.Forms.Label lblChoose;
+        private System.Windows.Forms.Label lblReportCriteria;
         private System.Windows.Forms.ComboBox cmbReport;
         private System.Windows.Forms.Label lblFrom;
         private System.Windows.Forms.DateTimePicker fromDate;
