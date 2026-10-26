@@ -31,68 +31,21 @@ namespace NextGen__7
 
         private void ConfigureScreen()
         {
-            Text = "EduConnect | Manage tutors";
-            Size = new Size(1300, 800);
-            MinimumSize = new Size(1050, 700);
-            StartPosition = FormStartPosition.CenterParent;
-            foreach (Control control in Controls) control.Top += 102;
-
-            Panel banner = new Panel { Dock = DockStyle.Top, Height = 104, BackColor = EduConnectTheme.Navy };
-            Label title = new Label
-            {
-                Text = "Manage Tutors",
-                Font = new Font("Segoe UI", 20, FontStyle.Bold),
-                ForeColor = Color.White, AutoSize = false, Location = new Point(28, 15),
-                Size = new Size(520, 43)
-            };
-            Label sub = new Label
-            {
-                Text = "ADD NEW TUTORS  |  EDIT EXISTING TUTORS",
-                Font = new Font("Segoe UI", 10),
-                ForeColor = Color.Gainsboro, Location = new Point(30, 64),
-                Size = new Size(540, 23)
-            };
-            Button back = new Button
-            {
-                Name = "btnBack", Text = "Back", Location = new Point(1140, 33),
-                Size = new Size(115, 39), Anchor = AnchorStyles.Top | AnchorStyles.Right
-            };
-            back.Click += (s, e) => Close();
-            banner.Controls.Add(title);
-            banner.Controls.Add(sub);
-            banner.Controls.Add(back);
-            Controls.Add(banner);
-            banner.BringToFront();
-
-            Button add = new Button
-            {
-                Name = "btnAddTutor", Text = "Add New Tutor", Location = new Point(32, 610),
-                Size = new Size(160, 40)
-            };
-            Button edit = new Button
-            {
-                Name = "btnUpdateTutor", Text = "Edit Tutor", Location = new Point(204, 610),
-                Size = new Size(140, 40)
-            };
-            add.Click += (s, e) => NewTutor();
-            edit.Click += (s, e) => EditSelected();
-            Controls.Add(add);
-            Controls.Add(edit);
-
             gridTutors.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             gridTutors.MultiSelect = false;
             gridTutors.ReadOnly = true;
-            gridTutors.SelectionChanged += (s, e) => ShowSelected();
-            btnNew.Click += (s, e) => NewTutor();
-            btnSave.Click += (s, e) => SaveTutor();
-            btnCancel.Click += (s, e) => ClearEditor();
-            btnDelete.Click += (s, e) => DeactivateTutor();
+            gridTutors.SelectionChanged += (sender, e) => ShowSelected();
+            btnNew.Click += (sender, e) => NewTutor();
+            btnSave.Click += (sender, e) => SaveTutor();
+            btnCancel.Click += (sender, e) => ClearEditor();
+            btnDelete.Click += (sender, e) => DeactivateTutor();
+            btnAddTutor.Click += (sender, e) => NewTutor();
+            btnUpdateTutor.Click += (sender, e) => EditSelected();
+            btnBack.Click += (sender, e) => Close();
             txtEmail.MaxLength = 255;
             txtFirstName.MaxLength = 255;
             txtLastName.MaxLength = 255;
             txtSubjectSpecialty.MaxLength = 255;
-            EduConnectTheme.Apply(this);
-            back.ForeColor = EduConnectTheme.Navy;
         }
 
         private static string Column(DataTable table, string logicalName)
