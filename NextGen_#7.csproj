@@ -57,8 +57,6 @@
     <Compile Include="AdminDashboard.Designer.cs"><DependentUpon>AdminDashboard.cs</DependentUpon></Compile>
     <Compile Include="AdminRequests.cs"><SubType>Form</SubType></Compile>
     <Compile Include="AdminRequests.Designer.cs"><DependentUpon>AdminRequests.cs</DependentUpon></Compile>
-    <Compile Include="AcademicTracking.cs"><SubType>Form</SubType></Compile>
-    <Compile Include="AcademicTracking.Designer.cs"><DependentUpon>AcademicTracking.cs</DependentUpon></Compile>
     <Compile Include="TutorAvailability.cs"><SubType>Form</SubType></Compile>
     <Compile Include="TutorAvailability.Designer.cs"><DependentUpon>TutorAvailability.cs</DependentUpon></Compile>
     <Compile Include="EduConnectTheme.cs" />
