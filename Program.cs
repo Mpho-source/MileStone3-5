@@ -14,19 +14,29 @@ namespace NextGen__7
         [STAThread]
         static void Main()
         {
-            // In Visual Studio, point every form at the project database rather
-            // than a separate copy in bin\\Debug. In deployment, use the database
-            // distributed next to the executable.
-            string exeFolder = AppDomain.CurrentDomain.BaseDirectory;
+            // During development the project database is the single source of truth.
+            // A portable build uses the database packaged beside the executable.
+            string appFolder = AppDomain.CurrentDomain.BaseDirectory;
             string projectFolder = System.IO.Path.GetFullPath(
-                System.IO.Path.Combine(exeFolder, "..", ".."));
-            string projectDatabase = System.IO.Path.Combine(
-                projectFolder, "Edu_Connect.accdb");
-            string databaseFolder = System.IO.File.Exists(projectDatabase)
-                ? projectFolder : exeFolder;
-            AppDomain.CurrentDomain.SetData("DataDirectory", databaseFolder);
+                System.IO.Path.Combine(appFolder, "..", ".."));
+            bool runningFromProject = System.IO.File.Exists(
+                System.IO.Path.Combine(projectFolder, "NextGen_#7.csproj"));
+            string databaseFolder = runningFromProject ? projectFolder : appFolder;
+            string databaseFile = System.IO.Path.Combine(databaseFolder, "Edu_Connect.accdb");
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            if (!System.IO.File.Exists(databaseFile))
+            {
+                MessageBox.Show(
+                    "EduConnect could not find its database. Ensure Edu_Connect.accdb " +
+                    "is included alongside the application, or open the complete " +
+                    "Visual Studio project.",
+                    "EduConnect database missing", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+            AppDomain.CurrentDomain.SetData("DataDirectory", databaseFolder);
             Application.Run(new Login());
         }
     }
