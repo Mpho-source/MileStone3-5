@@ -17,7 +17,7 @@ namespace NextGen__7
             this.pnlSearch = new System.Windows.Forms.Panel();
             this.lblSearch = new System.Windows.Forms.Label();
             this.txtSearch = new System.Windows.Forms.TextBox();
-            this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnRefresh = new NextGen__7.BusyButton();
             this.lblTutorCount = new System.Windows.Forms.Label();
             this.pnlGrid = new System.Windows.Forms.Panel();
             this.gridTutors = new System.Windows.Forms.DataGridView();
@@ -31,16 +31,16 @@ namespace NextGen__7
             this.txtEmail = new System.Windows.Forms.TextBox();
             this.lblCourseSection = new System.Windows.Forms.Label();
             this.cmbCourse = new System.Windows.Forms.ComboBox();
-            this.btnAssignCourse = new System.Windows.Forms.Button();
-            this.btnAvailability = new System.Windows.Forms.Button();
-            this.btnCreateTutorLogin = new System.Windows.Forms.Button();
-            this.btnResetTutorLogin = new System.Windows.Forms.Button();
+            this.btnAssignCourse = new NextGen__7.BusyButton();
+            this.btnAvailability = new NextGen__7.BusyButton();
+            this.btnCreateTutorLogin = new NextGen__7.BusyButton();
+            this.btnResetTutorLogin = new NextGen__7.BusyButton();
             this.lblAssignedCourses = new System.Windows.Forms.Label();
             this.pnlFooter = new System.Windows.Forms.Panel();
-            this.btnNew = new System.Windows.Forms.Button();
-            this.btnSave = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
-            this.btnBack = new System.Windows.Forms.Button();
+            this.btnNew = new NextGen__7.BusyButton();
+            this.btnSave = new NextGen__7.BusyButton();
+            this.btnCancel = new NextGen__7.BusyButton();
+            this.btnBack = new NextGen__7.BusyButton();
             this.lblMessage = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.gridTutors)).BeginInit();
             this.SuspendLayout();
@@ -298,7 +298,7 @@ namespace NextGen__7
         private System.Windows.Forms.Panel pnlSearch;
         private System.Windows.Forms.Label lblSearch;
         private System.Windows.Forms.TextBox txtSearch;
-        private System.Windows.Forms.Button btnRefresh;
+        private NextGen__7.BusyButton btnRefresh;
         private System.Windows.Forms.Label lblTutorCount;
         private System.Windows.Forms.Panel pnlGrid;
         private System.Windows.Forms.DataGridView gridTutors;
@@ -312,16 +312,16 @@ namespace NextGen__7
         private System.Windows.Forms.TextBox txtEmail;
         private System.Windows.Forms.Label lblCourseSection;
         private System.Windows.Forms.ComboBox cmbCourse;
-        private System.Windows.Forms.Button btnAssignCourse;
-        private System.Windows.Forms.Button btnAvailability;
-        private System.Windows.Forms.Button btnCreateTutorLogin;
-        private System.Windows.Forms.Button btnResetTutorLogin;
+        private NextGen__7.BusyButton btnAssignCourse;
+        private NextGen__7.BusyButton btnAvailability;
+        private NextGen__7.BusyButton btnCreateTutorLogin;
+        private NextGen__7.BusyButton btnResetTutorLogin;
         private System.Windows.Forms.Label lblAssignedCourses;
         private System.Windows.Forms.Panel pnlFooter;
-        private System.Windows.Forms.Button btnNew;
-        private System.Windows.Forms.Button btnSave;
-        private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.Button btnBack;
+        private NextGen__7.BusyButton btnNew;
+        private NextGen__7.BusyButton btnSave;
+        private NextGen__7.BusyButton btnCancel;
+        private NextGen__7.BusyButton btnBack;
         private System.Windows.Forms.Label lblMessage;
     }
 }
