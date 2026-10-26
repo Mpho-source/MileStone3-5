@@ -12,7 +12,6 @@ namespace NextGen__7
         private DataTable students;
         private DataTable sessions;
         private DataTable requests;
-        private string sessionIdColumn;
 
         public AcademicTracking() : this(null) { }
 
@@ -34,6 +33,11 @@ namespace NextGen__7
             btnSetup.Click += (s, e) => SetupSchema();
             btnSaveGpa.Click += (s, e) => SaveGpa();
             btnSaveAttendance.Click += (s, e) => SaveAttendance();
+            btnRefreshSessions.Click += (s, e) => LoadSessions();
+            dgvSessions.SelectionChanged += (s, e) => UpdateAttendanceControls();
+            cmbAttendance.SelectedIndexChanged += (s, e) => UpdateAttendanceControls();
+            btnSaveAttendance.Enabled = false;
+            cmbAttendance.SelectedIndex = -1;
             btnBack.Click += (s, e) => Close();
             cmbStudent.SelectedIndexChanged += (s, e) => LoadSessions();
             Load += (s, e) => LoadStudents();
@@ -220,10 +224,53 @@ namespace NextGen__7
             }
         }
 
+        private static string AttendanceReadiness(DataRow session)
+        {
+            string status = Convert.ToString(session["SessionStatus"]).Trim();
+            if (!status.Equals("Scheduled", StringComparison.OrdinalIgnoreCase) &&
+                !status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
+                return "Unavailable: " + status;
+
+            if (session["SessionDate"] == DBNull.Value)
+                return "Session date not recorded";
+
+            DateTime day = Convert.ToDateTime(session["SessionDate"]).Date;
+            if (day > DateTime.Today) return "Future session - not held yet";
+            if (day == DateTime.Today)
+            {
+                if (!session.Table.Columns.Contains("EndTime") ||
+                    session["EndTime"] == DBNull.Value)
+                    return "End time not recorded";
+                try
+                {
+                    TimeSpan end = BookingData.ReadTime(session["EndTime"]);
+                    if (day.Add(end) > DateTime.Now)
+                        return "Session has not ended yet";
+                }
+                catch (Exception)
+                {
+                    return "End time needs correction";
+                }
+            }
+
+            string existing = Convert.ToString(session["AttendanceStatus"]).Trim();
+            if (existing.Equals("Attended", StringComparison.OrdinalIgnoreCase) ||
+                existing.Equals("Absent", StringComparison.OrdinalIgnoreCase))
+                return "Recorded: " + existing + " (editable)";
+            return "Ready to record";
+        }
+
         private void LoadSessions()
         {
+            btnSaveAttendance.Enabled = false;
+            dgvSessions.DataSource = null;
             int studentId = StudentID();
-            if (studentId <= 0) return;
+            if (studentId <= 0)
+            {
+                lblSessionHelp.Text = "Select a student to display their tutoring sessions.";
+                return;
+            }
+
             try
             {
                 using (var db = new OleDbConnection(connectionString))
@@ -231,35 +278,101 @@ namespace NextGen__7
                     db.Open();
                     if (!HasColumn(db, "TUTORING_SESSION", "AttendanceStatus"))
                     {
-                        dgvSessions.DataSource = null; return;
+                        lblSessionHelp.Text =
+                            "Attendance tracking isn't enabled. Click Set up tracking below.";
+                        lblStatus.Text = "Set up tracking before recording attendance.";
+                        return;
                     }
                     requests = Read(db, "TUTORING_REQUEST");
                     sessions = Read(db, "TUTORING_SESSION");
-                    sessionIdColumn = Column(sessions, "SessionID");
-                    string reqId = Column(requests, "RequestID");
-                    var ids = new System.Collections.Generic.HashSet<int>();
-                    foreach (DataRow row in requests.Rows)
-                        if (row["StudentID"] != DBNull.Value &&
-                            Convert.ToInt32(row["StudentID"]) == studentId)
-                            ids.Add(Convert.ToInt32(row[reqId]));
-                    string sessionReq = Column(sessions, "RequestID");
+                    string sessionId = Column(sessions, "SessionID");
+                    string requestId = Column(requests, "RequestID");
+                    string sessionRequestId = Column(sessions, "RequestID");
+                    var studentRequests = new System.Collections.Generic.HashSet<int>();
+                    foreach (DataRow request in requests.Rows)
+                    {
+                        if (request["StudentID"] != DBNull.Value &&
+                            Convert.ToInt32(request["StudentID"]) == studentId &&
+                            request[requestId] != DBNull.Value)
+                            studentRequests.Add(Convert.ToInt32(request[requestId]));
+                    }
+
                     var visible = new DataTable();
                     visible.Columns.Add("Session ID", typeof(int));
                     visible.Columns.Add("Session date", typeof(DateTime));
                     visible.Columns.Add("Session status", typeof(string));
                     visible.Columns.Add("Attendance", typeof(string));
-                    foreach (DataRow row in sessions.Rows)
-                        if (row[sessionReq] != DBNull.Value &&
-                            ids.Contains(Convert.ToInt32(row[sessionReq])))
-                            visible.Rows.Add(Convert.ToInt32(row[sessionIdColumn]),
-                                Convert.ToDateTime(row["SessionDate"]),
-                                Convert.ToString(row["SessionStatus"]),
-                                Convert.ToString(row["AttendanceStatus"]));
+                    visible.Columns.Add("Recording status", typeof(string));
+                    int ready = 0, pending = 0;
+                    foreach (DataRow session in sessions.Rows)
+                    {
+                        if (session[sessionRequestId] == DBNull.Value ||
+                            !studentRequests.Contains(Convert.ToInt32(session[sessionRequestId])))
+                            continue;
+                        string eligibility = AttendanceReadiness(session);
+                        if (eligibility == "Ready to record" ||
+                            eligibility.StartsWith("Recorded:", StringComparison.Ordinal))
+                            ready++;
+                        else
+                            pending++;
+                        // Missing dates must never make the whole table disappear.
+                        object sessionDate = session["SessionDate"] == DBNull.Value ?
+                            (object)DBNull.Value : Convert.ToDateTime(session["SessionDate"]);
+                        visible.Rows.Add(Convert.ToInt32(session[sessionId]), sessionDate,
+                            Convert.ToString(session["SessionStatus"]),
+                            Convert.ToString(session["AttendanceStatus"]), eligibility);
+                    }
+
                     dgvSessions.DataSource = visible;
+                    if (dgvSessions.Columns.Contains("Session date"))
+                        dgvSessions.Columns["Session date"].DefaultCellStyle.Format = "dd MMM yyyy";
                     dgvSessions.ClearSelection();
+                    lblSessionHelp.Text = visible.Rows.Count == 0 ?
+                        "No tutoring sessions belong to this student. A tutoring request alone " +
+                        "does not create attendance." :
+                        visible.Rows.Count + " linked session(s). " + ready +
+                        " can be recorded or corrected; " + pending +
+                        " are not yet eligible. Select an eligible row.";
+                    lblStatus.Text = visible.Rows.Count == 0 ?
+                        "Select a different student or create a genuine tutoring session first." :
+                        "Attendance records are linked to the selected student's bookings.";
                 }
             }
-            catch (Exception ex) { lblStatus.Text = "Session lookup failed: " + ex.Message; }
+            catch (Exception ex)
+            {
+                dgvSessions.DataSource = null;
+                lblSessionHelp.Text = "Unable to retrieve sessions. " + ex.Message;
+                lblStatus.Text = "Session lookup failed. No records were changed.";
+            }
+            UpdateAttendanceControls();
+        }
+
+        private void UpdateAttendanceControls()
+        {
+            btnSaveAttendance.Enabled = false;
+            if (dgvSessions.SelectedRows.Count != 1)
+                return;
+
+            DataGridViewRow row = dgvSessions.SelectedRows[0];
+            if (row.IsNewRow || !dgvSessions.Columns.Contains("Recording status"))
+                return;
+
+            string reason = Convert.ToString(row.Cells["Recording status"].Value);
+            bool eligible = reason == "Ready to record" ||
+                reason.StartsWith("Recorded:", StringComparison.Ordinal);
+            btnSaveAttendance.Enabled = eligible && cmbAttendance.SelectedIndex >= 0;
+            if (eligible)
+            {
+                lblSessionHelp.Text = "Session #" +
+                    Convert.ToString(row.Cells["Session ID"].Value) +
+                    " is eligible. Choose Attended or Absent, then Save attendance.";
+            }
+            else
+            {
+                lblSessionHelp.Text = "Session #" +
+                    Convert.ToString(row.Cells["Session ID"].Value) + ": " + reason +
+                    ". Attendance cannot be recorded for this session yet.";
+            }
         }
 
         private void SaveAttendance()
