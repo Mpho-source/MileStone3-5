@@ -66,23 +66,23 @@
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
+            this.label1.AutoSize = false;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.Navy;
-            this.label1.Location = new System.Drawing.Point(12, 140);
+            this.label1.Location = new System.Drawing.Point(26, 20);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(245, 20);
+            this.label1.Size = new System.Drawing.Size(600, 35);
             this.label1.TabIndex = 1;
             this.label1.Text = "1. Student and course details";
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
+            this.label2.AutoSize = false;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.SystemColors.WindowFrame;
-            this.label2.Location = new System.Drawing.Point(31, 200);
+            this.label2.Location = new System.Drawing.Point(28, 73);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(72, 18);
+            this.label2.Size = new System.Drawing.Size(230, 24);
             this.label2.TabIndex = 2;
             this.label2.Text = "StudentID";
             this.label2.Click += new System.EventHandler(this.label2_Click);
@@ -90,9 +90,9 @@
             // txtStudentID
             // 
             this.txtStudentID.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtStudentID.Location = new System.Drawing.Point(34, 220);
+            this.txtStudentID.Location = new System.Drawing.Point(28, 107);
             this.txtStudentID.Name = "txtStudentID";
-            this.txtStudentID.Size = new System.Drawing.Size(152, 32);
+            this.txtStudentID.Size = new System.Drawing.Size(204, 37);
             this.txtStudentID.TabIndex = 3;
             this.txtStudentID.Text = "";
             // 
@@ -113,32 +113,32 @@
             "ACCT1000A - Introduction to Accounting",
             "CHEM1000A - General Chemistry",
             "INFO2001A - Information Systems"});
-            this.cmbCourse.Location = new System.Drawing.Point(267, 224);
+            this.cmbCourse.Location = new System.Drawing.Point(260, 107);
             this.cmbCourse.Name = "cmbCourse";
-            this.cmbCourse.Size = new System.Drawing.Size(327, 24);
+            this.cmbCourse.Size = new System.Drawing.Size(428, 37);
             this.cmbCourse.TabIndex = 4;
             this.cmbCourse.SelectedIndexChanged += new System.EventHandler(this.cmbCourse_SelectedIndexChanged);
             // 
             // label3
             // 
-            this.label3.AutoSize = true;
+            this.label3.AutoSize = false;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.label3.Location = new System.Drawing.Point(292, 200);
+            this.label3.Location = new System.Drawing.Point(260, 73);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(57, 18);
+            this.label3.Size = new System.Drawing.Size(385, 24);
             this.label3.TabIndex = 5;
             this.label3.Text = "Course";
             this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // label4
             // 
-            this.label4.AutoSize = true;
+            this.label4.AutoSize = false;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.label4.Location = new System.Drawing.Point(31, 286);
+            this.label4.Location = new System.Drawing.Point(712, 73);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(164, 18);
+            this.label4.Size = new System.Drawing.Size(228, 24);
             this.label4.TabIndex = 6;
             this.label4.Text = "Type of tutoring support";
             this.label4.Click += new System.EventHandler(this.label4_Click);
@@ -152,30 +152,30 @@
             "Group Tutoring",
             "Exam Preparation",
             "Assignment Support."});
-            this.cmbSupportType.Location = new System.Drawing.Point(34, 317);
+            this.cmbSupportType.Location = new System.Drawing.Point(712, 107);
             this.cmbSupportType.Name = "cmbSupportType";
-            this.cmbSupportType.Size = new System.Drawing.Size(173, 24);
+            this.cmbSupportType.Size = new System.Drawing.Size(229, 37);
             this.cmbSupportType.TabIndex = 7;
             // 
             // label5
             // 
-            this.label5.AutoSize = true;
+            this.label5.AutoSize = false;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.Navy;
-            this.label5.Location = new System.Drawing.Point(12, 367);
+            this.label5.Location = new System.Drawing.Point(26, 18);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(151, 20);
+            this.label5.Size = new System.Drawing.Size(560, 35);
             this.label5.TabIndex = 8;
             this.label5.Text = "2. Session details";
             // 
             // label6
             // 
-            this.label6.AutoSize = true;
+            this.label6.AutoSize = false;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.label6.Location = new System.Drawing.Point(31, 402);
+            this.label6.Location = new System.Drawing.Point(28, 67);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(104, 18);
+            this.label6.Size = new System.Drawing.Size(295, 24);
             this.label6.TabIndex = 9;
             this.label6.Text = "Preferred Date";
             this.label6.Click += new System.EventHandler(this.label6_Click);
@@ -184,9 +184,9 @@
             // 
             this.dtpSessionDate.Checked = false;
             this.dtpSessionDate.CustomFormat = "";
-            this.dtpSessionDate.Location = new System.Drawing.Point(34, 423);
+            this.dtpSessionDate.Location = new System.Drawing.Point(28, 101);
             this.dtpSessionDate.Name = "dtpSessionDate";
-            this.dtpSessionDate.Size = new System.Drawing.Size(200, 20);
+            this.dtpSessionDate.Size = new System.Drawing.Size(308, 38);
             this.dtpSessionDate.TabIndex = 10;
             this.dtpSessionDate.ValueChanged += new System.EventHandler(this.dtpSessionDate_ValueChanged);
             // 
@@ -203,19 +203,19 @@
             "14:15 - 15:15",
             "15:30 - 16:30",
             "16:45 - 17:45"});
-            this.cmbSessionTime.Location = new System.Drawing.Point(295, 423);
+            this.cmbSessionTime.Location = new System.Drawing.Point(366, 101);
             this.cmbSessionTime.Name = "cmbSessionTime";
-            this.cmbSessionTime.Size = new System.Drawing.Size(131, 26);
+            this.cmbSessionTime.Size = new System.Drawing.Size(290, 37);
             this.cmbSessionTime.TabIndex = 11;
             // 
             // label7
             // 
-            this.label7.AutoSize = true;
+            this.label7.AutoSize = false;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label7.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.label7.Location = new System.Drawing.Point(292, 402);
+            this.label7.Location = new System.Drawing.Point(366, 67);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(106, 18);
+            this.label7.Size = new System.Drawing.Size(290, 24);
             this.label7.TabIndex = 12;
             this.label7.Text = "Preferred Time";
             // 
@@ -223,9 +223,9 @@
             // 
             this.lblSelectedCourse.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSelectedCourse.ForeColor = System.Drawing.SystemColors.ButtonShadow;
-            this.lblSelectedCourse.Location = new System.Drawing.Point(275, 248);
+            this.lblSelectedCourse.Location = new System.Drawing.Point(260, 155);
             this.lblSelectedCourse.Name = "lblSelectedCourse";
-            this.lblSelectedCourse.Size = new System.Drawing.Size(319, 21);
+            this.lblSelectedCourse.Size = new System.Drawing.Size(420, 28);
             this.lblSelectedCourse.TabIndex = 14;
             this.lblSelectedCourse.Text = "No course selected";
             // 
@@ -279,9 +279,9 @@
             this.btnBookSession.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBookSession.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBookSession.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnBookSession.Location = new System.Drawing.Point(43, 506);
+            this.btnBookSession.Location = new System.Drawing.Point(56, 668);
             this.btnBookSession.Name = "btnBookSession";
-            this.btnBookSession.Size = new System.Drawing.Size(120, 35);
+            this.btnBookSession.Size = new System.Drawing.Size(244, 47);
             this.btnBookSession.TabIndex = 17;
             this.btnBookSession.Text = "Book Session";
             this.btnBookSession.UseVisualStyleBackColor = true;
@@ -292,9 +292,9 @@
             this.btnClear.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnClear.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnClear.Location = new System.Drawing.Point(295, 506);
+            this.btnClear.Location = new System.Drawing.Point(316, 668);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(117, 35);
+            this.btnClear.Size = new System.Drawing.Size(158, 47);
             this.btnClear.TabIndex = 18;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = true;
@@ -305,9 +305,9 @@
             this.btnBack.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBack.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBack.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnBack.Location = new System.Drawing.Point(560, 506);
+            this.btnBack.Location = new System.Drawing.Point(880, 668);
             this.btnBack.Name = "btnBack";
-            this.btnBack.Size = new System.Drawing.Size(117, 35);
+            this.btnBack.Size = new System.Drawing.Size(156, 47);
             this.btnBack.TabIndex = 19;
             this.btnBack.Text = "Back";
             this.btnBack.UseVisualStyleBackColor = true;
