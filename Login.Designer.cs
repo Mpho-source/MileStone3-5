@@ -1,191 +1,202 @@
-﻿namespace NextGen__7
+namespace NextGen__7
 {
     partial class Login
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
+        private System.Windows.Forms.Panel pnlNavigation;
+        private System.Windows.Forms.Label lblBrand;
+        private System.Windows.Forms.Label lblBrandSubtitle;
+        private System.Windows.Forms.Label lblNavigationSignIn;
+        private System.Windows.Forms.Panel pnlHero;
+        private System.Windows.Forms.Label lblHeroTitle;
+        private System.Windows.Forms.Label lblHeroSubtitle;
+        private System.Windows.Forms.Label lblHeroDetails;
+        private System.Windows.Forms.Panel pnlLoginCard;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ComboBox cmbSignInRole;
+        private System.Windows.Forms.Label lblRole;
+        private System.Windows.Forms.TextBox txtStudentNo;
+        private System.Windows.Forms.TextBox txtPassword;
+        private System.Windows.Forms.Button btnLogin;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
+            if (disposing && components != null) components.Dispose();
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Login));
+            this.pnlNavigation = new System.Windows.Forms.Panel();
+            this.lblBrand = new System.Windows.Forms.Label();
+            this.lblBrandSubtitle = new System.Windows.Forms.Label();
+            this.lblNavigationSignIn = new System.Windows.Forms.Label();
+            this.pnlHero = new System.Windows.Forms.Panel();
+            this.lblHeroTitle = new System.Windows.Forms.Label();
+            this.lblHeroSubtitle = new System.Windows.Forms.Label();
+            this.lblHeroDetails = new System.Windows.Forms.Label();
+            this.pnlLoginCard = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.lblRole = new System.Windows.Forms.Label();
+            this.cmbSignInRole = new System.Windows.Forms.ComboBox();
             this.txtStudentNo = new System.Windows.Forms.TextBox();
             this.txtPassword = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.btnLogin = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.label5.Location = new System.Drawing.Point(227, 268);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(137, 21);
-            this.label5.TabIndex = 5;
-            this.label5.Text = "Student number";
-            this.label5.Click += new System.EventHandler(this.label5_Click);
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.label6.Location = new System.Drawing.Point(227, 369);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(82, 21);
-            this.label6.TabIndex = 6;
-            this.label6.Text = "Password";
-            // 
-            // txtStudentNo
-            // 
-            this.txtStudentNo.Location = new System.Drawing.Point(231, 312);
-            this.txtStudentNo.Multiline = true;
-            this.txtStudentNo.Name = "txtStudentNo";
-            this.txtStudentNo.Size = new System.Drawing.Size(355, 30);
-            this.txtStudentNo.TabIndex = 7;
-            this.txtStudentNo.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-            // 
-            // txtPassword
-            // 
-            this.txtPassword.Location = new System.Drawing.Point(231, 411);
-            this.txtPassword.Multiline = true;
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(355, 30);
-            this.txtPassword.TabIndex = 8;
-            this.txtPassword.UseSystemPasswordChar = true;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label4.Location = new System.Drawing.Point(258, 204);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(252, 17);
-            this.label4.TabIndex = 4;
-            this.label4.Text = "Log in to manage your tutoring bookings.";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.label3.Location = new System.Drawing.Point(310, 168);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(127, 21);
-            this.label3.TabIndex = 3;
-            this.label3.Text = "Welcome Back!";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.SystemColors.AppWorkspace;
-            this.label2.Location = new System.Drawing.Point(322, 151);
+            this.pnlNavigation.Name = "pnlNavigation";
+            this.pnlNavigation.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlNavigation.Height = 90;
+            this.pnlNavigation.BackColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.lblBrand.Name = "lblBrand";
+            this.lblBrand.Text = "EduConnect";
+            this.lblBrand.Location = new System.Drawing.Point(35, 12);
+            this.lblBrand.Size = new System.Drawing.Size(300, 43);
+            this.lblBrand.ForeColor = System.Drawing.Color.White;
+            this.lblBrand.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
+            this.lblBrandSubtitle.Name = "lblBrandSubtitle";
+            this.lblBrandSubtitle.Text = "UNIVERSITY TUTORING PORTAL";
+            this.lblBrandSubtitle.Location = new System.Drawing.Point(38, 53);
+            this.lblBrandSubtitle.Size = new System.Drawing.Size(320, 22);
+            this.lblBrandSubtitle.ForeColor = System.Drawing.Color.White;
+            this.lblBrandSubtitle.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblNavigationSignIn.Name = "lblNavigationSignIn";
+            this.lblNavigationSignIn.Text = "Sign in";
+            this.lblNavigationSignIn.Location = new System.Drawing.Point(780, 24);
+            this.lblNavigationSignIn.Size = new System.Drawing.Size(170, 36);
+            this.lblNavigationSignIn.ForeColor = System.Drawing.Color.White;
+            this.lblNavigationSignIn.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.pnlNavigation.Controls.Add(this.lblBrand);
+            this.pnlNavigation.Controls.Add(this.lblBrandSubtitle);
+            this.pnlNavigation.Controls.Add(this.lblNavigationSignIn);
+            this.pnlHero.Name = "pnlHero";
+            this.pnlHero.Location = new System.Drawing.Point(48, 136);
+            this.pnlHero.Size = new System.Drawing.Size(455, 498);
+            this.pnlHero.BackColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.lblHeroTitle.Name = "lblHeroTitle";
+            this.lblHeroTitle.Text = "One place.\\nBetter support.";
+            this.lblHeroTitle.Location = new System.Drawing.Point(35, 93);
+            this.lblHeroTitle.Size = new System.Drawing.Size(390, 125);
+            this.lblHeroTitle.ForeColor = System.Drawing.Color.White;
+            this.lblHeroTitle.Font = new System.Drawing.Font("Segoe UI", 25F, System.Drawing.FontStyle.Bold);
+            this.lblHeroSubtitle.Name = "lblHeroSubtitle";
+            this.lblHeroSubtitle.Text = "Access your EduConnect workspace and manage academic support in one place.";
+            this.lblHeroSubtitle.Location = new System.Drawing.Point(35, 236);
+            this.lblHeroSubtitle.Size = new System.Drawing.Size(385, 95);
+            this.lblHeroSubtitle.ForeColor = System.Drawing.Color.White;
+            this.lblHeroSubtitle.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblHeroDetails.Name = "lblHeroDetails";
+            this.lblHeroDetails.Text = "CONNECTED SERVICES  •  SIMPLE WORKFLOWS";
+            this.lblHeroDetails.Location = new System.Drawing.Point(35, 367);
+            this.lblHeroDetails.Size = new System.Drawing.Size(404, 35);
+            this.lblHeroDetails.ForeColor = System.Drawing.Color.White;
+            this.lblHeroDetails.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.pnlHero.Controls.Add(this.lblHeroTitle);
+            this.pnlHero.Controls.Add(this.lblHeroSubtitle);
+            this.pnlHero.Controls.Add(this.lblHeroDetails);
+            this.pnlLoginCard.Name = "pnlLoginCard";
+            this.pnlLoginCard.Location = new System.Drawing.Point(529, 136);
+            this.pnlLoginCard.Size = new System.Drawing.Size(465, 498);
+            this.pnlLoginCard.BackColor = System.Drawing.Color.White;
+            this.pnlLoginCard.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(90, 17);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "EduConnect";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.label1.Location = new System.Drawing.Point(308, 121);
+            this.label2.Text = "EDUCONNECT PORTAL";
+            this.label2.Location = new System.Drawing.Point(35, 22);
+            this.label2.Size = new System.Drawing.Size(380, 22);
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.label2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(137, 30);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "EduConnect";
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(313, 12);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(100, 100);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            // 
-            // btnLogin
-            // 
-            this.btnLogin.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLogin.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnLogin.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnLogin.Location = new System.Drawing.Point(206, 499);
+            this.label1.Text = "Welcome back";
+            this.label1.Location = new System.Drawing.Point(35, 51);
+            this.label1.Size = new System.Drawing.Size(395, 49);
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
+            this.label3.Name = "label3";
+            this.label3.Text = "Sign in to your account";
+            this.label3.Location = new System.Drawing.Point(35, 101);
+            this.label3.Size = new System.Drawing.Size(385, 28);
+            this.label3.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.label3.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
+            this.label4.Name = "label4";
+            this.label4.Text = "Sign in to access your EduConnect workspace.";
+            this.label4.Location = new System.Drawing.Point(35, 133);
+            this.label4.Size = new System.Drawing.Size(385, 39);
+            this.label4.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.label4.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblRole.Name = "lblRole";
+            this.lblRole.Text = "I am signing in as";
+            this.lblRole.Location = new System.Drawing.Point(35, 173);
+            this.lblRole.Size = new System.Drawing.Size(380, 25);
+            this.lblRole.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.lblRole.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.cmbSignInRole.Name = "cmbSignInRole";
+            this.cmbSignInRole.Location = new System.Drawing.Point(35, 202);
+            this.cmbSignInRole.Size = new System.Drawing.Size(384, 32);
+            this.cmbSignInRole.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbSignInRole.Items.AddRange(new object[] { "Student", "Staff" });
+            this.label5.Name = "label5";
+            this.label5.Text = "Student number";
+            this.label5.Location = new System.Drawing.Point(35, 242);
+            this.label5.Size = new System.Drawing.Size(384, 25);
+            this.label5.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.label5.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.txtStudentNo.Name = "txtStudentNo";
+            this.txtStudentNo.Location = new System.Drawing.Point(35, 271);
+            this.txtStudentNo.Size = new System.Drawing.Size(384, 37);
+            this.txtStudentNo.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.txtStudentNo.TabIndex = 1;
+            this.label6.Name = "label6";
+            this.label6.Text = "Password";
+            this.label6.Location = new System.Drawing.Point(35, 320);
+            this.label6.Size = new System.Drawing.Size(384, 25);
+            this.label6.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.label6.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.txtPassword.Name = "txtPassword";
+            this.txtPassword.Location = new System.Drawing.Point(35, 350);
+            this.txtPassword.Size = new System.Drawing.Size(384, 37);
+            this.txtPassword.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.txtPassword.UseSystemPasswordChar = true;
+            this.txtPassword.TabIndex = 2;
             this.btnLogin.Name = "btnLogin";
-            this.btnLogin.Size = new System.Drawing.Size(390, 38);
-            this.btnLogin.TabIndex = 9;
-            this.btnLogin.Text = "Login";
-            this.btnLogin.UseVisualStyleBackColor = true;
-            // 
-            // Login
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.btnLogin.Text = "Sign in";
+            this.btnLogin.Location = new System.Drawing.Point(35, 415);
+            this.btnLogin.Size = new System.Drawing.Size(384, 46);
+            this.btnLogin.BackColor = System.Drawing.Color.FromArgb(35, 93, 177);
+            this.btnLogin.ForeColor = System.Drawing.Color.White;
+            this.btnLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLogin.TabIndex = 3;
+            this.pnlLoginCard.Controls.Add(this.label2);
+            this.pnlLoginCard.Controls.Add(this.label1);
+            this.pnlLoginCard.Controls.Add(this.label3);
+            this.pnlLoginCard.Controls.Add(this.label4);
+            this.pnlLoginCard.Controls.Add(this.lblRole);
+            this.pnlLoginCard.Controls.Add(this.cmbSignInRole);
+            this.pnlLoginCard.Controls.Add(this.label5);
+            this.pnlLoginCard.Controls.Add(this.txtStudentNo);
+            this.pnlLoginCard.Controls.Add(this.label6);
+            this.pnlLoginCard.Controls.Add(this.txtPassword);
+            this.pnlLoginCard.Controls.Add(this.btnLogin);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(801, 614);
-            this.Controls.Add(this.btnLogin);
-            this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.txtPassword);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.txtStudentNo);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.label5);
-            this.Name = "Login";
+            this.ClientSize = new System.Drawing.Size(1040, 700);
+            this.MinimumSize = new System.Drawing.Size(1040, 740);
+            this.BackColor = System.Drawing.Color.FromArgb(230, 237, 249);
+            this.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.Text = "EduConnect | Sign in";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Login";
+            this.Controls.Add(this.pnlNavigation);
+            this.Controls.Add(this.pnlHero);
+            this.Controls.Add(this.pnlLoginCard);
             this.Load += new System.EventHandler(this.Login_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
-
         }
-
-        #endregion
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox txtStudentNo;
-        private System.Windows.Forms.TextBox txtPassword;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Button btnLogin;
     }
 }
