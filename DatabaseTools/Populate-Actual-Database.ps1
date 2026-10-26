@@ -226,6 +226,19 @@ try {
     $transaction.Commit()
     $transaction = $null
 
+    # Read the table again so the notification reflects saved rows, not just an attempt.
+    $verify = $connection.CreateCommand()
+    try {
+        $verify.CommandText = 'SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE [Feedback]=?'
+        AddValue $verify ([System.Data.OleDb.OleDbType]::VarWChar) $tag
+        $persisted = [int]$verify.ExecuteScalar()
+    } finally { $verify.Dispose() }
+
+    if ($persisted -ne $created) {
+        Write-Warning "The write committed, but only $persisted marked records were found when re-read; expected $created. Please inspect TUTORING_SESSION."
+    } else {
+        Write-Host "VERIFIED: $persisted completed sessions were re-read from TUTORING_SESSION." -ForegroundColor Green
+    }
     Write-Host "SUCCESS: inserted $created synthetic completed sessions into the REAL Edu_Connect.accdb." -ForegroundColor Green
     Write-Host "Students: $($studentIds.Count); tutor-course assignments: $($pairs.Count)." -ForegroundColor Green
     Write-Host 'Existing GPA, account passwords, and existing sessions were not modified.' -ForegroundColor Green
@@ -236,7 +249,8 @@ catch {
     if ($null -ne $transaction) {
         try { $transaction.Rollback() } catch { }
     }
-    Write-Host ("NO NEW RECORDS COMMITTED: " + $_.Exception.Message) -ForegroundColor Red
+    $stage = if ($null -ne $transaction) { "No synthetic records were committed." } else { "Check whether the transaction has already committed." }
+    Write-Host ("FAILED: " + $_.Exception.Message + " " + $stage) -ForegroundColor Red
     throw
 }
 finally {
