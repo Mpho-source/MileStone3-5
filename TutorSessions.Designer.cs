@@ -22,6 +22,7 @@ namespace NextGen__7
             this.txtFeedback = new System.Windows.Forms.TextBox();
             this.btnRecord = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnChangePassword = new System.Windows.Forms.Button();
             this.btnLogout = new System.Windows.Forms.Button();
             this.lblMessage = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.gridSessions)).BeginInit();
@@ -114,6 +115,14 @@ namespace NextGen__7
             this.btnRefresh.ForeColor = System.Drawing.Color.White;
             this.btnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRefresh.Font = new System.Drawing.Font("Segoe UI",10F, System.Drawing.FontStyle.Bold);
+            this.btnChangePassword.Name = "btnChangePassword";
+            this.btnChangePassword.Text = "Change password";
+            this.btnChangePassword.Location = new System.Drawing.Point(736,724);
+            this.btnChangePassword.Size = new System.Drawing.Size(195,44);
+            this.btnChangePassword.BackColor = System.Drawing.Color.FromArgb(83,104,132);
+            this.btnChangePassword.ForeColor = System.Drawing.Color.White;
+            this.btnChangePassword.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnChangePassword.Font = new System.Drawing.Font("Segoe UI",10F,System.Drawing.FontStyle.Bold);
             this.btnLogout.Name = "btnLogout";
             this.btnLogout.Text = "Sign out";
             this.btnLogout.Location = new System.Drawing.Point(945,724);
@@ -138,6 +147,7 @@ namespace NextGen__7
             this.Controls.Add(this.gridSessions);
             this.Controls.Add(this.pnlEditor);
             this.Controls.Add(this.btnRefresh);
+            this.Controls.Add(this.btnChangePassword);
             this.Controls.Add(this.btnLogout);
             this.Controls.Add(this.lblMessage);
             this.Controls.Add(this.pnlHeader);
@@ -156,6 +166,7 @@ namespace NextGen__7
         private System.Windows.Forms.TextBox txtFeedback;
         private System.Windows.Forms.Button btnRecord;
         private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Button btnChangePassword;
         private System.Windows.Forms.Button btnLogout;
         private System.Windows.Forms.Label lblMessage;
     }
