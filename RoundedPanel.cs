@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace NextGen__7
@@ -12,6 +13,8 @@ namespace NextGen__7
         private Color hoverColor = Color.FromArgb(222, 235, 250);
         private Color borderColor = Color.FromArgb(113, 145, 187);
         private bool hovered;
+        private bool actionInProgress;
+        private long lastCompletion;
 
         public int CornerRadius
         {
@@ -49,10 +52,27 @@ namespace NextGen__7
 
         public void Activate()
         {
-            if (Enabled && Visible)
+            if (!Enabled || !Visible || actionInProgress) return;
+            long now = Stopwatch.GetTimestamp();
+            if (lastCompletion != 0 &&
+                now - lastCompletion < Stopwatch.Frequency * 350L / 1000L)
+                return;
+
+            EventHandler callback = Clicked;
+            if (callback == null) return;
+
+            actionInProgress = true;
+            IDisposable loading = null;
+            try
             {
-                EventHandler callback = Clicked;
-                if (callback != null) callback(this, EventArgs.Empty);
+                loading = FormLoadingIndicator.Show(FindForm());
+                callback(this, EventArgs.Empty);
+            }
+            finally
+            {
+                if (loading != null) loading.Dispose();
+                lastCompletion = Stopwatch.GetTimestamp();
+                actionInProgress = false;
             }
         }
 
