@@ -68,9 +68,9 @@
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.pictureBox1);
-            this.panel1.Location = new System.Drawing.Point(1, 2);
+            this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(803, 101);
+            this.panel1.Size = new System.Drawing.Size(1100, 90);
             this.panel1.TabIndex = 0;
             // 
             // label2
@@ -109,9 +109,9 @@
             // 
             this.btnEditBooking.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnEditBooking.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnEditBooking.Location = new System.Drawing.Point(185, 436);
+            this.btnEditBooking.Location = new System.Drawing.Point(56, 650);
             this.btnEditBooking.Name = "btnEditBooking";
-            this.btnEditBooking.Size = new System.Drawing.Size(138, 41);
+            this.btnEditBooking.Size = new System.Drawing.Size(175, 46);
             this.btnEditBooking.TabIndex = 1;
             this.btnEditBooking.Text = "Edit Booking";
             this.btnEditBooking.UseVisualStyleBackColor = true;
@@ -120,9 +120,9 @@
             // 
             this.btnCancelBooking.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCancelBooking.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnCancelBooking.Location = new System.Drawing.Point(439, 436);
+            this.btnCancelBooking.Location = new System.Drawing.Point(247, 650);
             this.btnCancelBooking.Name = "btnCancelBooking";
-            this.btnCancelBooking.Size = new System.Drawing.Size(169, 41);
+            this.btnCancelBooking.Size = new System.Drawing.Size(193, 46);
             this.btnCancelBooking.TabIndex = 2;
             this.btnCancelBooking.Text = "Cancel Booking";
             this.btnCancelBooking.UseVisualStyleBackColor = true;
@@ -132,9 +132,9 @@
             this.btnBack.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBack.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBack.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.btnBack.Location = new System.Drawing.Point(259, 510);
+            this.btnBack.Location = new System.Drawing.Point(845, 650);
             this.btnBack.Name = "btnBack";
-            this.btnBack.Size = new System.Drawing.Size(247, 35);
+            this.btnBack.Size = new System.Drawing.Size(198, 46);
             this.btnBack.TabIndex = 20;
             this.btnBack.Text = "Back to DashBoard";
             this.btnBack.UseVisualStyleBackColor = true;
@@ -164,9 +164,9 @@
             this.lblStudentNo.AutoSize = true;
             this.lblStudentNo.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblStudentNo.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.lblStudentNo.Location = new System.Drawing.Point(12, 115);
+            this.lblStudentNo.Location = new System.Drawing.Point(56, 204);
             this.lblStudentNo.Name = "lblStudentNo";
-            this.lblStudentNo.Size = new System.Drawing.Size(94, 17);
+            this.lblStudentNo.Size = new System.Drawing.Size(380, 30);
             this.lblStudentNo.TabIndex = 22;
             this.lblStudentNo.Text = "Student No:";
             // 
@@ -177,13 +177,13 @@
             this.dgvBookings.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvBookings.BackgroundColor = System.Drawing.SystemColors.ButtonFace;
             this.dgvBookings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvBookings.Location = new System.Drawing.Point(30, 155);
+            this.dgvBookings.Location = new System.Drawing.Point(15, 15);
             this.dgvBookings.MultiSelect = false;
             this.dgvBookings.Name = "dgvBookings";
             this.dgvBookings.ReadOnly = true;
             this.dgvBookings.RowHeadersVisible = false;
             this.dgvBookings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvBookings.Size = new System.Drawing.Size(745, 250);
+            this.dgvBookings.Size = new System.Drawing.Size(958, 320);
             this.dgvBookings.TabIndex = 23;
             // 
             // tUTORINGREQUESTBindingSource2
