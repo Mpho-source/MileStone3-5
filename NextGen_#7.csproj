@@ -53,6 +53,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BookingData.cs" />
+    <Compile Include="TutorAuthentication.cs" />
+    <Compile Include="TutorSessions.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="TutorSessions.Designer.cs"><DependentUpon>TutorSessions.cs</DependentUpon></Compile>
     <Compile Include="AdminDashboard.cs"><SubType>Form</SubType></Compile>
     <Compile Include="AdminDashboard.Designer.cs"><DependentUpon>AdminDashboard.cs</DependentUpon></Compile>
     <Compile Include="AdminRequests.cs"><SubType>Form</SubType></Compile>
