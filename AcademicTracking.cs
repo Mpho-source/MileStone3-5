@@ -249,8 +249,20 @@ namespace NextGen__7
             { MessageBox.Show("Select a tutoring session in the table."); return; }
             if (cmbAttendance.SelectedIndex < 0)
             { MessageBox.Show("Select Attended or Absent."); return; }
-            int sessionID = Convert.ToInt32(
-                dgvSessions.SelectedRows[0].Cells["Session ID"].Value);
+            var selected = dgvSessions.SelectedRows[0];
+            int sessionID = Convert.ToInt32(selected.Cells["Session ID"].Value);
+            DateTime sessionDay = Convert.ToDateTime(selected.Cells["Session date"].Value).Date;
+            string sessionStatus = Convert.ToString(selected.Cells["Session status"].Value).Trim();
+            if (sessionDay > DateTime.Today)
+            {
+                MessageBox.Show("Attendance cannot be recorded for a future session."); return;
+            }
+            if (!sessionStatus.Equals("Scheduled", StringComparison.OrdinalIgnoreCase) &&
+                !sessionStatus.Equals("Completed", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Attendance can only be recorded for a scheduled or completed session.");
+                return;
+            }
             try
             {
                 using (var db = new OleDbConnection(connectionString))
@@ -260,10 +272,11 @@ namespace NextGen__7
                     { MessageBox.Show("Click Set up tracking first."); return; }
                     string id = BookingData.GetColumn(db, null, "TUTORING_SESSION", "SessionID");
                     using (var cmd = new OleDbCommand(
-                        "UPDATE [TUTORING_SESSION] SET [AttendanceStatus]=? WHERE [" +
+                        "UPDATE [TUTORING_SESSION] SET [AttendanceStatus]=?, [SessionStatus]=? WHERE [" +
                         id + "]=?", db))
                     {
-                        cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = cmbAttendance.Text;
+                        cmd.Parameters.Add("@Attendance", OleDbType.VarWChar).Value = cmbAttendance.Text;
+                        cmd.Parameters.Add("@SessionStatus", OleDbType.VarWChar).Value = "Completed";
                         cmd.Parameters.Add("@SessionID", OleDbType.Integer).Value = sessionID;
                         if (cmd.ExecuteNonQuery() != 1)
                             throw new InvalidOperationException("Session not updated.");
