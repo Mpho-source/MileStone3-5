@@ -36,9 +36,9 @@
             this.lblPageDescription = new System.Windows.Forms.Label();
             this.lblBookingPolicy = new System.Windows.Forms.Label();
             this.lblBookingNotice = new System.Windows.Forms.Label();
-            this.btnNavDashboard = new System.Windows.Forms.Button();
-            this.btnNavBookings = new System.Windows.Forms.Button();
-            this.btnNavBack = new System.Windows.Forms.Button();
+            this.btnNavDashboard = new NextGen__7.BusyButton();
+            this.btnNavBookings = new NextGen__7.BusyButton();
+            this.btnNavBack = new NextGen__7.BusyButton();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.txtStudentID = new System.Windows.Forms.RichTextBox();
@@ -57,9 +57,9 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.picLogo = new System.Windows.Forms.PictureBox();
-            this.btnBookSession = new System.Windows.Forms.Button();
-            this.btnClear = new System.Windows.Forms.Button();
-            this.btnBack = new System.Windows.Forms.Button();
+            this.btnBookSession = new NextGen__7.BusyButton();
+            this.btnClear = new NextGen__7.BusyButton();
+            this.btnBack = new NextGen__7.BusyButton();
             this.pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picLogo)).BeginInit();
             this.SuspendLayout();
@@ -421,9 +421,9 @@
         private System.Windows.Forms.Label lblPageDescription;
         private System.Windows.Forms.Label lblBookingPolicy;
         private System.Windows.Forms.Label lblBookingNotice;
-        private System.Windows.Forms.Button btnNavDashboard;
-        private System.Windows.Forms.Button btnNavBookings;
-        private System.Windows.Forms.Button btnNavBack;
+        private NextGen__7.BusyButton btnNavDashboard;
+        private NextGen__7.BusyButton btnNavBookings;
+        private NextGen__7.BusyButton btnNavBack;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.RichTextBox txtStudentID;
@@ -442,9 +442,9 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.PictureBox picLogo;
-        private System.Windows.Forms.Button btnBookSession;
-        private System.Windows.Forms.Button btnClear;
-        private System.Windows.Forms.Button btnBack;
+        private NextGen__7.BusyButton btnBookSession;
+        private NextGen__7.BusyButton btnClear;
+        private NextGen__7.BusyButton btnBack;
     }
 }
 
