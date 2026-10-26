@@ -33,6 +33,7 @@ namespace NextGen__7
             this.cmbCourse = new System.Windows.Forms.ComboBox();
             this.btnAssignCourse = new System.Windows.Forms.Button();
             this.btnAvailability = new System.Windows.Forms.Button();
+            this.btnCreateTutorLogin = new System.Windows.Forms.Button();
             this.lblAssignedCourses = new System.Windows.Forms.Label();
             this.pnlFooter = new System.Windows.Forms.Panel();
             this.btnNew = new System.Windows.Forms.Button();
@@ -120,7 +121,7 @@ namespace NextGen__7
             this.pnlGrid.Controls.Add(this.gridTutors);
             this.pnlEditor.Name = "pnlEditor";
             this.pnlEditor.Location = new System.Drawing.Point(756,213);
-            this.pnlEditor.Size = new System.Drawing.Size(432,462);
+            this.pnlEditor.Size = new System.Drawing.Size(432,512);
             this.pnlEditor.BackColor = System.Drawing.Color.White;
             this.pnlEditor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblEditorHeading.Name = "lblEditorHeading";
@@ -193,6 +194,15 @@ namespace NextGen__7
             this.btnAvailability.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAvailability.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnAvailability.Enabled = false;
+            this.btnCreateTutorLogin.Name = "btnCreateTutorLogin";
+            this.btnCreateTutorLogin.Text = "Create tutor sign-in";
+            this.btnCreateTutorLogin.Location = new System.Drawing.Point(26, 449);
+            this.btnCreateTutorLogin.Size = new System.Drawing.Size(372, 39);
+            this.btnCreateTutorLogin.BackColor = System.Drawing.Color.FromArgb(83,104,132);
+            this.btnCreateTutorLogin.ForeColor = System.Drawing.Color.White;
+            this.btnCreateTutorLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCreateTutorLogin.Enabled = false;
+            this.pnlEditor.Controls.Add(this.btnCreateTutorLogin);
             this.pnlEditor.Controls.Add(this.btnAvailability);
             this.pnlEditor.Controls.Add(this.lblEditorHeading);
             this.pnlEditor.Controls.Add(this.lblFirstName);
@@ -258,8 +268,8 @@ namespace NextGen__7
             this.pnlFooter.Controls.Add(this.btnBack);
             this.pnlFooter.Controls.Add(this.lblMessage);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1220, 790);
-            this.MinimumSize = new System.Drawing.Size(1220, 790);
+            this.ClientSize = new System.Drawing.Size(1220, 844);
+            this.MinimumSize = new System.Drawing.Size(1220, 844);
             this.Text = "EduConnect | Manage tutors";
             this.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.BackColor = System.Drawing.Color.FromArgb(230, 237, 249);
@@ -294,6 +304,7 @@ namespace NextGen__7
         private System.Windows.Forms.ComboBox cmbCourse;
         private System.Windows.Forms.Button btnAssignCourse;
         private System.Windows.Forms.Button btnAvailability;
+        private System.Windows.Forms.Button btnCreateTutorLogin;
         private System.Windows.Forms.Label lblAssignedCourses;
         private System.Windows.Forms.Panel pnlFooter;
         private System.Windows.Forms.Button btnNew;
