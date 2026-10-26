@@ -68,6 +68,14 @@ namespace NextGen__7
             btnNavBook.Click += (sender, e) => pnlBook.Activate();
             btnNavManage.Click += (sender, e) => pnlManageBooking.Activate();
             btnNavLogout.Click += (sender, e) => ConfirmLogout();
+            btnChangeStudentPassword.Click += (sender, e) =>
+            {
+                var cfg = ConfigurationManager.ConnectionStrings[
+                    "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
+                using (var dialog = new TutorChangePassword(
+                    "Student", studentNo, cfg.ConnectionString))
+                    dialog.ShowDialog(this);
+            };
             ConnectPanelChildren(pnlBook);
             ConnectPanelChildren(pnlManageBooking);
             ConnectPanelChildren(pnlLogout);
