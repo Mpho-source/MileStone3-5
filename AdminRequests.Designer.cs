@@ -10,6 +10,9 @@ namespace NextGen__7
         private NextGen__7.BusyButton btnRefresh;
         private NextGen__7.BusyButton btnVerify;
         private NextGen__7.BusyButton btnBack;
+        private NextGen__7.BusyButton btnAssign;
+        private System.Windows.Forms.ComboBox cmbMatchTutor;
+        private System.Windows.Forms.Label lblMatchHelp;
         private System.Windows.Forms.DataGridView requests;
 
         protected override void Dispose(bool disposing)
@@ -27,6 +30,9 @@ namespace NextGen__7
             this.btnRefresh = new NextGen__7.BusyButton();
             this.btnVerify = new NextGen__7.BusyButton();
             this.btnBack = new NextGen__7.BusyButton();
+            this.btnAssign = new NextGen__7.BusyButton();
+            this.cmbMatchTutor = new System.Windows.Forms.ComboBox();
+            this.lblMatchHelp = new System.Windows.Forms.Label();
             this.requests = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.requests)).BeginInit();
             this.SuspendLayout();
@@ -51,7 +57,7 @@ namespace NextGen__7
 
             this.pnlButtons.Name = "pnlButtons";
             this.pnlButtons.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlButtons.Height = 66;
+            this.pnlButtons.Height = 122;
             this.pnlButtons.Padding = new System.Windows.Forms.Padding(20, 10, 10, 4);
             this.pnlButtons.BackColor = System.Drawing.Color.White;
             this.btnRefresh.Name = "btnRefresh";
@@ -81,6 +87,31 @@ namespace NextGen__7
             this.btnBack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
             this.pnlButtons.Controls.Add(this.btnBack);
+            this.cmbMatchTutor.Name = "cmbMatchTutor";
+            this.cmbMatchTutor.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbMatchTutor.Size = new System.Drawing.Size(275, 38);
+            this.cmbMatchTutor.Margin = new System.Windows.Forms.Padding(12, 3, 10, 0);
+            this.pnlButtons.Controls.Add(this.cmbMatchTutor);
+
+            this.btnAssign.Name = "btnAssign";
+            this.btnAssign.Text = "Assign selected tutor";
+            this.btnAssign.Size = new System.Drawing.Size(189, 39);
+            this.btnAssign.Margin = new System.Windows.Forms.Padding(4, 2, 9, 0);
+            this.btnAssign.BackColor = System.Drawing.Color.FromArgb(27, 125, 116);
+            this.btnAssign.ForeColor = System.Drawing.Color.White;
+            this.btnAssign.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAssign.Enabled = false;
+            this.btnAssign.Click += new System.EventHandler(this.btnAssign_Click);
+            this.pnlButtons.Controls.Add(this.btnAssign);
+
+            this.lblMatchHelp.Name = "lblMatchHelp";
+            this.lblMatchHelp.Text = "Verify a tutoring request before assigning a tutor.";
+            this.lblMatchHelp.AutoSize = false;
+            this.lblMatchHelp.Size = new System.Drawing.Size(1010, 31);
+            this.lblMatchHelp.Margin = new System.Windows.Forms.Padding(6, 3, 2, 0);
+            this.lblMatchHelp.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblMatchHelp.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.pnlButtons.Controls.Add(this.lblMatchHelp);
             this.requests.Name = "requests";
             this.requests.Dock = System.Windows.Forms.DockStyle.Fill;
             this.requests.ReadOnly = true;
