@@ -12,73 +12,25 @@ namespace NextGen__7
     public partial class Reports : Form
     {
         private readonly string connectionString;
-        private readonly DateTimePicker fromDate;
-        private readonly DateTimePicker toDate;
-        private readonly DataGridView grid;
-        private readonly PrintDocument printer;
         private DataTable result;
         private int printRow;
 
         public Reports()
         {
             InitializeComponent();
+            if (System.ComponentModel.LicenseManager.UsageMode ==
+                System.ComponentModel.LicenseUsageMode.Designtime) return;
             var config = ConfigurationManager.ConnectionStrings[
                 "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
             if (config == null) throw new InvalidOperationException("Database connection missing.");
             connectionString = config.ConnectionString;
-
-            Text = "EduConnect | Tutor session report";
-            StartPosition = FormStartPosition.CenterParent;
-            MinimumSize = new Size(900, 650);
-            Size = new Size(1120, 740);
-            BackColor = EduConnectTheme.Background;
-            Font = new Font("Segoe UI", 10);
-
-            var header = new Panel { Dock = DockStyle.Top, Height = 106, BackColor = EduConnectTheme.Navy };
-            var title = new Label { Text = "Tutor session report", Font = new Font("Segoe UI", 21, FontStyle.Bold),
-                ForeColor = Color.White, Location = new Point(28, 14), Size = new Size(660, 45) };
-            var subtitle = new Label { Text = "Scheduled and completed sessions per tutor for a selected period",
-                ForeColor = Color.Gainsboro, Location = new Point(30, 68), Size = new Size(750, 26) };
-            header.Controls.Add(title);
-            header.Controls.Add(subtitle);
-            Controls.Add(header);
-
-            var controls = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 80, BackColor = Color.White,
-                Padding = new Padding(22, 16, 10, 6), FlowDirection = FlowDirection.LeftToRight };
-            controls.Controls.Add(new Label { Text = "From", AutoSize = true, Padding = new Padding(0, 9, 0, 0) });
-            fromDate = new DateTimePicker { Format = DateTimePickerFormat.Short, Width = 145,
-                Value = DateTime.Today.AddMonths(-1) };
-            controls.Controls.Add(fromDate);
-            controls.Controls.Add(new Label { Text = "To", AutoSize = true,
-                Padding = new Padding(14, 9, 0, 0) });
-            toDate = new DateTimePicker { Format = DateTimePickerFormat.Short, Width = 145,
-                Value = DateTime.Today };
-            controls.Controls.Add(toDate);
-            AddButton(controls, "Generate report", (s, e) => Generate());
-            AddButton(controls, "Print preview", (s, e) => Preview());
-            AddButton(controls, "Back", (s, e) => Close());
-            Controls.Add(controls);
-
-            grid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true,
-                BackgroundColor = Color.White, AllowUserToAddRows = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill };
-            Controls.Add(grid);
-            grid.BringToFront();
-            EduConnectTheme.StyleGrid(grid);
-
-            printer = new PrintDocument();
-            printer.DocumentName = "EduConnect Tutor Session Report";
-            printer.PrintPage += PrintPage;
+            fromDate.Value = DateTime.Today.AddMonths(-1);
+            toDate.Value = DateTime.Today;
         }
 
-        private static void AddButton(FlowLayoutPanel panel, string name, EventHandler click)
-        {
-            var button = new Button { Text = name, Height = 40, AutoSize = true,
-                Margin = new Padding(12, 0, 2, 0) };
-            button.Click += click;
-            EduConnectTheme.StyleButton(button);
-            panel.Controls.Add(button);
-        }
+        private void btnGenerate_Click(object sender, EventArgs e) { Generate(); }
+        private void btnPrint_Click(object sender, EventArgs e) { Preview(); }
+        private void btnBack_Click(object sender, EventArgs e) { Close(); }
 
         private static string Column(DataTable table, string name)
         {
