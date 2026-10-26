@@ -24,7 +24,7 @@ if (-not (Test-Path -LiteralPath $marker)) {
 
     New-Item -Path $demoFolder -ItemType Directory -Force | Out-Null
     Copy-Item -LiteralPath $source -Destination $demo -ErrorAction Stop
-    $db = New-Object System.Data.OleDb.OleDbConnection(
+    $db = [System.Data.OleDb.OleDbConnection]::new(
         "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=$demo")
     $tx = $null
 
