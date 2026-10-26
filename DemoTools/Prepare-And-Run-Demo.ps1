@@ -90,7 +90,7 @@ if (-not (Test-Path -LiteralPath $marker)) {
                 Add-Param $cmd ([System.Data.OleDb.OleDbType]::Integer) $requestId
                 Add-Param $cmd ([System.Data.OleDb.OleDbType]::Integer) $studentId
                 Add-Param $cmd ([System.Data.OleDb.OleDbType]::Integer) $courseId
-                Add-Param $cmd ([System.Data.OleDb.OleDbType]::VarWChar) 'Individual tutoring (DEMO)'
+                Add-Param $cmd ([System.Data.OleDb.OleDbType]::VarWChar) 'Individual tutoring'
                 Add-Param $cmd ([System.Data.OleDb.OleDbType]::Date) $day
                 Add-Param $cmd ([System.Data.OleDb.OleDbType]::Date) $start
                 Add-Param $cmd ([System.Data.OleDb.OleDbType]::Date) $end
