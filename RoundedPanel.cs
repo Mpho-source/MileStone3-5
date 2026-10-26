@@ -74,19 +74,114 @@ namespace NextGen__7
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
-            hovered = true;
-            BackColor = hoverColor;
+            RefreshHoverState();
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            RefreshHoverState();
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            Point location = PointToClient(Cursor.Position);
-            if (!ClientRectangle.Contains(location))
-            {
-                hovered = false;
-                BackColor = normalColor;
-            }
+            RefreshHoverState();
+        }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            if (!Visible)
+                SetHovered(false);
+            else if (IsHandleCreated)
+                RefreshHoverState();
+        }
+
+        protected override void OnEnabledChanged(EventArgs e)
+        {
+            base.OnEnabledChanged(e);
+            RefreshHoverState();
+        }
+
+        protected override void OnControlAdded(ControlEventArgs e)
+        {
+            base.OnControlAdded(e);
+            TrackChild(e.Control);
+        }
+
+        protected override void OnControlRemoved(ControlEventArgs e)
+        {
+            UntrackChild(e.Control);
+            base.OnControlRemoved(e);
+            RefreshHoverState();
+        }
+
+        private void TrackChild(Control child)
+        {
+            child.MouseEnter += ChildMouseEnterOrLeave;
+            child.MouseLeave += ChildMouseEnterOrLeave;
+            child.MouseMove += ChildMouseMove;
+            child.ControlAdded += ChildControlAdded;
+            child.ControlRemoved += ChildControlRemoved;
+
+            foreach (Control descendant in child.Controls)
+                TrackChild(descendant);
+        }
+
+        private void UntrackChild(Control child)
+        {
+            child.MouseEnter -= ChildMouseEnterOrLeave;
+            child.MouseLeave -= ChildMouseEnterOrLeave;
+            child.MouseMove -= ChildMouseMove;
+            child.ControlAdded -= ChildControlAdded;
+            child.ControlRemoved -= ChildControlRemoved;
+
+            foreach (Control descendant in child.Controls)
+                UntrackChild(descendant);
+        }
+
+        private void ChildControlAdded(object sender, ControlEventArgs e)
+        {
+            TrackChild(e.Control);
+        }
+
+        private void ChildControlRemoved(object sender, ControlEventArgs e)
+        {
+            UntrackChild(e.Control);
+            RefreshHoverState();
+        }
+
+        private void ChildMouseEnterOrLeave(object sender, EventArgs e)
+        {
+            RefreshHoverState();
+        }
+
+        private void ChildMouseMove(object sender, MouseEventArgs e)
+        {
+            RefreshHoverState();
+        }
+
+        private void RefreshHoverState()
+        {
+            if (!IsHandleCreated || IsDisposed)
+                return;
+
+            Point pointer = PointToClient(Cursor.Position);
+            bool inside = Visible && Enabled &&
+                ClientRectangle.Contains(pointer) &&
+                (Region == null || Region.IsVisible(pointer));
+            SetHovered(inside);
+        }
+
+        private void SetHovered(bool value)
+        {
+            if (hovered == value && BackColor == (value ? hoverColor : normalColor))
+                return;
+
+            hovered = value;
+            BackColor = value ? hoverColor : normalColor;
+            Invalidate();
         }
 
         protected override void OnClick(EventArgs e)
