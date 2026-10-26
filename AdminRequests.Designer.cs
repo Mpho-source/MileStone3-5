@@ -7,9 +7,9 @@ namespace NextGen__7
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.Label lblSubtitle;
         private System.Windows.Forms.FlowLayoutPanel pnlButtons;
-        private System.Windows.Forms.Button btnRefresh;
-        private System.Windows.Forms.Button btnVerify;
-        private System.Windows.Forms.Button btnBack;
+        private NextGen__7.BusyButton btnRefresh;
+        private NextGen__7.BusyButton btnVerify;
+        private NextGen__7.BusyButton btnBack;
         private System.Windows.Forms.DataGridView requests;
 
         protected override void Dispose(bool disposing)
@@ -24,9 +24,9 @@ namespace NextGen__7
             this.lblTitle = new System.Windows.Forms.Label();
             this.lblSubtitle = new System.Windows.Forms.Label();
             this.pnlButtons = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnRefresh = new System.Windows.Forms.Button();
-            this.btnVerify = new System.Windows.Forms.Button();
-            this.btnBack = new System.Windows.Forms.Button();
+            this.btnRefresh = new NextGen__7.BusyButton();
+            this.btnVerify = new NextGen__7.BusyButton();
+            this.btnBack = new NextGen__7.BusyButton();
             this.requests = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.requests)).BeginInit();
             this.SuspendLayout();
