@@ -30,6 +30,15 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ManageBookings));
+            this.pnlListCard = new System.Windows.Forms.Panel();
+            this.lblHeading = new System.Windows.Forms.Label();
+            this.lblDescription = new System.Windows.Forms.Label();
+            this.lblBookingActionHelp = new System.Windows.Forms.Label();
+            this.lblFilter = new System.Windows.Forms.Label();
+            this.cmbBookingStatusFilter = new System.Windows.Forms.ComboBox();
+            this.btnNavDashboard = new System.Windows.Forms.Button();
+            this.btnNavBook = new System.Windows.Forms.Button();
+            this.btnNavBack = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -181,14 +190,78 @@
             // 
             this.tUTORINGREQUESTBindingSource2.DataMember = "TUTORING_REQUEST";
             this.tUTORINGREQUESTBindingSource2.DataSource = this.edu_ConnectDataSet1;
+            // Designer-managed booking filters and navigation
+            this.btnNavDashboard.Name = "btnNavDashboard";
+            this.btnNavDashboard.Text = "Dashboard";
+            this.btnNavDashboard.Location = new System.Drawing.Point(548, 19);
+            this.btnNavDashboard.Size = new System.Drawing.Size(135, 45);
+            this.btnNavBook.Name = "btnNavBook";
+            this.btnNavBook.Text = "Book a session";
+            this.btnNavBook.Location = new System.Drawing.Point(693, 19);
+            this.btnNavBook.Size = new System.Drawing.Size(156, 45);
+            this.btnNavBack.Name = "btnNavBack";
+            this.btnNavBack.Text = "Back";
+            this.btnNavBack.Location = new System.Drawing.Point(861, 19);
+            this.btnNavBack.Size = new System.Drawing.Size(110, 45);
+            this.btnNavDashboard.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNavDashboard.BackColor = System.Drawing.Color.FromArgb(74, 122, 191);
+            this.btnNavDashboard.ForeColor = System.Drawing.Color.White;
+            this.panel1.Controls.Add(this.btnNavDashboard);
+            this.btnNavBook.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNavBook.BackColor = System.Drawing.Color.FromArgb(74, 122, 191);
+            this.btnNavBook.ForeColor = System.Drawing.Color.White;
+            this.panel1.Controls.Add(this.btnNavBook);
+            this.btnNavBack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNavBack.BackColor = System.Drawing.Color.FromArgb(74, 122, 191);
+            this.btnNavBack.ForeColor = System.Drawing.Color.White;
+            this.panel1.Controls.Add(this.btnNavBack);
+            this.lblHeading.Name = "lblHeading";
+            this.lblHeading.Text = "My tutoring bookings";
+            this.lblHeading.Location = new System.Drawing.Point(56, 126);
+            this.lblHeading.Size = new System.Drawing.Size(970, 45);
+            this.lblHeading.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
+            this.lblHeading.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
+            this.lblDescription.Name = "lblDescription";
+            this.lblDescription.Text = "Check your upcoming sessions and manage your requests.";
+            this.lblDescription.Location = new System.Drawing.Point(58, 173);
+            this.lblDescription.Size = new System.Drawing.Size(970, 27);
+            this.lblDescription.ForeColor = System.Drawing.Color.FromArgb(83, 104, 132);
+            this.lblFilter.Name = "lblFilter";
+            this.lblFilter.Text = "Show bookings";
+            this.lblFilter.Location = new System.Drawing.Point(747, 205);
+            this.lblFilter.Size = new System.Drawing.Size(139, 29);
+            this.cmbBookingStatusFilter.Name = "cmbBookingStatusFilter";
+            this.cmbBookingStatusFilter.Location = new System.Drawing.Point(894, 204);
+            this.cmbBookingStatusFilter.Size = new System.Drawing.Size(149, 33);
+            this.cmbBookingStatusFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbBookingStatusFilter.Items.AddRange(new object[] {
+                "All bookings", "Scheduled", "Submitted", "Completed", "Cancelled"
+            });
+            this.pnlListCard.Name = "pnlListCard";
+            this.pnlListCard.Location = new System.Drawing.Point(56, 251);
+            this.pnlListCard.Size = new System.Drawing.Size(987, 356);
+            this.pnlListCard.BackColor = System.Drawing.Color.White;
+            this.pnlListCard.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblBookingActionHelp.Name = "lblBookingActionHelp";
+            this.lblBookingActionHelp.Text = "Select a booking first. Editing and cancellation require at least 48 hours' notice.";
+            this.lblBookingActionHelp.Location = new System.Drawing.Point(56, 614);
+            this.lblBookingActionHelp.Size = new System.Drawing.Size(940, 28);
+            this.lblBookingActionHelp.ForeColor = System.Drawing.Color.FromArgb(83, 104, 132);
             // 
             // ManageBookings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
-            this.ClientSize = new System.Drawing.Size(810, 576);
-            this.Controls.Add(this.dgvBookings);
+            this.ClientSize = new System.Drawing.Size(1100, 740);
+            this.MinimumSize = new System.Drawing.Size(1030, 740);
+            this.pnlListCard.Controls.Add(this.dgvBookings);
+            this.Controls.Add(this.lblHeading);
+            this.Controls.Add(this.lblDescription);
+            this.Controls.Add(this.lblFilter);
+            this.Controls.Add(this.cmbBookingStatusFilter);
+            this.Controls.Add(this.pnlListCard);
+            this.Controls.Add(this.lblBookingActionHelp);
             this.Controls.Add(this.lblStudentNo);
             this.Controls.Add(this.btnBack);
             this.Controls.Add(this.btnCancelBooking);
@@ -196,7 +269,7 @@
             this.Controls.Add(this.panel1);
             this.Name = "ManageBookings";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ManageBookings";
+            this.Text = "EduConnect | My bookings";
             this.Load += new System.EventHandler(this.ManageBookings_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -213,6 +286,15 @@
 
         #endregion
 
+        private System.Windows.Forms.Panel pnlListCard;
+        private System.Windows.Forms.Label lblHeading;
+        private System.Windows.Forms.Label lblDescription;
+        private System.Windows.Forms.Label lblBookingActionHelp;
+        private System.Windows.Forms.Label lblFilter;
+        private System.Windows.Forms.ComboBox cmbBookingStatusFilter;
+        private System.Windows.Forms.Button btnNavDashboard;
+        private System.Windows.Forms.Button btnNavBook;
+        private System.Windows.Forms.Button btnNavBack;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label2;
