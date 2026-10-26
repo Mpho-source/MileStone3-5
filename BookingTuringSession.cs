@@ -24,7 +24,8 @@ namespace NextGen__7
         public BookingTutoringSession(int studentID, string studentNo)
         {
             InitializeComponent();
-            EduConnectTheme.Apply(this);
+            if (System.ComponentModel.LicenseManager.UsageMode ==
+                System.ComponentModel.LicenseUsageMode.Designtime) return;
 
             if (studentID <= 0 || string.IsNullOrWhiteSpace(studentNo))
                 throw new InvalidOperationException("Invalid student session.");
@@ -66,11 +67,13 @@ namespace NextGen__7
             toolTip1.SetToolTip(
                 cmbSessionTime, "Select your preferred tutoring time.");
 
-            EduConnectLayout.Booking(this, () => Close(), () =>
+            btnNavDashboard.Click += (sender, e) => Close();
+            btnNavBookings.Click += (sender, e) =>
             {
-                using (ManageBookings page = new ManageBookings(studentID, studentNo))
+                using (var page = new ManageBookings(studentID, studentNo))
                     page.ShowDialog(this);
-            });
+            };
+            btnNavBack.Click += (sender, e) => Close();
         }
 
         private void BookingTutoringSession_Load(object sender, EventArgs e)
