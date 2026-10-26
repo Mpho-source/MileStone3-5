@@ -17,7 +17,6 @@ namespace NextGen__7
             InitializeComponent();
             if (System.ComponentModel.LicenseManager.UsageMode ==
                 System.ComponentModel.LicenseUsageMode.Designtime) return;
-            EduConnectTheme.Apply(this);
 
             studentID = Login.CurrentStudentID;
             studentNo = Login.CurrentStudentNo;
