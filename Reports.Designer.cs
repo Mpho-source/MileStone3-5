@@ -23,6 +23,7 @@ namespace NextGen__7
             this.lblYear = new System.Windows.Forms.Label();
             this.numYear = new System.Windows.Forms.NumericUpDown();
             this.btnGenerate = new System.Windows.Forms.Button();
+            this.btnToggleView = new System.Windows.Forms.Button();
             this.btnAcademic = new System.Windows.Forms.Button();
             this.pnlContent = new System.Windows.Forms.Panel();
             this.grid = new System.Windows.Forms.DataGridView();
@@ -150,6 +151,15 @@ namespace NextGen__7
             this.lblStatus.Size = new System.Drawing.Size(680, 38);
             this.lblStatus.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
             this.lblStatus.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.btnToggleView.Name = "btnToggleView";
+            this.btnToggleView.Text = "Show table";
+            this.btnToggleView.Location = new System.Drawing.Point(570, 19);
+            this.btnToggleView.Size = new System.Drawing.Size(139, 45);
+            this.btnToggleView.BackColor = System.Drawing.Color.FromArgb(78, 105, 145);
+            this.btnToggleView.ForeColor = System.Drawing.Color.White;
+            this.btnToggleView.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnToggleView.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnToggleView.Visible = false;
             this.btnAcademic.Name = "btnAcademic";
             this.btnAcademic.Text = "Academic records";
             this.btnAcademic.Location = new System.Drawing.Point(719, 19);
@@ -174,6 +184,7 @@ namespace NextGen__7
             this.btnBack.ForeColor = System.Drawing.Color.White;
             this.btnBack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnBack.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.pnlFooter.Controls.Add(this.btnToggleView);
             this.pnlFooter.Controls.Add(this.lblStatus);
             this.pnlFooter.Controls.Add(this.btnAcademic);
             this.pnlFooter.Controls.Add(this.btnPrint);
@@ -208,6 +219,7 @@ namespace NextGen__7
         private System.Windows.Forms.Label lblYear;
         private System.Windows.Forms.NumericUpDown numYear;
         private System.Windows.Forms.Button btnGenerate;
+        private System.Windows.Forms.Button btnToggleView;
         private System.Windows.Forms.Button btnAcademic;
         private System.Windows.Forms.Panel pnlContent;
         private System.Windows.Forms.DataGridView grid;
