@@ -33,6 +33,7 @@
             this.btnNavBook = new System.Windows.Forms.Button();
             this.btnNavManage = new System.Windows.Forms.Button();
             this.btnNavLogout = new System.Windows.Forms.Button();
+            this.btnChangeStudentPassword = new System.Windows.Forms.Button();
             this.pnlStudentProfile = new System.Windows.Forms.Panel();
             this.lblDashboardStudentAvatar = new System.Windows.Forms.Label();
             this.lblDashboardStudentName = new System.Windows.Forms.Label();
@@ -356,7 +357,7 @@
             this.lblBookingPolicy.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.lblDashboardFooter.Name = "lblDashboardFooter";
             this.lblDashboardFooter.Text = "EduConnect / Student services / Dashboard";
-            this.lblDashboardFooter.Location = new System.Drawing.Point(56, 664);
+            this.lblDashboardFooter.Location = new System.Drawing.Point(56, 702);
             this.lblDashboardFooter.Size = new System.Drawing.Size(960, 28);
             this.lblDashboardFooter.ForeColor = System.Drawing.Color.FromArgb(83, 104, 132);
             // 
@@ -367,6 +368,14 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(237)))), ((int)(((byte)(249)))));
             this.ClientSize = new System.Drawing.Size(1090, 750);
             this.MinimumSize = new System.Drawing.Size(1090, 750);
+            this.btnChangeStudentPassword.Name = "btnChangeStudentPassword";
+            this.btnChangeStudentPassword.Text = "Change password";
+            this.btnChangeStudentPassword.Location = new System.Drawing.Point(818, 642);
+            this.btnChangeStudentPassword.Size = new System.Drawing.Size(216, 43);
+            this.btnChangeStudentPassword.BackColor = System.Drawing.Color.FromArgb(83,104,132);
+            this.btnChangeStudentPassword.ForeColor = System.Drawing.Color.White;
+            this.btnChangeStudentPassword.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Controls.Add(this.btnChangeStudentPassword);
             this.Controls.Add(this.pnlStudentProfile);
             this.Controls.Add(this.lblBookingPolicy);
             this.Controls.Add(this.lblDashboardFooter);
@@ -403,6 +412,7 @@
         private System.Windows.Forms.Button btnNavBook;
         private System.Windows.Forms.Button btnNavManage;
         private System.Windows.Forms.Button btnNavLogout;
+        private System.Windows.Forms.Button btnChangeStudentPassword;
         private System.Windows.Forms.Panel pnlStudentProfile;
         private System.Windows.Forms.Label lblDashboardStudentAvatar;
         private System.Windows.Forms.Label lblDashboardStudentName;
