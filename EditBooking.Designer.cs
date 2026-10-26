@@ -16,8 +16,8 @@ namespace NextGen__7
         private System.Windows.Forms.Label lblEditTime;
         private System.Windows.Forms.ComboBox cmbSessionTime;
         private System.Windows.Forms.Label lblPolicy;
-        private System.Windows.Forms.Button btnSaveChanges;
-        private System.Windows.Forms.Button btnBack;
+        private NextGen__7.BusyButton btnSaveChanges;
+        private NextGen__7.BusyButton btnBack;
         protected override void Dispose(bool disposing)
         {
             if (disposing && components != null) components.Dispose();
@@ -38,8 +38,8 @@ namespace NextGen__7
             this.lblEditTime = new System.Windows.Forms.Label();
             this.cmbSessionTime = new System.Windows.Forms.ComboBox();
             this.lblPolicy = new System.Windows.Forms.Label();
-            this.btnSaveChanges = new System.Windows.Forms.Button();
-            this.btnBack = new System.Windows.Forms.Button();
+            this.btnSaveChanges = new NextGen__7.BusyButton();
+            this.btnBack = new NextGen__7.BusyButton();
             this.SuspendLayout();
             this.pnlBanner.Name = "pnlBanner";
             this.pnlBanner.Dock = System.Windows.Forms.DockStyle.Top;
