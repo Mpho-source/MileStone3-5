@@ -30,10 +30,10 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StudentDashboard));
             this.panel1 = new System.Windows.Forms.Panel();
-            this.btnNavBook = new System.Windows.Forms.Button();
-            this.btnNavManage = new System.Windows.Forms.Button();
-            this.btnNavLogout = new System.Windows.Forms.Button();
-            this.btnChangeStudentPassword = new System.Windows.Forms.Button();
+            this.btnNavBook = new NextGen__7.BusyButton();
+            this.btnNavManage = new NextGen__7.BusyButton();
+            this.btnNavLogout = new NextGen__7.BusyButton();
+            this.btnChangeStudentPassword = new NextGen__7.BusyButton();
             this.pnlStudentProfile = new System.Windows.Forms.Panel();
             this.lblDashboardStudentAvatar = new System.Windows.Forms.Label();
             this.lblDashboardStudentName = new System.Windows.Forms.Label();
@@ -409,10 +409,10 @@
         #endregion
 
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button btnNavBook;
-        private System.Windows.Forms.Button btnNavManage;
-        private System.Windows.Forms.Button btnNavLogout;
-        private System.Windows.Forms.Button btnChangeStudentPassword;
+        private NextGen__7.BusyButton btnNavBook;
+        private NextGen__7.BusyButton btnNavManage;
+        private NextGen__7.BusyButton btnNavLogout;
+        private NextGen__7.BusyButton btnChangeStudentPassword;
         private System.Windows.Forms.Panel pnlStudentProfile;
         private System.Windows.Forms.Label lblDashboardStudentAvatar;
         private System.Windows.Forms.Label lblDashboardStudentName;
