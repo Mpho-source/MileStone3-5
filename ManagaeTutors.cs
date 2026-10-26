@@ -35,6 +35,7 @@ namespace NextGen__7
             btnAssignCourse.Click += (s, e) => AssignCourse();
             btnAvailability.Click += (s, e) => OpenAvailability();
             btnCreateTutorLogin.Click += (s, e) => CreateTutorLogin();
+            btnResetTutorLogin.Click += (s, e) => ResetTutorLogin();
             txtSearch.TextChanged += (s, e) => ApplySearch();
             Load += (s, e) => { LoadCourses(); LoadTutors(); };
         }
@@ -163,7 +164,7 @@ namespace NextGen__7
                 lblMessage.Text = "Editing tutor #" + selectedId;
                 btnAssignCourse.Enabled = true;
                 btnAvailability.Enabled = true;
-                btnCreateTutorLogin.Enabled = true;
+                RefreshTutorLoginState();
                 LoadTutorCourses();
             }
             catch (Exception ex) { lblMessage.Text = "Could not select tutor: " + ex.Message; }
@@ -188,6 +189,7 @@ namespace NextGen__7
             btnAssignCourse.Enabled = false;
             btnAvailability.Enabled = false;
             btnCreateTutorLogin.Enabled = false;
+            btnResetTutorLogin.Enabled = false;
             cmbCourse.SelectedIndex = -1;
         }
 
@@ -338,6 +340,65 @@ namespace NextGen__7
             }
         }
 
+        private void RefreshTutorLoginState()
+        {
+            btnCreateTutorLogin.Enabled = false;
+            btnResetTutorLogin.Enabled = false;
+            if (selectedId <= 0) return;
+            try
+            {
+                bool hasAccount;
+                using (var db = new OleDbConnection(connectionString))
+                {
+                    db.Open();
+                    hasAccount = TutorAuthentication.HasAccount(db, selectedId);
+                }
+                btnCreateTutorLogin.Enabled = !hasAccount;
+                btnResetTutorLogin.Enabled = hasAccount;
+            }
+            catch (Exception ex)
+            {
+                lblMessage.Text = "Cannot check tutor login: " + ex.Message;
+            }
+        }
+
+        private void ResetTutorLogin()
+        {
+            if (selectedId <= 0)
+            {
+                MessageBox.Show("Select an existing tutor first."); return;
+            }
+            if (MessageBox.Show(
+                "Reset the password for Tutor #" + selectedId + "? " +
+                "Their previous password will immediately stop working.",
+                "Reset tutor password", MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                string temporaryPassword;
+                using (var db = new OleDbConnection(connectionString))
+                {
+                    db.Open();
+                    temporaryPassword = TutorAuthentication.ResetPassword(db, selectedId);
+                }
+                MessageBox.Show("Tutor ID: " + selectedId +
+                    "\nNew temporary password: " + temporaryPassword +
+                    "\n\nShare this only with the tutor. The previous password " +
+                    "is now invalid. The new password will not be shown again.",
+                    "Tutor password reset", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                lblMessage.Text = "Password reset for tutor #" + selectedId + ".";
+                RefreshTutorLoginState();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Password reset failed.\n\n" + ex.Message,
+                    "Tutor account", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void CreateTutorLogin()
         {
             if (selectedId <= 0)
@@ -367,7 +428,7 @@ namespace NextGen__7
                     "New tutor sign-in", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
                 lblMessage.Text = "Tutor #" + selectedId + " now has a sign-in account.";
-                btnCreateTutorLogin.Enabled = false;
+                RefreshTutorLoginState();
             }
             catch (Exception ex)
             {
