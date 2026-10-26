@@ -23,6 +23,7 @@ namespace NextGen__7
         private System.Windows.Forms.TextBox txtStudentNo;
         private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.Button btnLogin;
+        private System.Windows.Forms.Button btnAdminSetup;
 
         protected override void Dispose(bool disposing)
         {
@@ -52,6 +53,7 @@ namespace NextGen__7
             this.txtStudentNo = new System.Windows.Forms.TextBox();
             this.txtPassword = new System.Windows.Forms.TextBox();
             this.btnLogin = new System.Windows.Forms.Button();
+            this.btnAdminSetup = new System.Windows.Forms.Button();
             this.SuspendLayout();
             this.pnlNavigation.Name = "pnlNavigation";
             this.pnlNavigation.Dock = System.Windows.Forms.DockStyle.Top;
@@ -105,7 +107,7 @@ namespace NextGen__7
             this.pnlHero.Controls.Add(this.lblHeroDetails);
             this.pnlLoginCard.Name = "pnlLoginCard";
             this.pnlLoginCard.Location = new System.Drawing.Point(529, 136);
-            this.pnlLoginCard.Size = new System.Drawing.Size(465, 498);
+            this.pnlLoginCard.Size = new System.Drawing.Size(465, 535);
             this.pnlLoginCard.BackColor = System.Drawing.Color.White;
             this.pnlLoginCard.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label2.Name = "label2";
@@ -184,6 +186,15 @@ namespace NextGen__7
             this.pnlLoginCard.Controls.Add(this.txtStudentNo);
             this.pnlLoginCard.Controls.Add(this.label6);
             this.pnlLoginCard.Controls.Add(this.txtPassword);
+            this.btnAdminSetup.Name = "btnAdminSetup";
+            this.btnAdminSetup.Text = "Initial administrator setup";
+            this.btnAdminSetup.Location = new System.Drawing.Point(35, 469);
+            this.btnAdminSetup.Size = new System.Drawing.Size(384, 42);
+            this.btnAdminSetup.BackColor = System.Drawing.Color.FromArgb(83, 104, 132);
+            this.btnAdminSetup.ForeColor = System.Drawing.Color.White;
+            this.btnAdminSetup.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAdminSetup.Visible = false;
+            this.pnlLoginCard.Controls.Add(this.btnAdminSetup);
             this.pnlLoginCard.Controls.Add(this.btnLogin);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1040, 700);
