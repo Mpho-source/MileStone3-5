@@ -36,11 +36,11 @@ namespace NextGen__7
             string password = txtPassword.Text;
             if (RoleSelector == null || RoleSelector.SelectedIndex < 0)
             {
-                MessageBox.Show("Select Student or Staff."); return;
+                MessageBox.Show("Select Student, Staff or Tutor."); return;
             }
             if (string.IsNullOrWhiteSpace(number))
             {
-                MessageBox.Show("Enter your " + (RoleSelector.SelectedIndex == 1 ? "staff" : "student") + " number.");
+                MessageBox.Show("Enter your " + (RoleSelector.SelectedIndex == 1 ? "staff" : RoleSelector.SelectedIndex == 2 ? "tutor" : "student") + " number.");
                 txtStudentNo.Focus(); return;
             }
             if (string.IsNullOrWhiteSpace(password))
@@ -59,12 +59,27 @@ namespace NextGen__7
                     throw new InvalidOperationException("Database connection not configured.");
 
                 bool staff = RoleSelector.SelectedIndex == 1;
+                bool tutor = RoleSelector.SelectedIndex == 2;
+                int tutorId = 0;
+                if (tutor && (!int.TryParse(number, out tutorId) || tutorId <= 0))
+                {
+                    MessageBox.Show("Enter a valid numeric Tutor ID."); return;
+                }
                 string name = "";
                 int studentId = 0;
                 using (var db = new OleDbConnection(settings.ConnectionString))
                 {
                     db.Open();
-                    if (staff)
+                    if (tutor)
+                    {
+                        if (!TutorAuthentication.TryAuthenticate(db, tutorId, password, out name))
+                        {
+                            MessageBox.Show("Tutor ID or password is incorrect, or this tutor " +
+                                "does not yet have an account.");
+                            return;
+                        }
+                    }
+                    else if (staff)
                     {
                         using (var cmd = new OleDbCommand(
                             "SELECT [FirstName], [LastName], [IsActive] FROM [ADMIN] WHERE [AdminNo] = ?", db))
@@ -106,7 +121,12 @@ namespace NextGen__7
                 Hide();
                 try
                 {
-                    if (staff)
+                    if (tutor)
+                    {
+                        using (var dashboard = new TutorSessions(tutorId, name))
+                            dashboard.ShowDialog(this);
+                    }
+                    else if (staff)
                     {
                         using (var dashboard = new AdminDashboard(number, name))
                             dashboard.ShowDialog(this);
@@ -140,7 +160,7 @@ namespace NextGen__7
 
         private void cmbSignInRole_SelectedIndexChanged(object sender, EventArgs e)
         {
-            label5.Text = cmbSignInRole.SelectedIndex == 1 ? "Staff number" : "Student number";
+            label5.Text = cmbSignInRole.SelectedIndex == 1 ? "Staff number" : cmbSignInRole.SelectedIndex == 2 ? "Tutor ID" : "Student number";
             txtStudentNo.Clear();
             txtPassword.Clear();
             txtStudentNo.Focus();
