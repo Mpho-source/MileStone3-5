@@ -34,6 +34,7 @@ namespace NextGen__7
             btnRefresh.Click += (s, e) => LoadTutors();
             btnAssignCourse.Click += (s, e) => AssignCourse();
             btnAvailability.Click += (s, e) => OpenAvailability();
+            btnCreateTutorLogin.Click += (s, e) => CreateTutorLogin();
             txtSearch.TextChanged += (s, e) => ApplySearch();
             Load += (s, e) => { LoadCourses(); LoadTutors(); };
         }
@@ -162,6 +163,7 @@ namespace NextGen__7
                 lblMessage.Text = "Editing tutor #" + selectedId;
                 btnAssignCourse.Enabled = true;
                 btnAvailability.Enabled = true;
+                btnCreateTutorLogin.Enabled = true;
                 LoadTutorCourses();
             }
             catch (Exception ex) { lblMessage.Text = "Could not select tutor: " + ex.Message; }
@@ -185,6 +187,7 @@ namespace NextGen__7
             lblAssignedCourses.Text = "Save this tutor before assigning a course.";
             btnAssignCourse.Enabled = false;
             btnAvailability.Enabled = false;
+            btnCreateTutorLogin.Enabled = false;
             cmbCourse.SelectedIndex = -1;
         }
 
@@ -332,6 +335,44 @@ namespace NextGen__7
             {
                 MessageBox.Show("Tutor not saved.\n\n" + ex.Message,
                     "Save error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void CreateTutorLogin()
+        {
+            if (selectedId <= 0)
+            {
+                MessageBox.Show("Save or select a tutor before creating an account.");
+                return;
+            }
+            if (MessageBox.Show(
+                "Create a tutor sign-in account for Tutor #" + selectedId + "? " +
+                "A temporary password will be shown once. Hand it directly to the tutor.",
+                "Tutor account", MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                string temporaryPassword;
+                using (var db = new OleDbConnection(connectionString))
+                {
+                    db.Open();
+                    temporaryPassword = TutorAuthentication.Provision(db, selectedId);
+                }
+
+                MessageBox.Show("Tutor ID: " + selectedId + "\nTemporary password: " +
+                    temporaryPassword + "\n\nShare this password privately with the tutor. " +
+                    "It will not be shown again.",
+                    "New tutor sign-in", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                lblMessage.Text = "Tutor #" + selectedId + " now has a sign-in account.";
+                btnCreateTutorLogin.Enabled = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Tutor account could not be created.\n\n" + ex.Message,
+                    "Tutor account error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
