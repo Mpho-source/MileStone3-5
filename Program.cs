@@ -49,6 +49,16 @@ namespace NextGen__7
                     "may be synthetic test records. The main Edu_Connect.accdb is not used.",
                     "EduConnect DEMO DATABASE", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
+            if (isDemo)
+                Application.Idle += (sender, e) =>
+                {
+                    foreach (Form form in Application.OpenForms)
+                    {
+                        if (form != null && !form.IsDisposed &&
+                            !form.Text.EndsWith(" [DEMO DATA]", StringComparison.Ordinal))
+                            form.Text += " [DEMO DATA]";
+                    }
+                };
             using (var login = new Login())
             {
                 if (isDemo) login.Text += " [DEMO DATA]";
