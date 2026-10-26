@@ -118,7 +118,7 @@ namespace NextGen__7
                         using (var cmd = new OleDbCommand(
                             "CREATE TABLE [STUDENTACADEMICRECORD] (" +
                             "[AcademicRecordID] COUNTER PRIMARY KEY, " +
-                            "[StudentID] LONG, [AcademicPeriod] TEXT(12), " +
+                            "[StudentNo] TEXT(50), [AcademicPeriod] TEXT(12), " +
                             "[GPA] DOUBLE, [RecordDate] DATETIME)", db))
                             cmd.ExecuteNonQuery();
                     }
@@ -150,12 +150,17 @@ namespace NextGen__7
         private void SaveGpa()
         {
             int studentId = StudentID();
+            DataRowView selected = cmbStudent.SelectedItem as DataRowView;
+            string studentNo = selected == null ? "" : Convert.ToString(selected["StudentNo"]).Trim();
             double gpa;
-            if (studentId <= 0) { MessageBox.Show("Select a student."); return; }
+            if (studentId <= 0 || studentNo.Length == 0)
+            { MessageBox.Show("Select a student."); return; }
+            if (cmbTerm.SelectedIndex < 0)
+            { MessageBox.Show("Select an academic term."); return; }
             if (!double.TryParse(txtGpa.Text.Trim(), out gpa) || gpa < 0 || gpa > 100)
-            { MessageBox.Show("Enter a GPA percentage from 0 to 100."); return; }
+            { MessageBox.Show("Enter a GPA percentage between 0 and 100."); return; }
+
             string period = ((int)numYear.Value) + "-T" + (cmbTerm.SelectedIndex + 1);
-            if (cmbTerm.SelectedIndex < 0) { MessageBox.Show("Select a term."); return; }
             try
             {
                 using (var db = new OleDbConnection(connectionString))
@@ -163,42 +168,56 @@ namespace NextGen__7
                     db.Open();
                     if (!HasTable(db, "STUDENTACADEMICRECORD"))
                     { MessageBox.Show("Click Set up tracking first."); return; }
+
+                    bool studentNumberKey = HasColumn(db, "STUDENTACADEMICRECORD", "StudentNo");
+                    bool legacyIdKey = HasColumn(db, "STUDENTACADEMICRECORD", "StudentID");
+                    if (!studentNumberKey && !legacyIdKey)
+                        throw new InvalidOperationException(
+                            "Academic records have neither StudentNo nor StudentID.");
+                    string key = studentNumberKey ? "StudentNo" : "StudentID";
+                    OleDbType type = studentNumberKey ? OleDbType.VarWChar : OleDbType.Integer;
+                    object id = studentNumberKey ? (object)studentNo : studentId;
+
                     using (var check = new OleDbCommand(
-                        "SELECT COUNT(*) FROM [STUDENTACADEMICRECORD] " +
-                        "WHERE [StudentID]=? AND [AcademicPeriod]=?", db))
+                        "SELECT COUNT(*) FROM [STUDENTACADEMICRECORD] WHERE [" +
+                        key + "]=? AND [AcademicPeriod]=?", db))
                     {
-                        check.Parameters.Add("@StudentID", OleDbType.Integer).Value = studentId;
+                        check.Parameters.Add("@Student", type).Value = id;
                         check.Parameters.Add("@Period", OleDbType.VarWChar).Value = period;
                         bool exists = Convert.ToInt32(check.ExecuteScalar()) > 0;
                         string sql = exists
                             ? "UPDATE [STUDENTACADEMICRECORD] SET [GPA]=?, [RecordDate]=? " +
-                              "WHERE [StudentID]=? AND [AcademicPeriod]=?"
-                            : "INSERT INTO [STUDENTACADEMICRECORD] " +
-                              "([StudentID],[AcademicPeriod],[GPA],[RecordDate]) VALUES (?,?,?,?)";
+                              "WHERE [" + key + "]=? AND [AcademicPeriod]=?"
+                            : "INSERT INTO [STUDENTACADEMICRECORD] ([" +
+                              key + "],[AcademicPeriod],[GPA],[RecordDate]) VALUES (?,?,?,?)";
                         using (var cmd = new OleDbCommand(sql, db))
                         {
                             if (exists)
                             {
                                 cmd.Parameters.Add("@GPA", OleDbType.Double).Value = gpa;
                                 cmd.Parameters.Add("@Date", OleDbType.Date).Value = DateTime.Now;
-                                cmd.Parameters.Add("@StudentID", OleDbType.Integer).Value = studentId;
+                                cmd.Parameters.Add("@Student", type).Value = id;
                                 cmd.Parameters.Add("@Period", OleDbType.VarWChar).Value = period;
                             }
                             else
                             {
-                                cmd.Parameters.Add("@StudentID", OleDbType.Integer).Value = studentId;
+                                cmd.Parameters.Add("@Student", type).Value = id;
                                 cmd.Parameters.Add("@Period", OleDbType.VarWChar).Value = period;
                                 cmd.Parameters.Add("@GPA", OleDbType.Double).Value = gpa;
                                 cmd.Parameters.Add("@Date", OleDbType.Date).Value = DateTime.Now;
                             }
                             if (cmd.ExecuteNonQuery() != 1)
-                                throw new InvalidOperationException("GPA was not saved.");
+                                throw new InvalidOperationException("No academic record was saved.");
                         }
                     }
                 }
-                lblStatus.Text = "GPA saved for " + period + ".";
+                lblStatus.Text = "GPA saved for " + studentNo + " in " + period + ".";
             }
-            catch (Exception ex) { MessageBox.Show("GPA save failed.\n\n" + ex.Message); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("GPA save failed.\n\n" + ex.Message,
+                    "Database error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void LoadSessions()
