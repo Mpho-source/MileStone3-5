@@ -16,12 +16,12 @@ namespace NextGen__7
             InitializeComponent();
             if (System.ComponentModel.LicenseManager.UsageMode ==
                 System.ComponentModel.LicenseUsageMode.Designtime) return;
-            EduConnectTheme.Apply(this);
-            txtPassword.PasswordChar = '*';
+            RoleSelector = cmbSignInRole;
             txtPassword.UseSystemPasswordChar = true;
             btnLogin.Click += btnLogin_Click;
             AcceptButton = btnLogin;
-            EduConnectLayout.Login(this);
+            cmbSignInRole.SelectedIndexChanged += cmbSignInRole_SelectedIndexChanged;
+            cmbSignInRole.SelectedIndex = 0;
         }
 
         public static void ClearSession()
@@ -135,6 +135,14 @@ namespace NextGen__7
             txtStudentNo.Clear();
             txtPassword.Clear();
             Show();
+            txtStudentNo.Focus();
+        }
+
+        private void cmbSignInRole_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            label5.Text = cmbSignInRole.SelectedIndex == 1 ? "Staff number" : "Student number";
+            txtStudentNo.Clear();
+            txtPassword.Clear();
             txtStudentNo.Focus();
         }
 
