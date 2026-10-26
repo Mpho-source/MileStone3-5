@@ -271,7 +271,15 @@ namespace NextGen__7
                     !AcademicTracking.HasColumn(db, "TUTORING_SESSION", "AttendanceStatus"))
                     throw new InvalidOperationException("Academic tracking has not been set up. " +
                         "Choose Academic records to enable it and enter actual GPA/attendance.");
-                var students = Index(ReadTable(db, "STUDENT"), "StudentID");
+                var studentTable = ReadTable(db, "STUDENT");
+                var students = Index(studentTable, "StudentID");
+                var studentsByNumber = new Dictionary<string, DataRow>(
+                    StringComparer.OrdinalIgnoreCase);
+                foreach (DataRow studentRow in studentTable.Rows)
+                {
+                    string number = Convert.ToString(studentRow["StudentNo"]).Trim();
+                    if (number.Length > 0) studentsByNumber[number] = studentRow;
+                }
                 var records = ReadTable(db, "STUDENTACADEMICRECORD");
                 var sessions = ReadTable(db, "TUTORING_SESSION");
                 var requests = Index(ReadTable(db, "TUTORING_REQUEST"), "RequestID");
@@ -296,13 +304,27 @@ namespace NextGen__7
                     if (status.Equals("Attended", StringComparison.OrdinalIgnoreCase))
                         attendance[key][0]++;
                 }
-                var points = new Dictionary<string, double>();
+                bool byStudentNumber = records.Columns.Contains("StudentNo");
+                if (!byStudentNumber && !records.Columns.Contains("StudentID"))
+                    throw new InvalidOperationException(
+                        "Academic records require StudentNo or the legacy StudentID.");
                 foreach (DataRow rec in records.Rows)
                 {
-                    if (rec["StudentID"] == DBNull.Value || rec["GPA"] == DBNull.Value) continue;
-                    int studentID = Convert.ToInt32(rec["StudentID"]);
+                    if (rec["GPA"] == DBNull.Value) continue;
+                    int studentID;
                     DataRow student;
-                    if (!students.TryGetValue(studentID, out student)) continue;
+                    if (byStudentNumber)
+                    {
+                        string number = Convert.ToString(rec["StudentNo"]).Trim();
+                        if (!studentsByNumber.TryGetValue(number, out student)) continue;
+                        studentID = Convert.ToInt32(student["StudentID"]);
+                    }
+                    else
+                    {
+                        if (rec["StudentID"] == DBNull.Value) continue;
+                        studentID = Convert.ToInt32(rec["StudentID"]);
+                        if (!students.TryGetValue(studentID, out student)) continue;
+                    }
                     string period = Convert.ToString(rec["AcademicPeriod"]).Trim();
                     if (!period.StartsWith(year + "-T", StringComparison.OrdinalIgnoreCase)) continue;
                     int term;
