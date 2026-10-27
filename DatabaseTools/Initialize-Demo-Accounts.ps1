@@ -58,23 +58,31 @@ function TestTable([string]$name) {
     return $false
 }
 
-function TestColumn([string]$table, [string]$name) {
+function GetColumns([string]$table) {
     $command = $connection.CreateCommand()
     try {
         $command.CommandText = "SELECT * FROM [$table] WHERE 1=0"
-        $reader = $command.ExecuteReader([System.Data.CommandBehavior]::SchemaOnly)
+        $reader = $command.ExecuteReader()
         try {
-            foreach ($row in $reader.GetSchemaTable().Rows) {
-                if ([string]::Equals(
-                    [string]$row['ColumnName'], $name,
-                    [System.StringComparison]::OrdinalIgnoreCase)) {
-                    return $true
-                }
+            $names = @()
+            for ($i = 0; $i -lt $reader.FieldCount; $i++) {
+                $names += $reader.GetName($i)
             }
+            return $names
         }
         finally { $reader.Close() }
     }
     finally { $command.Dispose() }
+}
+
+function TestColumn([string]$table, [string]$name) {
+    foreach ($actual in @(GetColumns $table)) {
+        if ([string]::Equals(
+            [string]$actual, $name,
+            [System.StringComparison]::OrdinalIgnoreCase)) {
+            return $true
+        }
+    }
     return $false
 }
 
@@ -218,7 +226,8 @@ try {
         @('TUTOR', 'TutorID')
     )) {
         if (-not (TestColumn $pair[0] $pair[1])) {
-            throw "Missing required column: $($pair[0]).$($pair[1])"
+            $actualColumns = @(GetColumns $pair[0]) -join ', '
+            throw "Missing required column: $($pair[0]).$($pair[1]). Actual columns: $actualColumns"
         }
     }
 
