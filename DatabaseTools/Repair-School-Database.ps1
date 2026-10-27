@@ -46,7 +46,7 @@ function TestColumn([string]$tableName, [string]$columnName) {
         try {
             foreach ($row in $reader.GetSchemaTable().Rows) {
                 if ([string]::Equals(
-                    ([string]$row['ColumnName']).Trim([char]0xFEFF, ' '),
+                    ([string]$row['ColumnName']).Trim([char[]]@([char]0xFEFF, [char]' ')),
                     $columnName,
                     [System.StringComparison]::OrdinalIgnoreCase)) {
                     return $true
@@ -115,6 +115,12 @@ try {
         '[StudentNo] TEXT(50), [GPA] DOUBLE, ' +
         '[AcademicPeriod] TEXT(20), [RecordDate] DATETIME)'
     )
+
+    foreach ($login in @('ADMIN_LOGIN', 'STUDENT_LOGIN', 'TUTOR_LOGIN')) {
+        EnsureColumn $login 'Salt' 'TEXT(64)'
+        EnsureColumn $login 'PasswordHash' 'TEXT(128)'
+        EnsureColumn $login 'Iterations' 'LONG'
+    }
 
     EnsureColumn 'TUTORING_SESSION' 'AttendanceStatus' 'TEXT(20)'
     EnsureColumn 'TUTORING_SESSION' 'Feedback' 'TEXT(255)'
