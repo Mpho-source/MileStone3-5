@@ -127,7 +127,7 @@ function ReadKeys([string]$sql, [bool]$numeric) {
         finally { $reader.Close() }
     }
     finally { $command.Dispose() }
-    return ,$values.ToArray()
+    return $values.ToArray()
 }
 
 function CountRows([string]$table) {
