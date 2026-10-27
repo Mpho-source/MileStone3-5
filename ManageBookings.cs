@@ -73,6 +73,16 @@ namespace NextGen__7
                     e.CellStyle.BackColor = System.Drawing.Color.FromArgb(255, 244, 215);
                     e.CellStyle.ForeColor = System.Drawing.Color.FromArgb(135, 83, 16);
                 }
+                else if (status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
+                {
+                    e.CellStyle.BackColor = System.Drawing.Color.FromArgb(225, 238, 253);
+                    e.CellStyle.ForeColor = System.Drawing.Color.FromArgb(30, 67, 115);
+                }
+                else if (status.Equals("Verified", StringComparison.OrdinalIgnoreCase))
+                {
+                    e.CellStyle.BackColor = System.Drawing.Color.FromArgb(238, 232, 251);
+                    e.CellStyle.ForeColor = System.Drawing.Color.FromArgb(92, 58, 140);
+                }
                 else if (status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase))
                 {
                     e.CellStyle.BackColor = System.Drawing.Color.FromArgb(253, 232, 232);
