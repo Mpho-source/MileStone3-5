@@ -380,9 +380,13 @@ namespace NextGen__7
                                 throw new InvalidOperationException(
                                     "Tutor availability or course qualification has changed.");
 
+                            string sessionIdField = BookingData.GetColumn(
+                                db, tx, "TUTORING_SESSION", "SessionID");
+                            string requestIdField = BookingData.GetColumn(
+                                db, tx, "TUTORING_REQUEST", "RequestID");
                             int nextSessionId;
                             using (var cmd = new OleDbCommand(
-                                "SELECT MAX([SessionID]) FROM [TUTORING_SESSION]", db, tx))
+                                "SELECT MAX([" + sessionIdField + "]) FROM [TUTORING_SESSION]", db, tx))
                             {
                                 var max = cmd.ExecuteScalar();
                                 nextSessionId = max == null || max == DBNull.Value
@@ -390,7 +394,7 @@ namespace NextGen__7
                             }
                             using (var command = new OleDbCommand(
                                 "INSERT INTO [TUTORING_SESSION] " +
-                                "([SessionID],[RequestID],[TutorID],[SessionDate]," +
+                                "([" + sessionIdField + "],[RequestID],[TutorID],[SessionDate]," +
                                 "[StartTime],[EndTime],[SessionStatus]) " +
                                 "VALUES (?,?,?,?,?,?,?)", db, tx))
                             {
@@ -406,7 +410,7 @@ namespace NextGen__7
                             }
                             using (var command = new OleDbCommand(
                                 "UPDATE [TUTORING_REQUEST] SET [Status]=? " +
-                                "WHERE [RequestID]=? AND [Status]=?", db, tx))
+                                "WHERE [" + requestIdField + "]=? AND [Status]=?", db, tx))
                             {
                                 command.Parameters.Add("@NewStatus", OleDbType.VarWChar).Value = "Scheduled";
                                 command.Parameters.Add("@RequestID", OleDbType.Integer).Value = requestId;
