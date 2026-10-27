@@ -261,6 +261,26 @@ namespace NextGen__7
                                 if (update.ExecuteNonQuery() != 1)
                                     throw new InvalidOperationException("No session was updated.");
                             }
+                            string sessionRequestColumn = BookingData.GetColumn(
+                                db, transaction, "TUTORING_SESSION", "RequestID");
+                            if (record.Rows[0][sessionRequestColumn] == DBNull.Value)
+                                throw new InvalidOperationException(
+                                    "The completed session has no linked tutoring request.");
+                            int requestId = Convert.ToInt32(
+                                record.Rows[0][sessionRequestColumn]);
+                            string requestKey = BookingData.GetColumn(
+                                db, transaction, "TUTORING_REQUEST", "RequestID");
+                            using (var changeRequest = new OleDbCommand(
+                                "UPDATE [TUTORING_REQUEST] SET [Status]=? " +
+                                "WHERE [" + requestKey + "]=? AND [Status]=?", db, transaction))
+                            {
+                                changeRequest.Parameters.Add("@Status", OleDbType.VarWChar).Value = "Completed";
+                                changeRequest.Parameters.Add("@RequestID", OleDbType.Integer).Value = requestId;
+                                changeRequest.Parameters.Add("@Previous", OleDbType.VarWChar).Value = "Scheduled";
+                                if (changeRequest.ExecuteNonQuery() != 1)
+                                    throw new InvalidOperationException(
+                                        "Could not mark the linked tutoring request as Completed.");
+                            }
                             transaction.Commit();
                         }
                         catch { transaction.Rollback(); throw; }
@@ -268,7 +288,9 @@ namespace NextGen__7
                 }
                 LoadSessions();
                 lblMessage.Text = "Session #" + sessionId +
-                    " completed. Reports will reflect the saved attendance.";
+                    " completed. The linked request and attendance were updated.";
+                MessageBox.Show(lblMessage.Text,
+                    "Attendance saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
