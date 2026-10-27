@@ -14,7 +14,7 @@ if ([System.IO.File]::Exists($lock)) {
     throw 'Close Microsoft Access and EduConnect before applying the repair.'
 }
 
-$revision = '3b46f93c86121dfeaa183d968bbde438b4a8aa20'
+$revision = 'e5b0686928ecd0651522ba7329f2794524228ee4'
 $stamp = Get-Date -Format 'yyyyMMdd_HHmmss_fff'
 $folder = Join-Path $root "DatabaseBackups\AdminRepairSource_$stamp"
 [System.IO.Directory]::CreateDirectory($folder) | Out-Null
@@ -42,7 +42,7 @@ if ([System.IO.File]::Exists($source)) {
 
 $repair = @($downloads | Where-Object { $_.Name -like '*.ps1' })[0]
 Write-Host 'Running repair on a separate Access database copy...' -ForegroundColor Cyan
-& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $repair.Path
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $repair.Path -ProjectRoot $root
 if ($LASTEXITCODE -ne 0) {
     throw 'Database repair did not complete. The source file was not replaced. Keep the Access backup.'
 }
