@@ -23,7 +23,8 @@ function Column([System.Data.DataTable]$table,[string]$name) {
     foreach($c in $table.Columns) {
         $actual=[string]$c.ColumnName
         $normalized=$actual.TrimStart([char[]]@([char]0xFEFF,[char]0x200B,[char]0x2060,[char]' '))
-        if([string]::Equals($normalized,$name,[System.StringComparison]::OrdinalIgnoreCase)) {
+        $requested=$name.TrimStart([char[]]@([char]0xFEFF,[char]0x200B,[char]0x2060,[char]' '))
+        if([string]::Equals($normalized,$requested,[System.StringComparison]::OrdinalIgnoreCase)) {
             return $actual
         }
     }
@@ -284,7 +285,9 @@ try {
                 throw "Unable to correct course on synthetic Verified request $id."
             }
         }
-        if((Execute "UPDATE [TUTORING_REQUEST] SET $txnDate=?,[PreferredStartTime]=?,[PreferredEndTime]=? WHERE $txnRequestId=?" @('Date','Date','Date','Integer') @($selectedDay,$selectedDay.AddHours(10),$selectedDay.AddHours(11),$id)) -ne 1) {
+        $requestStart=Q (Column $requests 'PreferredStartTime')
+        $requestEnd=Q (Column $requests 'PreferredEndTime')
+        if((Execute "UPDATE [TUTORING_REQUEST] SET $txnDate=?,$requestStart=?,$requestEnd=? WHERE $txnRequestId=?" @('Date','Date','Date','Integer') @($selectedDay,$selectedDay.AddHours(10),$selectedDay.AddHours(11),$id)) -ne 1) {
             throw "Unable to schedule synthetic Verified request $id."
         }
         $reserved[$selectedDay.ToString('yyyyMMdd')+'|'+[int]$selected.Tutor]=$true
