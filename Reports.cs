@@ -664,6 +664,8 @@ namespace NextGen__7
                     double value = termRows.Average(r => Convert.ToDouble(r["GPA (%)"]));
                     gpaSeries.Points[gpa].ToolTip =
                         "Term " + term + " - GPA: " + value.ToString("0.0") + "%";
+                    gpaSeries.Points[gpa].Label = value.ToString("0.0") + "%";
+                    gpaSeries.Points[gpa].LabelForeColor = Color.FromArgb(35, 93, 177);
                     gpas.Add(new KeyValuePair<int, double>(term, value));
                 }
 
@@ -681,9 +683,14 @@ namespace NextGen__7
                     attendanceSeries.Points[point].ToolTip =
                         "Term " + term + " - Attended " + attended +
                         " of " + recorded + " completed session(s)";
+                    attendanceSeries.Points[point].Label =
+                        (100.0 * attended / recorded).ToString("0.0") + "%";
+                    attendanceSeries.Points[point].LabelForeColor = Color.FromArgb(17, 142, 133);
                 }
             }
 
+            gpaSeries.SmartLabelStyle.Enabled = true;
+            attendanceSeries.SmartLabelStyle.Enabled = true;
             chartTrends.Series.Add(gpaSeries);
             chartTrends.Series.Add(attendanceSeries);
 
