@@ -1,6 +1,15 @@
+param(
+    [Parameter(Mandatory=$false)]
+    [string]$ProjectRoot
+)
+
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
-$root=[System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+$root=if([string]::IsNullOrWhiteSpace($ProjectRoot)) {
+    [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+} else {
+    [System.IO.Path]::GetFullPath($ProjectRoot)
+}
 $original=Join-Path $root 'Edu_Connect.accdb'
 $lock=Join-Path $root 'Edu_Connect.laccdb'
 $folder=Join-Path $root 'DatabaseBackups'
@@ -8,6 +17,9 @@ $marker='DEMO ONLY'
 $connection=$null
 $transaction=$null
 if (-not [System.IO.File]::Exists($original)) { throw "Project database not found: $original" }
+if (-not [System.IO.File]::Exists((Join-Path $root 'NextGen_#7.csproj'))) {
+    throw "Invalid EduConnect project root: $root"
+}
 if ([System.IO.File]::Exists($lock)) { throw 'Close Access and EduConnect before proceeding.' }
 [System.IO.Directory]::CreateDirectory($folder) | Out-Null
 $stamp=Get-Date -Format 'yyyyMMdd_HHmmss_fff'
