@@ -48,53 +48,7 @@ $workingPath = Join-Path $backupFolder (
 $databasePath = $workingPath
 Write-Host 'Preparing a separate working copy. The project database remains unchanged until validation succeeds.' -ForegroundColor Cyan
 
-function RepairInvisibleFieldPrefixes([string]$file) {
-    $catalog = $null
-    $renamed = 0
-    try {
-        $catalog = New-Object -ComObject 'ADOX.Catalog'
-        $catalog.ActiveConnection = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=$file"
-
-        foreach ($table in $catalog.Tables) {
-            $tableName = [string]$table.Name
-            if ($tableName.StartsWith('MSys')) { continue }
-
-            $pending = @()
-            foreach ($column in $table.Columns) {
-                $name = [string]$column.Name
-                $corrected = $name.TrimStart([char]0xFEFF)
-                if ($name -cne $corrected) {
-                    $pending += [pscustomobject]@{ Before = $name; After = $corrected }
-                }
-            }
-
-            foreach ($item in $pending) {
-                if ([string]::IsNullOrWhiteSpace($item.After)) {
-                    throw "Unsafe empty corrected name in table $tableName."
-                }
-                $table.Columns.Item($item.Before).Name = $item.After
-                $renamed++
-                Write-Host "Corrected invisible column prefix: $tableName.$($item.After)" -ForegroundColor Green
-            }
-        }
-    }
-    finally {
-        if ($null -ne $catalog -and
-            [System.Runtime.InteropServices.Marshal]::IsComObject($catalog)) {
-            [void][System.Runtime.InteropServices.Marshal]::FinalReleaseComObject($catalog)
-        }
-    }
-    Write-Host "Invisible column prefixes corrected: $renamed"
-}
-
-try {
-    RepairInvisibleFieldPrefixes $databasePath
-}
-catch {
-    Write-Host "Column repair failed on the WORKING COPY. The original database was not replaced." -ForegroundColor Red
-    Write-Host "Backup: $backupPath" -ForegroundColor Cyan
-    throw
-}
+Write-Host 'Source column names will not be renamed or altered.' -ForegroundColor Cyan
 
 Add-Type -AssemblyName System.Data
 $connection = [System.Data.OleDb.OleDbConnection]::new(
@@ -130,10 +84,36 @@ function GetColumns([string]$table) {
     finally { $command.Dispose() }
 }
 
+function NormalizedName([string]$name) {
+    return $name.TrimStart([char[]]@(
+        [char]0xFEFF,
+        [char]0x200B,
+        [char]0x2060,
+        [char]' '
+    ))
+}
+
+function FindOrdinal([System.Data.OleDb.OleDbDataReader]$reader, [string]$requested) {
+    for ($i = 0; $i -lt $reader.FieldCount; $i++) {
+        if ([string]::Equals(
+            (NormalizedName $reader.GetName($i)),
+            $requested,
+            [System.StringComparison]::OrdinalIgnoreCase)) {
+            return $i
+        }
+    }
+    $columns = @()
+    for ($i = 0; $i -lt $reader.FieldCount; $i++) {
+        $columns += $reader.GetName($i)
+    }
+    throw "Required field $requested could not be found. Actual fields: $($columns -join ', ')"
+}
+
 function TestColumn([string]$table, [string]$name) {
     foreach ($actual in @(GetColumns $table)) {
         if ([string]::Equals(
-            [string]$actual, $name,
+            (NormalizedName ([string]$actual)),
+            $name,
             [System.StringComparison]::OrdinalIgnoreCase)) {
             return $true
         }
@@ -164,23 +144,37 @@ function EnsureColumn([string]$table, [string]$column, [string]$type) {
     }
 }
 
-function ReadKeys([string]$sql, [bool]$numeric) {
+function ReadKeys(
+    [string]$table,
+    [string]$field,
+    [bool]$numeric,
+    [bool]$activeOnly
+) {
     $values = [System.Collections.ArrayList]::new()
     $command = $connection.CreateCommand()
     try {
-        $command.CommandText = $sql
+        $command.CommandText = "SELECT * FROM [$table]"
         $reader = $command.ExecuteReader()
         try {
+            $keyOrdinal = FindOrdinal $reader $field
+            $activeOrdinal = -1
+            if ($activeOnly) { $activeOrdinal = FindOrdinal $reader 'IsActive' }
             while ($reader.Read()) {
-                if ($reader.IsDBNull(0)) { continue }
+                if ($reader.IsDBNull($keyOrdinal)) { continue }
+                if ($activeOnly) {
+                    if ($reader.IsDBNull($activeOrdinal) -or
+                        -not [Convert]::ToBoolean($reader.GetValue($activeOrdinal))) {
+                        continue
+                    }
+                }
                 if ($numeric) {
-                    $value = [int]$reader.GetValue(0)
+                    $value = [int]$reader.GetValue($keyOrdinal)
                     if ($value -gt 0 -and -not $values.Contains($value)) {
                         [void]$values.Add($value)
                     }
                 }
                 else {
-                    $value = ([string]$reader.GetValue(0)).Trim()
+                    $value = ([string]$reader.GetValue($keyOrdinal)).Trim()
                     if ($value.Length -gt 0 -and -not $values.Contains($value)) {
                         [void]$values.Add($value)
                     }
@@ -286,9 +280,9 @@ try {
         }
     }
 
-    $adminKeys = @(ReadKeys 'SELECT [AdminNo] FROM [ADMIN] WHERE [IsActive]=True' $false)
-    $studentKeys = @(ReadKeys 'SELECT [StudentNo] FROM [STUDENT]' $false)
-    $tutorKeys = @(ReadKeys 'SELECT [TutorID] FROM [TUTOR]' $true)
+    $adminKeys = @(ReadKeys 'ADMIN' 'AdminNo' $false $true)
+    $studentKeys = @(ReadKeys 'STUDENT' 'StudentNo' $false $false)
+    $tutorKeys = @(ReadKeys 'TUTOR' 'TutorID' $true $false)
 
     if ($adminKeys.Count -eq 0) {
         throw 'No active ADMIN records are available. Existing records were not altered.'
