@@ -1,3 +1,4 @@
+throw 'This older demo updater has been retired because it inserted DEMO ONLY into Support Type and created tutor-unmatchable requests. Use DatabaseTools/Apply-Admin-Repair.ps1 instead.'
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
