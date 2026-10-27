@@ -314,6 +314,86 @@ try {
     if($syntheticGpa -lt $newGpa -or $syntheticCompleted -lt $newAttendance -or $syntheticScheduled -lt $newScheduled) {
         throw 'Synthetic source-marker verification failed.'
     }
+    $gpaSums=@(0.0,0.0,0.0,0.0)
+    $gpaCounts=@(0,0,0,0)
+    $attendanceTotals=@(0,0,0,0)
+    $attendancePresent=@(0,0,0,0)
+    $statusCounts=@{}
+    foreach($status in @('Submitted','Verified','Cancelled','Scheduled','Completed')) {
+        $statusCounts[$status]=0
+    }
+    foreach($row in $afterGrades.Rows) {
+        if(([string](Field $row 'RecordSource')) -ne $gpaTag) { continue }
+        $period=[string](Field $row 'AcademicPeriod')
+        if($period -notmatch '^2026-T([1-4])
+    Write-Host ''
+    Write-Host 'SUCCESS: ACTUAL EDUCONNECT DATABASE UPDATED' -ForegroundColor Green
+    Write-Host "GPA: $newGpa new, $adjustedGpa existing synthetic rows adjusted."
+    Write-Host "Recorded attendance: $newAttendance new historical sessions, $adjustedAttendance existing synthetic sessions adjusted."
+    Write-Host "Demo requests moved to Completed: $completedRequests"
+    Write-Host "New Submitted, Verified, Cancelled and Scheduled test requests: $newScenarios"
+    Write-Host "Future scheduled test sessions: $newScheduled"
+    Write-Host "Existing rows before update: $oldGrades GPA, $oldRequests requests, $oldSessions sessions."
+    Write-Host "Original database backup: $backup"
+    for($term=0;$term -lt 4;$term++) {
+        Write-Host ("Term {0}: average demo GPA {1:N1}%; recorded demo attendance {2:N1}%" -f ($term+1),$gpaAverages[$term],$attendanceRates[$term])
+    }
+    foreach($status in @('Submitted','Verified','Scheduled','Completed','Cancelled')) {
+        Write-Host ("Demo {0} requests: {1}" -f $status,$statusCounts[$status])
+    }
+    Write-Host 'Report 3: select year 2026 and Show chart. All synthetic data must be identified as test data.' -ForegroundColor Cyan
+}
+catch {
+    Write-Host 'FAILED: Your original database was not intentionally replaced. Keep the backup.' -ForegroundColor Red
+    Write-Host "Original backup: $backup" -ForegroundColor Cyan
+    throw
+}
+finally {
+    if($null -ne $transaction) { try { $transaction.Rollback() } catch {} }
+    if($null -ne $connection) { $connection.Dispose() }
+}
+) { continue }
+        $term=[int]$Matches[1]-1
+        $grade=Field $row 'GPA'
+        if($null -eq $grade) { continue }
+        $gpaSums[$term]+=[double]$grade
+        $gpaCounts[$term]++
+    }
+    foreach($row in $afterSessions.Rows) {
+        if(([string](Field $row 'Feedback')) -ne $attendanceTag) { continue }
+        $day=Field $row 'SessionDate'
+        if($null -eq $day -or ([datetime]$day).Year -ne 2026) { continue }
+        $term=[int][math]::Floor((([datetime]$day).Month-1)/3)
+        $attendance=[string](Field $row 'AttendanceStatus')
+        if($attendance -ne 'Attended' -and $attendance -ne 'Absent') { continue }
+        $attendanceTotals[$term]++
+        if($attendance -eq 'Attended') { $attendancePresent[$term]++ }
+    }
+    foreach($row in $afterRequests.Rows) {
+        if(([string](Field $row 'SupportType')) -ne $scenarioTag) { continue }
+        $status=[string](Field $row 'Status')
+        if($statusCounts.ContainsKey($status)) { $statusCounts[$status]++ }
+    }
+    $gpaAverages=@()
+    $attendanceRates=@()
+    for($term=0;$term -lt 4;$term++) {
+        if($gpaCounts[$term] -eq 0 -or $attendanceTotals[$term] -eq 0) {
+            throw "Missing academic or attendance test data for term $($term+1)."
+        }
+        $gpaAverages+=($gpaSums[$term]/$gpaCounts[$term])
+        $attendanceRates+=(100.0*$attendancePresent[$term]/$attendanceTotals[$term])
+    }
+    if(([math]::Abs($gpaAverages[3]-$gpaAverages[0])) -lt 2 -or
+       (($attendanceRates | Measure-Object -Maximum).Maximum -
+        ($attendanceRates | Measure-Object -Minimum).Minimum) -lt 10) {
+        throw 'The demo graph is still too flat. Original database was not replaced.'
+    }
+    foreach($status in @('Submitted','Verified','Cancelled','Scheduled','Completed')) {
+        if($statusCounts[$status] -eq 0) {
+            throw "Demo request status $status is missing. Original database was not replaced."
+        }
+    }
+
     $connection.Close()
     $connection.Dispose()
     $connection=$null
