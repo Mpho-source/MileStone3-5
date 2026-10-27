@@ -350,7 +350,10 @@ try {
     }
 
     $connection.Close()
-    [System.IO.File]::Replace($workingPath, $originalPath, $null)
+    $replacedBackupPath = Join-Path $backupFolder (
+        'Edu_Connect_before_successful_demo_install_' +
+        (Get-Date -Format 'yyyyMMdd_HHmmss_fff') + '.accdb')
+    [System.IO.File]::Replace($workingPath, $originalPath, $replacedBackupPath)
     Write-Host 'Verified working database installed. The original database remains in the backup folder.' -ForegroundColor Green
 
     Write-Host ''
