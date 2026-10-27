@@ -14,7 +14,7 @@ if ([System.IO.File]::Exists((Join-Path $root 'Edu_Connect.laccdb'))) {
     throw 'Close Access and EduConnect first.'
 }
 
-$revision = '7a591e49f826865a560f09abe80f32fb03f91bd8'
+$revision = 'eaaf039c0388d0daef9d97d00afcb03e421b3d57'
 $files = @(
     'Reports.cs',
     'ManageBookings.cs',
