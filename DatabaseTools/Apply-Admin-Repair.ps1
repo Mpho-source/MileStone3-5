@@ -14,7 +14,7 @@ if ([System.IO.File]::Exists($lock)) {
     throw 'Close Microsoft Access and EduConnect before applying the repair.'
 }
 
-$revision = '86a9bedb838a290f28c32ff4bd83de303d5180c8'
+$revision = '538a404a9304b5c2155279d32598af49299bffc0'
 $stamp = Get-Date -Format 'yyyyMMdd_HHmmss_fff'
 $folder = Join-Path $root "DatabaseBackups\AdminRepairSource_$stamp"
 [System.IO.Directory]::CreateDirectory($folder) | Out-Null
