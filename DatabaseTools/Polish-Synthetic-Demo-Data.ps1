@@ -325,34 +325,7 @@ try {
     foreach($row in $afterGrades.Rows) {
         if(([string](Field $row 'RecordSource')) -ne $gpaTag) { continue }
         $period=[string](Field $row 'AcademicPeriod')
-        if($period -notmatch '^2026-T([1-4])
-    Write-Host ''
-    Write-Host 'SUCCESS: ACTUAL EDUCONNECT DATABASE UPDATED' -ForegroundColor Green
-    Write-Host "GPA: $newGpa new, $adjustedGpa existing synthetic rows adjusted."
-    Write-Host "Recorded attendance: $newAttendance new historical sessions, $adjustedAttendance existing synthetic sessions adjusted."
-    Write-Host "Demo requests moved to Completed: $completedRequests"
-    Write-Host "New Submitted, Verified, Cancelled and Scheduled test requests: $newScenarios"
-    Write-Host "Future scheduled test sessions: $newScheduled"
-    Write-Host "Existing rows before update: $oldGrades GPA, $oldRequests requests, $oldSessions sessions."
-    Write-Host "Original database backup: $backup"
-    for($term=0;$term -lt 4;$term++) {
-        Write-Host ("Term {0}: average demo GPA {1:N1}%; recorded demo attendance {2:N1}%" -f ($term+1),$gpaAverages[$term],$attendanceRates[$term])
-    }
-    foreach($status in @('Submitted','Verified','Scheduled','Completed','Cancelled')) {
-        Write-Host ("Demo {0} requests: {1}" -f $status,$statusCounts[$status])
-    }
-    Write-Host 'Report 3: select year 2026 and Show chart. All synthetic data must be identified as test data.' -ForegroundColor Cyan
-}
-catch {
-    Write-Host 'FAILED: Your original database was not intentionally replaced. Keep the backup.' -ForegroundColor Red
-    Write-Host "Original backup: $backup" -ForegroundColor Cyan
-    throw
-}
-finally {
-    if($null -ne $transaction) { try { $transaction.Rollback() } catch {} }
-    if($null -ne $connection) { $connection.Dispose() }
-}
-) { continue }
+        if($period -notmatch '^2026-T([1-4])$') { continue }
         $term=[int]$Matches[1]-1
         $grade=Field $row 'GPA'
         if($null -eq $grade) { continue }
@@ -407,6 +380,12 @@ finally {
     Write-Host "Future scheduled test sessions: $newScheduled"
     Write-Host "Existing rows before update: $oldGrades GPA, $oldRequests requests, $oldSessions sessions."
     Write-Host "Original database backup: $backup"
+    for($term=0;$term -lt 4;$term++) {
+        Write-Host ("Term {0}: average demo GPA {1:N1}%; recorded demo attendance {2:N1}%" -f ($term+1),$gpaAverages[$term],$attendanceRates[$term])
+    }
+    foreach($status in @('Submitted','Verified','Scheduled','Completed','Cancelled')) {
+        Write-Host ("Demo {0} requests: {1}" -f $status,$statusCounts[$status])
+    }
     Write-Host 'Report 3: select year 2026 and Show chart. All synthetic data must be identified as test data.' -ForegroundColor Cyan
 }
 catch {
