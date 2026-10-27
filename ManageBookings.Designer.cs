@@ -235,7 +235,7 @@
             this.cmbBookingStatusFilter.Size = new System.Drawing.Size(149, 33);
             this.cmbBookingStatusFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbBookingStatusFilter.Items.AddRange(new object[] {
-                "All bookings", "Scheduled", "Submitted", "Completed", "Cancelled"
+                "All bookings", "Submitted", "Verified", "Scheduled", "Completed", "Cancelled"
             });
             this.pnlListCard.Name = "pnlListCard";
             this.pnlListCard.Location = new System.Drawing.Point(56, 251);
