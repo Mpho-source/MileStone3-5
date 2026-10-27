@@ -41,6 +41,53 @@ $backupPath = Join-Path $backupFolder (
 [System.IO.File]::Copy($databasePath, $backupPath, $false)
 Write-Host "Original database backed up to: $backupPath" -ForegroundColor Green
 
+function RepairInvisibleFieldPrefixes([string]$file) {
+    $engine = $null
+    $database = $null
+    try {
+        $engine = New-Object -ComObject 'DAO.DBEngine.120'
+        $database = $engine.OpenDatabase($file)
+        $renames = [System.Collections.ArrayList]::new()
+        foreach ($table in $database.TableDefs) {
+            if (([string]$table.Name).StartsWith('MSys')) { continue }
+            $names = @()
+            foreach ($field in $table.Fields) { $names += [string]$field.Name }
+            foreach ($old in $names) {
+                $clean = $old.TrimStart([char]0xFEFF)
+                if ($clean -eq $old) { continue }
+                if ([string]::IsNullOrWhiteSpace($clean) -or $names -ccontains $clean) {
+                    throw "Cannot safely normalize $($table.Name).$old. The original backup is unchanged."
+                }
+                [void]$renames.Add([pscustomobject]@{
+                    Table = [string]$table.Name
+                    From = $old
+                    To = $clean
+                })
+            }
+        }
+        foreach ($rename in $renames) {
+            $table = $database.TableDefs.Item($rename.Table)
+            $field = $table.Fields.Item($rename.From)
+            $field.Name = $rename.To
+            Write-Host "Repaired invisible prefix in: $($rename.Table).$($rename.To)" -ForegroundColor Green
+        }
+    }
+    catch {
+        throw "Unable to normalize invisible Access column names safely. Original backup: $backupPath. Details: $($_.Exception.Message)"
+    }
+    finally {
+        if ($null -ne $database) { $database.Close() }
+        if ($null -ne $database -and [System.Runtime.InteropServices.Marshal]::IsComObject($database)) {
+            [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($database)
+        }
+        if ($null -ne $engine -and [System.Runtime.InteropServices.Marshal]::IsComObject($engine)) {
+            [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($engine)
+        }
+    }
+}
+
+RepairInvisibleFieldPrefixes $databasePath
+
 Add-Type -AssemblyName System.Data
 $connection = [System.Data.OleDb.OleDbConnection]::new(
     "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=$databasePath")
