@@ -144,7 +144,11 @@ namespace NextGen__7
                 "]=? AND [" + courseKeyColumn + "]=?", db, tx))
             {
                 command.Parameters.Add("@Tutor", OleDbType.Integer).Value = tutorId;
-                command.Parameters.Add("@Course", OleDbType.VarWChar).Value = courseId;
+                int numericCourseId;
+                if (int.TryParse(courseId, out numericCourseId))
+                    command.Parameters.Add("@Course", OleDbType.Integer).Value = numericCourseId;
+                else
+                    command.Parameters.Add("@Course", OleDbType.VarWChar).Value = courseId;
                 if (Convert.ToInt32(command.ExecuteScalar()) < 1) return false;
             }
 
@@ -166,7 +170,7 @@ namespace NextGen__7
                         string value = Convert.ToString(reader[2]).Trim();
                         bool active = value.Equals("True", StringComparison.OrdinalIgnoreCase) ||
                                       value.Equals("Yes", StringComparison.OrdinalIgnoreCase) ||
-                                      value == "1";
+                                      value == "1" || value == "-1";
                         if (active && BookingData.ReadTime(reader[0]) <= start &&
                             BookingData.ReadTime(reader[1]) >= end)
                         {
