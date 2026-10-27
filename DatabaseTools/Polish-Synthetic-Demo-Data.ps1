@@ -1,3 +1,4 @@
+throw 'This older synthetic population script is retired: it writes invalid Support Type values. Do not run it again. Use DatabaseTools/Repair-Admin-Demo-Bookings.ps1 to repair existing demo data.'
 $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
 $root=[System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
