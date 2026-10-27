@@ -83,6 +83,7 @@ function ActualName([string]$table, [string]$logical) {
         $map = @{}
         $cmd = $connection.CreateCommand()
         try {
+            if ($null -ne $transaction) { $cmd.Transaction = $transaction }
             $cmd.CommandText = "SELECT * FROM [$table] WHERE 1=0"
             $reader = $cmd.ExecuteReader()
             try {
