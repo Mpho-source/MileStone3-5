@@ -77,6 +77,55 @@ function SchemaHasColumn([string]$table, [string]$column) {
     return $false
 }
 
+$schemaCache = @{}
+
+function ActualName([string]$table, [string]$logical) {
+    if (-not $schemaCache.ContainsKey($table)) {
+        $map = @{}
+        $cmd = $connection.CreateCommand()
+        try {
+            $cmd.CommandText = "SELECT * FROM [$table] WHERE 1=0"
+            $reader = $cmd.ExecuteReader()
+            try {
+                for ($i = 0; $i -lt $reader.FieldCount; $i++) {
+                    $actual = $reader.GetName($i)
+                    $normalized = $actual.TrimStart(
+                        [char[]]@([char]0xFEFF, [char]0x200B, [char]0x2060, [char]' '))
+                    $map[$normalized] = '[' + $actual.Replace(']', ']]') + ']'
+                }
+            }
+            finally { $reader.Close() }
+        }
+        finally { $cmd.Dispose() }
+        $schemaCache[$table] = $map
+    }
+    if (-not $schemaCache[$table].ContainsKey($logical)) {
+        throw "Column $table.$logical is missing. Original database untouched."
+    }
+    return $schemaCache[$table][$logical]
+}
+
+function InsertColumns([string]$table, [string[]]$names) {
+    $columns = @()
+    foreach ($name in $names) {
+        $columns += (ActualName $table $name)
+    }
+    return ($columns -join ',')
+}
+
+function ReadOrdinal([System.Data.OleDb.OleDbDataReader]$reader, [string]$requested) {
+    for ($i=0; $i -lt $reader.FieldCount; $i++) {
+        $actual = $reader.GetName($i)
+        $clean = $actual.TrimStart(
+            [char[]]@([char]0xFEFF, [char]0x200B, [char]0x2060, [char]' '))
+        if ([string]::Equals($clean,$requested,
+            [System.StringComparison]::OrdinalIgnoreCase)) {
+            return $i
+        }
+    }
+    throw "Could not find required field $requested in the Access query."
+}
+
 function InsertTestRequest(
     [int]$requestId, [int]$studentId, [int]$courseId,
     [datetime]$day, [datetime]$start, [datetime]$end
@@ -84,10 +133,10 @@ function InsertTestRequest(
     $cmd = $connection.CreateCommand()
     try {
         $cmd.Transaction = $transaction
-        $cmd.CommandText = 'INSERT INTO [TUTORING_REQUEST] ' +
-            '([RequestID],[StudentID],[CourseID],[SupportType],[PreferredDate],' +
-            '[PreferredStartTime],[PreferredEndTime],[RequestDate],[Status]) ' +
-            'VALUES (?,?,?,?,?,?,?,?,?)'
+        $cols = InsertColumns 'TUTORING_REQUEST' @(
+            'RequestID','StudentID','CourseID','SupportType','PreferredDate',
+            'PreferredStartTime','PreferredEndTime','RequestDate','Status')
+        $cmd.CommandText = "INSERT INTO [TUTORING_REQUEST] ($cols) VALUES (?,?,?,?,?,?,?,?,?)"
         AddValue $cmd ([System.Data.OleDb.OleDbType]::Integer) $requestId
         AddValue $cmd ([System.Data.OleDb.OleDbType]::Integer) $studentId
         AddValue $cmd ([System.Data.OleDb.OleDbType]::VarWChar) ([string]$courseId)
@@ -112,10 +161,10 @@ function InsertTestSession(
     $cmd = $connection.CreateCommand()
     try {
         $cmd.Transaction = $transaction
-        $cmd.CommandText = 'INSERT INTO [TUTORING_SESSION] ' +
-            '([SessionID],[RequestID],[TutorID],[SessionDate],[StartTime],' +
-            '[EndTime],[SessionStatus],[Feedback],[AttendanceStatus]) ' +
-            'VALUES (?,?,?,?,?,?,?,?,?)'
+        $cols = InsertColumns 'TUTORING_SESSION' @(
+            'SessionID','RequestID','TutorID','SessionDate','StartTime',
+            'EndTime','SessionStatus','Feedback','AttendanceStatus')
+        $cmd.CommandText = "INSERT INTO [TUTORING_SESSION] ($cols) VALUES (?,?,?,?,?,?,?,?,?)"
         AddValue $cmd ([System.Data.OleDb.OleDbType]::Integer) $sessionId
         AddValue $cmd ([System.Data.OleDb.OleDbType]::Integer) $requestId
         AddValue $cmd ([System.Data.OleDb.OleDbType]::Integer) $tutorId
@@ -168,8 +217,9 @@ function InsertTestGpa([string]$number, [string]$term, [double]$gpa, [datetime]$
     $cmd = $connection.CreateCommand()
     try {
         $cmd.Transaction = $transaction
-        $cmd.CommandText = 'INSERT INTO [STUDENTACADEMICRECORD] ' +
-            '([StudentNo],[AcademicPeriod],[GPA],[RecordDate],[RecordSource]) VALUES (?,?,?,?,?)'
+        $cols = InsertColumns 'STUDENTACADEMICRECORD' @(
+            'StudentNo','AcademicPeriod','GPA','RecordDate','RecordSource')
+        $cmd.CommandText = "INSERT INTO [STUDENTACADEMICRECORD] ($cols) VALUES (?,?,?,?,?)"
         AddValue $cmd ([System.Data.OleDb.OleDbType]::VarWChar) $number
         AddValue $cmd ([System.Data.OleDb.OleDbType]::VarWChar) $term
         AddValue $cmd ([System.Data.OleDb.OleDbType]::Double) $gpa
@@ -198,7 +248,8 @@ try {
 
     $check = $connection.CreateCommand()
     try {
-        $check.CommandText = 'SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE [Feedback]=?'
+        $feedbackName = ActualName 'TUTORING_SESSION' 'Feedback'
+        $check.CommandText = "SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE $feedbackName=?"
         AddValue $check ([System.Data.OleDb.OleDbType]::VarWChar) $tag
         if ([int]$check.ExecuteScalar() -gt 0) {
             throw 'Synthetic test attendance is already present in the actual database. No duplicate sessions were created.'
@@ -209,13 +260,15 @@ try {
     $studentNumbers = [System.Collections.Generic.Dictionary[int,string]]::new()
     $cmd = $connection.CreateCommand()
     try {
-        $cmd.CommandText = 'SELECT [StudentID],[StudentNo] FROM [STUDENT] ORDER BY [StudentID]'
+        $cmd.CommandText = 'SELECT * FROM [STUDENT]'
         $reader = $cmd.ExecuteReader()
         try {
+            $idOrdinal = ReadOrdinal $reader 'StudentID'
+            $noOrdinal = ReadOrdinal $reader 'StudentNo'
             while ($reader.Read() -and $studentIds.Count -lt $limit) {
-                if ($reader.IsDBNull(0) -or $reader.IsDBNull(1)) { continue }
-                $studentId = [int]$reader.GetValue(0)
-                $studentNo = ([string]$reader.GetValue(1)).Trim()
+                if ($reader.IsDBNull($idOrdinal) -or $reader.IsDBNull($noOrdinal)) { continue }
+                $studentId = [int]$reader.GetValue($idOrdinal)
+                $studentNo = ([string]$reader.GetValue($noOrdinal)).Trim()
                 if ($studentId -gt 0 -and $studentNo.Length -gt 0 -and
                     -not $studentNumbers.ContainsKey($studentId)) {
                     $studentIds.Add($studentId)
@@ -231,14 +284,16 @@ try {
         [System.StringComparer]::OrdinalIgnoreCase)
     $cmd = $connection.CreateCommand()
     try {
-        $cmd.CommandText = 'SELECT [StudentNo],[AcademicPeriod] FROM [STUDENTACADEMICRECORD]'
+        $cmd.CommandText = 'SELECT * FROM [STUDENTACADEMICRECORD]'
         $reader = $cmd.ExecuteReader()
         try {
+            $noOrdinal = ReadOrdinal $reader 'StudentNo'
+            $termOrdinal = ReadOrdinal $reader 'AcademicPeriod'
             while ($reader.Read()) {
-                if (-not $reader.IsDBNull(0) -and -not $reader.IsDBNull(1)) {
+                if (-not $reader.IsDBNull($noOrdinal) -and -not $reader.IsDBNull($termOrdinal)) {
                     [void]$existingTerms.Add(
-                        ([string]$reader.GetValue(0)).Trim() + '|' +
-                        ([string]$reader.GetValue(1)).Trim())
+                        ([string]$reader.GetValue($noOrdinal)).Trim() + '|' +
+                        ([string]$reader.GetValue($termOrdinal)).Trim())
                 }
             }
         }
@@ -253,14 +308,16 @@ try {
     $pairs = [System.Collections.Generic.List[object]]::new()
     $cmd = $connection.CreateCommand()
     try {
-        $cmd.CommandText = 'SELECT [TutorID],[CourseID] FROM [TUTOR_COURSE] ORDER BY [TutorID],[CourseID]'
+        $cmd.CommandText = 'SELECT * FROM [TUTOR_COURSE]'
         $reader = $cmd.ExecuteReader()
         try {
+            $tutorOrdinal = ReadOrdinal $reader 'TutorID'
+            $courseOrdinal = ReadOrdinal $reader 'CourseID'
             while ($reader.Read()) {
-                if (-not $reader.IsDBNull(0) -and -not $reader.IsDBNull(1)) {
+                if (-not $reader.IsDBNull($tutorOrdinal) -and -not $reader.IsDBNull($courseOrdinal)) {
                     $pairs.Add([pscustomobject]@{
-                        Tutor = [int]$reader.GetValue(0)
-                        Course = [int]$reader.GetValue(1)
+                        Tutor = [int]$reader.GetValue($tutorOrdinal)
+                        Course = [int]$reader.GetValue($courseOrdinal)
                     })
                 }
             }
@@ -271,8 +328,10 @@ try {
         throw 'No TUTOR_COURSE assignments exist. Assign a course to a tutor first.'
     }
 
-    $nextRequest = (QueryInteger 'SELECT MAX([RequestID]) FROM [TUTORING_REQUEST]') + 1
-    $nextSession = (QueryInteger 'SELECT MAX([SessionID]) FROM [TUTORING_SESSION]') + 1
+    $requestField = ActualName 'TUTORING_REQUEST' 'RequestID'
+    $nextRequest = (QueryInteger "SELECT MAX($requestField) FROM [TUTORING_REQUEST]") + 1
+    $sessionField = ActualName 'TUTORING_SESSION' 'SessionID'
+    $nextSession = (QueryInteger "SELECT MAX($sessionField) FROM [TUTORING_SESSION]") + 1
 
     Write-Host "POPULATING WORKING COPY: $dbPath" -ForegroundColor Cyan
     Write-Host 'Only synthetic test GPA and attendance records will be added.' -ForegroundColor Yellow
@@ -327,12 +386,14 @@ try {
     # Read the table again so the notification reflects saved rows, not just an attempt.
     $verify = $connection.CreateCommand()
     try {
-        $verify.CommandText = 'SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE [Feedback]=?'
+        $verifyFeedbackName = ActualName 'TUTORING_SESSION' 'Feedback'
+        $verify.CommandText = "SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE $verifyFeedbackName=?"
         AddValue $verify ([System.Data.OleDb.OleDbType]::VarWChar) $tag
         $persisted = [int]$verify.ExecuteScalar()
     } finally { $verify.Dispose() }
 
-    $verifyGpa = QueryInteger "SELECT COUNT(*) FROM [STUDENTACADEMICRECORD] WHERE [RecordSource]='$academicTag'"
+    $sourceField = ActualName 'STUDENTACADEMICRECORD' 'RecordSource'
+    $verifyGpa = QueryInteger "SELECT COUNT(*) FROM [STUDENTACADEMICRECORD] WHERE $sourceField='$academicTag'"
     if ($verifyGpa -lt $createdGpa) {
         throw "Academic validation failed: only $verifyGpa synthetic rows were found."
     }
