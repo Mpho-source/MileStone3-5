@@ -2,7 +2,8 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $root = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-$databasePath = Join-Path $root 'Edu_Connect.accdb'
+$originalPath = Join-Path $root 'Edu_Connect.accdb'
+$databasePath = $originalPath
 $lockPath = Join-Path $root 'Edu_Connect.laccdb'
 $backupFolder = Join-Path $root 'DatabaseBackups'
 
@@ -40,53 +41,60 @@ $backupPath = Join-Path $backupFolder (
     (Get-Date -Format 'yyyyMMdd_HHmmss_fff') + '.accdb')
 [System.IO.File]::Copy($databasePath, $backupPath, $false)
 Write-Host "Original database backed up to: $backupPath" -ForegroundColor Green
+$workingPath = Join-Path $backupFolder (
+    'Edu_Connect_demo_working_' +
+    (Get-Date -Format 'yyyyMMdd_HHmmss_fff') + '.accdb')
+[System.IO.File]::Copy($backupPath, $workingPath, $false)
+$databasePath = $workingPath
+Write-Host 'Preparing a separate working copy. The project database remains unchanged until validation succeeds.' -ForegroundColor Cyan
 
 function RepairInvisibleFieldPrefixes([string]$file) {
-    $engine = $null
-    $database = $null
+    $catalog = $null
+    $renamed = 0
     try {
-        $engine = New-Object -ComObject 'DAO.DBEngine.120'
-        $database = $engine.OpenDatabase($file)
-        $renames = [System.Collections.ArrayList]::new()
-        foreach ($table in $database.TableDefs) {
-            if (([string]$table.Name).StartsWith('MSys')) { continue }
-            $names = @()
-            foreach ($field in $table.Fields) { $names += [string]$field.Name }
-            foreach ($old in $names) {
-                $clean = $old.TrimStart([char]0xFEFF)
-                if ($clean -eq $old) { continue }
-                if ([string]::IsNullOrWhiteSpace($clean) -or $names -ccontains $clean) {
-                    throw "Cannot safely normalize $($table.Name).$old. The original backup is unchanged."
+        $catalog = New-Object -ComObject 'ADOX.Catalog'
+        $catalog.ActiveConnection = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=$file"
+
+        foreach ($table in $catalog.Tables) {
+            $tableName = [string]$table.Name
+            if ($tableName.StartsWith('MSys')) { continue }
+
+            $pending = @()
+            foreach ($column in $table.Columns) {
+                $name = [string]$column.Name
+                $corrected = $name.TrimStart([char]0xFEFF)
+                if ($name -cne $corrected) {
+                    $pending += [pscustomobject]@{ Before = $name; After = $corrected }
                 }
-                [void]$renames.Add([pscustomobject]@{
-                    Table = [string]$table.Name
-                    From = $old
-                    To = $clean
-                })
+            }
+
+            foreach ($item in $pending) {
+                if ([string]::IsNullOrWhiteSpace($item.After)) {
+                    throw "Unsafe empty corrected name in table $tableName."
+                }
+                $table.Columns.Item($item.Before).Name = $item.After
+                $renamed++
+                Write-Host "Corrected invisible column prefix: $tableName.$($item.After)" -ForegroundColor Green
             }
         }
-        foreach ($rename in $renames) {
-            $table = $database.TableDefs.Item($rename.Table)
-            $field = $table.Fields.Item($rename.From)
-            $field.Name = $rename.To
-            Write-Host "Repaired invisible prefix in: $($rename.Table).$($rename.To)" -ForegroundColor Green
-        }
-    }
-    catch {
-        throw "Unable to normalize invisible Access column names safely. Original backup: $backupPath. Details: $($_.Exception.Message)"
     }
     finally {
-        if ($null -ne $database) { $database.Close() }
-        if ($null -ne $database -and [System.Runtime.InteropServices.Marshal]::IsComObject($database)) {
-            [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($database)
-        }
-        if ($null -ne $engine -and [System.Runtime.InteropServices.Marshal]::IsComObject($engine)) {
-            [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($engine)
+        if ($null -ne $catalog -and
+            [System.Runtime.InteropServices.Marshal]::IsComObject($catalog)) {
+            [void][System.Runtime.InteropServices.Marshal]::FinalReleaseComObject($catalog)
         }
     }
+    Write-Host "Invisible column prefixes corrected: $renamed"
 }
 
-RepairInvisibleFieldPrefixes $databasePath
+try {
+    RepairInvisibleFieldPrefixes $databasePath
+}
+catch {
+    Write-Host "Column repair failed on the WORKING COPY. The original database was not replaced." -ForegroundColor Red
+    Write-Host "Backup: $backupPath" -ForegroundColor Cyan
+    throw
+}
 
 Add-Type -AssemblyName System.Data
 $connection = [System.Data.OleDb.OleDbConnection]::new(
@@ -347,6 +355,10 @@ try {
         throw 'The number of requests or sessions unexpectedly changed. Inspect the original backup.'
     }
 
+    $connection.Close()
+    [System.IO.File]::Replace($workingPath, $originalPath, $null)
+    Write-Host 'Verified working database installed. The original database remains in the backup folder.' -ForegroundColor Green
+
     Write-Host ''
     Write-Host 'DEMO ACCOUNTS READY' -ForegroundColor Green
     Write-Host "Administrators configured: $adminUpdated"
@@ -359,7 +371,8 @@ try {
     Write-Host 'Missing historical GPA records were not fabricated.' -ForegroundColor Yellow
 }
 catch {
-    Write-Host "Setup failed. Original backup: $backupPath" -ForegroundColor Red
+    Write-Host 'Setup failed. The original project database was not replaced unless final validation had completed.' -ForegroundColor Red
+    Write-Host "Original backup: $backupPath" -ForegroundColor Cyan
     throw
 }
 finally {
