@@ -36,7 +36,6 @@ Add-Type -AssemblyName System.Data
 $connection = [System.Data.OleDb.OleDbConnection]::new(
     "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=$dbPath")
 $transaction = $null
-$backup = $null
 $created = 0
 
 function AddValue(
@@ -127,7 +126,7 @@ function ReadOrdinal([System.Data.OleDb.OleDbDataReader]$reader, [string]$reques
 }
 
 function InsertTestRequest(
-    [int]$requestId, [int]$studentId, [int]$courseId,
+    [int]$requestId, [int]$studentId, [string]$courseId,
     [datetime]$day, [datetime]$start, [datetime]$end
 ) {
     $cmd = $connection.CreateCommand()
@@ -317,7 +316,7 @@ try {
                 if (-not $reader.IsDBNull($tutorOrdinal) -and -not $reader.IsDBNull($courseOrdinal)) {
                     $pairs.Add([pscustomobject]@{
                         Tutor = [int]$reader.GetValue($tutorOrdinal)
-                        Course = [int]$reader.GetValue($courseOrdinal)
+                        Course = ([string]$reader.GetValue($courseOrdinal)).Trim()
                     })
                 }
             }
@@ -365,7 +364,7 @@ try {
                     throw 'A generated historical date would fall in the future; no records were committed.'
                 }
                 $start = $day.AddHours(9 + [math]::Floor($sequence / 20))
-                $end = $day.AddHours(10)
+                $end = $start.AddHours(1)
                 $pair = $pairs[($i + $term + $slot) % $pairs.Count]
                 # This is an artificial attendance pattern for functional testing only.
                 $attendance = if (($i + $term + $slot) % 5 -eq 0) {
