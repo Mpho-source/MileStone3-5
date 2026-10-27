@@ -44,7 +44,7 @@ namespace NextGen__7
         private void btnAssign_Click(object sender, EventArgs e) { AssignTutor(); }
 
 
-        private void Reload()
+        private void Reload(int? selectedRequestId = null)
         {
             try
             {
@@ -62,7 +62,25 @@ namespace NextGen__7
                 requests.ClearSelection();
                 cmbMatchTutor.Items.Clear();
                 btnAssign.Enabled = false;
-                lblMatchHelp.Text = "Verify a submitted request, then select it to assign an available tutor.";
+                lblMatchHelp.Text = "Select a Submitted request and verify it, or select a Verified request to choose an available tutor.";
+                if (selectedRequestId.HasValue && requestIdColumn != null)
+                {
+                    foreach (DataGridViewRow gridRow in requests.Rows)
+                    {
+                        if (gridRow.IsNewRow || gridRow.Cells[requestIdColumn].Value == null)
+                            continue;
+                        int rowId;
+                        if (int.TryParse(Convert.ToString(gridRow.Cells[requestIdColumn].Value), out rowId) &&
+                            rowId == selectedRequestId.Value)
+                        {
+                            gridRow.Selected = true;
+                            if (gridRow.Cells.Count > 0)
+                                requests.CurrentCell = gridRow.Cells[0];
+                            RefreshMatchingChoices();
+                            break;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -101,8 +119,8 @@ namespace NextGen__7
                     if (cmd.ExecuteNonQuery() != 1)
                         throw new InvalidOperationException("The request is no longer submitted.");
                 }
-                Reload();
-                MessageBox.Show("Tutoring request verified.");
+                Reload(requestId);
+                MessageBox.Show("Tutoring request verified. Select an available tutor from the list.");
             }
             catch (Exception ex)
             {
@@ -116,22 +134,25 @@ namespace NextGen__7
         }
 
         private static bool TutorCanTake(
-            OleDbConnection db, OleDbTransaction tx, int tutorId, int courseId,
+            OleDbConnection db, OleDbTransaction tx, int tutorId, string courseId,
             DateTime day, TimeSpan start, TimeSpan end)
         {
+            string courseTutorColumn = BookingData.GetColumn(db, tx, "TUTOR_COURSE", "TutorID");
+            string courseKeyColumn = BookingData.GetColumn(db, tx, "TUTOR_COURSE", "CourseID");
             using (var command = new OleDbCommand(
-                "SELECT COUNT(*) FROM [TUTOR_COURSE] " +
-                "WHERE [TutorID]=? AND [CourseID]=?", db, tx))
+                "SELECT COUNT(*) FROM [TUTOR_COURSE] WHERE [" + courseTutorColumn +
+                "]=? AND [" + courseKeyColumn + "]=?", db, tx))
             {
                 command.Parameters.Add("@Tutor", OleDbType.Integer).Value = tutorId;
-                command.Parameters.Add("@Course", OleDbType.Integer).Value = courseId;
+                command.Parameters.Add("@Course", OleDbType.VarWChar).Value = courseId;
                 if (Convert.ToInt32(command.ExecuteScalar()) < 1) return false;
             }
 
             bool offered = false;
+            string availableTutorColumn = BookingData.GetColumn(db, tx, "TUTOR_AVAILABILITY", "TutorID");
             using (var command = new OleDbCommand(
                 "SELECT [StartTime],[EndTime],[IsAvailable] FROM [TUTOR_AVAILABILITY] " +
-                "WHERE [TutorID]=? AND [AvailableDate]>=? AND [AvailableDate]<?", db, tx))
+                "WHERE [" + availableTutorColumn + "]=? AND [AvailableDate]>=? AND [AvailableDate]<?", db, tx))
             {
                 command.Parameters.Add("@Tutor", OleDbType.Integer).Value = tutorId;
                 command.Parameters.Add("@Date1", OleDbType.Date).Value = day.Date;
@@ -187,7 +208,8 @@ namespace NextGen__7
         {
             var rows = new DataTable();
             using (var command = new OleDbCommand(
-                "SELECT * FROM [TUTORING_REQUEST] WHERE [RequestID]=?", db, tx))
+                "SELECT * FROM [TUTORING_REQUEST] WHERE [" +
+                BookingData.GetColumn(db, tx, "TUTORING_REQUEST", "RequestID") + "]=?", db, tx))
             {
                 command.Parameters.Add("@Request", OleDbType.Integer).Value = id;
                 using (var adapter = new OleDbDataAdapter(command))
@@ -201,8 +223,10 @@ namespace NextGen__7
         private static bool HasActiveSession(
             OleDbConnection db, OleDbTransaction tx, int requestId)
         {
+            string sessionRequestColumn = BookingData.GetColumn(db, tx, "TUTORING_SESSION", "RequestID");
             using (var command = new OleDbCommand(
-                "SELECT [SessionStatus] FROM [TUTORING_SESSION] WHERE [RequestID]=?", db, tx))
+                "SELECT [SessionStatus] FROM [TUTORING_SESSION] WHERE [" +
+                sessionRequestColumn + "]=?", db, tx))
             {
                 command.Parameters.Add("@Request", OleDbType.Integer).Value = requestId;
                 using (var reader = command.ExecuteReader())
@@ -219,15 +243,15 @@ namespace NextGen__7
         }
 
         private static void ReadDetails(DataRow request,
-            out int courseId, out int studentId, out DateTime day,
+            out string courseId, out int studentId, out DateTime day,
             out TimeSpan start, out TimeSpan end)
         {
-            courseId = Convert.ToInt32(request["CourseID"]);
+            courseId = Convert.ToString(request["CourseID"]).Trim();
             studentId = Convert.ToInt32(request["StudentID"]);
             day = Convert.ToDateTime(request["PreferredDate"]).Date;
             start = BookingData.ReadTime(request["PreferredStartTime"]);
             end = BookingData.ReadTime(request["PreferredEndTime"]);
-            if (courseId <= 0 || studentId <= 0 || end <= start ||
+            if (string.IsNullOrWhiteSpace(courseId) || studentId <= 0 || end <= start ||
                 day.Add(start) <= DateTime.Now)
                 throw new InvalidOperationException(
                     "This request needs a valid future preferred date and time.");
@@ -258,7 +282,7 @@ namespace NextGen__7
                             "Only Verified requests can be matched.";
                         return;
                     }
-                    int course, student; DateTime day; TimeSpan start, end;
+                    string course; int student; DateTime day; TimeSpan start, end;
                     ReadDetails(request, out course, out student, out day, out start, out end);
                     if (HasActiveSession(db, null, requestId))
                     {
@@ -273,8 +297,9 @@ namespace NextGen__7
                     }
 
                     var tutors = new List<TutorOption>();
+                    string tutorIdColumn = BookingData.GetColumn(db, null, "TUTOR", "TutorID");
                     using (var command = new OleDbCommand(
-                        "SELECT [TutorID],[FirstName],[LastName] FROM [TUTOR] " +
+                        "SELECT [" + tutorIdColumn + "],[FirstName],[LastName] FROM [TUTOR] " +
                         "ORDER BY [FirstName],[LastName]", db))
                     using (var reader = command.ExecuteReader())
                         while (reader.Read())
@@ -289,8 +314,9 @@ namespace NextGen__7
                         if (TutorCanTake(db, null, tutor.Id, course, day, start, end))
                             cmbMatchTutor.Items.Add(tutor);
                     lblMatchHelp.Text = cmbMatchTutor.Items.Count == 0
-                        ? "No qualified tutor is free at the requested time. " +
-                          "Add a course assignment and availability in Manage Tutors."
+                        ? "No eligible tutor has BOTH the course qualification and an available slot on " +
+                          day.ToString("dd MMM yyyy") + " at " + start.ToString(@"hh\:mm") +
+                          ". Check the tutor's course assignments and availability."
                         : cmbMatchTutor.Items.Count + " eligible tutor(s) for request #" +
                           requestId + " on " + day.ToString("dd MMM yyyy") + " " +
                           start.ToString(@"hh\:mm") + "-" + end.ToString(@"hh\:mm") + ".";
@@ -301,6 +327,8 @@ namespace NextGen__7
             catch (Exception ex)
             {
                 lblMatchHelp.Text = "Cannot match this request: " + ex.Message;
+                MessageBox.Show(lblMatchHelp.Text, "Tutor matching",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -335,7 +363,7 @@ namespace NextGen__7
                                 throw new InvalidOperationException(
                                     "The request is no longer Verified.");
 
-                            int course, student; DateTime day; TimeSpan start, end;
+                            string course; int student; DateTime day; TimeSpan start, end;
                             ReadDetails(request, out course, out student, out day, out start, out end);
                             if (HasActiveSession(db, tx, requestId))
                                 throw new InvalidOperationException(
@@ -392,7 +420,7 @@ namespace NextGen__7
                         }
                     }
                 }
-                Reload();
+                Reload(requestId);
                 MessageBox.Show("Tutor #" + option.Id + " assigned to request #" +
                     requestId + ". A Scheduled session is now saved. " +
                     "It will appear in the tutor's portal and Report 2.",
