@@ -96,7 +96,7 @@ function NormalizedName([string]$name) {
 function FindOrdinal([System.Data.OleDb.OleDbDataReader]$reader, [string]$requested) {
     for ($i = 0; $i -lt $reader.FieldCount; $i++) {
         if ([string]::Equals(
-            (NormalizedName $reader.GetName($i)),
+            (NormalizedName ($reader.GetName($i))),
             $requested,
             [System.StringComparison]::OrdinalIgnoreCase)) {
             return $i
