@@ -397,6 +397,7 @@ namespace NextGen__7
             output.Columns.Add("Attended", typeof(int));
             output.Columns.Add("Recorded sessions", typeof(int));
             output.Columns.Add("Attendance (%)", typeof(double));
+            output.Columns.Add("Data origin", typeof(string));
             int year = (int)numYear.Value;
             using (var db = new OleDbConnection(connectionString))
             {
@@ -420,6 +421,7 @@ namespace NextGen__7
                 var requests = Index(ReadTable(db, "TUTORING_REQUEST"), "RequestID");
                 string sessionRequestId = Column(sessions, "RequestID");
                 var attendance = new Dictionary<string, int[]>();
+                var syntheticAttendance = new HashSet<string>();
                 foreach (DataRow row in sessions.Rows)
                 {
                     if (row[sessionRequestId] == DBNull.Value ||
@@ -438,6 +440,10 @@ namespace NextGen__7
                     string key = Convert.ToInt32(request["StudentID"]) + "-T" +
                         ((when.Month - 1) / 3 + 1);
                     if (!attendance.ContainsKey(key)) attendance[key] = new int[2];
+                    if (sessions.Columns.Contains("Feedback") &&
+                        Convert.ToString(row["Feedback"]).Contains(
+                            "EDUCONNECT SYNTHETIC TEST ATTENDANCE"))
+                        syntheticAttendance.Add(key);
                     attendance[key][1]++;
                     if (status.Equals("Attended", StringComparison.OrdinalIgnoreCase))
                         attendance[key][0]++;
@@ -474,10 +480,15 @@ namespace NextGen__7
                     if (!attendance.TryGetValue(key, out stats)) stats = new int[2];
                     object percent = stats[1] == 0 ? (object)DBNull.Value :
                         Math.Round(100.0 * stats[0] / stats[1], 1);
+                    bool demoGpa = records.Columns.Contains("RecordSource") &&
+                        Convert.ToString(rec["RecordSource"]).Contains(
+                            "EDUCONNECT SYNTHETIC TEST GPA");
+                    string dataOrigin = demoGpa || syntheticAttendance.Contains(key) ?
+                        "SYNTHETIC TEST DATA" : "Recorded data";
                     output.Rows.Add(Convert.ToString(student["StudentNo"]),
                         (Convert.ToString(student["FirstName"]) + " " +
                         Convert.ToString(student["LastName"])).Trim(),
-                        "Term " + term, gpa, stats[0], stats[1], percent);
+                        "Term " + term, gpa, stats[0], stats[1], percent, dataOrigin);
                 }
             }
             var view = output.DefaultView; view.Sort = "[Student] ASC, [Term] ASC";
@@ -588,8 +599,11 @@ namespace NextGen__7
             area.AxisY.MajorGrid.LineDashStyle = ChartDashStyle.Solid;
             chartTrends.ChartAreas.Add(area);
 
+            bool hasSynthetic = rows.Any(r => Convert.ToString(r["Data origin"]) ==
+                "SYNTHETIC TEST DATA");
             string title = individual ? selected.Label :
                 "All students - four-term overview";
+            if (hasSynthetic) title = "DEMO DATA | " + title;
             chartTrends.Titles.Add(new Title(
                 title, Docking.Top,
                 new Font("Segoe UI", 13F, FontStyle.Bold),
@@ -703,13 +717,18 @@ namespace NextGen__7
                     ". Select a student for details.";
             }
 
+            if (hasSynthetic)
+                lblTrendSummary.Text = "SYNTHETIC TEST GPA AND ATTENDANCE - NOT REAL STUDENT RESULTS." +
+                    Environment.NewLine + lblTrendSummary.Text;
             lblTrendSummary.Visible = true;
             chartTrends.Visible = true;
             chartTrends.BringToFront();
             grid.Visible = false;
             btnToggleView.Text = "Show table";
-            lblStatus.Text = individual ? "Student trend from recorded academic and session data." :
-                "Cohort trends - no missing attendance values have been estimated.";
+            lblStatus.Text = hasSynthetic ?
+                "DEMO ONLY - Synthetic GPA and attendance. Not real student results." :
+                (individual ? "Student trend from recorded academic and session data." :
+                "Cohort trends - no missing attendance values have been estimated.");
         }
 
         private void ToggleView()
