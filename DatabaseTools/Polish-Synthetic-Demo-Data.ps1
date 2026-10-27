@@ -325,8 +325,11 @@ try {
     foreach($row in $afterGrades.Rows) {
         if(([string](Field $row 'RecordSource')) -ne $gpaTag) { continue }
         $period=[string](Field $row 'AcademicPeriod')
-        if($period -notmatch '^2026-T([1-4])$') { continue }
-        $term=[int]$Matches[1]-1
+        if(-not $period.StartsWith('2026-T')) { continue }
+        $termNumber=0
+        if(-not [int]::TryParse($period.Substring(6),[ref]$termNumber)) { continue }
+        if($termNumber -lt 1 -or $termNumber -gt 4) { continue }
+        $term=$termNumber-1
         $grade=Field $row 'GPA'
         if($null -eq $grade) { continue }
         $gpaSums[$term]+=[double]$grade
