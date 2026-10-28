@@ -61,51 +61,13 @@ namespace NextGen__7
 
         private void EnsureTutorNumbers()
         {
-            using (var db = new OleDbConnection(connectionString))
-            {
-                db.Open();
-                bool hasTutorNumber = false;
-                using (var command = new OleDbCommand("SELECT * FROM [TUTOR] WHERE 1=0", db))
-                using (var reader = command.ExecuteReader(CommandBehavior.SchemaOnly))
-                    foreach (DataRow row in reader.GetSchemaTable().Rows)
-                        if (string.Equals(Convert.ToString(row["ColumnName"]), "TutorNumber",
-                            StringComparison.OrdinalIgnoreCase))
-                            hasTutorNumber = true;
-                if (!hasTutorNumber)
-                    using (var add = new OleDbCommand(
-                        "ALTER TABLE [TUTOR] ADD COLUMN [TutorNumber] TEXT(16)", db))
-                        add.ExecuteNonQuery();
-
-                var tutors = new DataTable();
-                using (var cmd = new OleDbCommand("SELECT [TutorID],[TutorNumber] FROM [TUTOR]", db))
-                using (var adapter = new OleDbDataAdapter(cmd))
-                    adapter.Fill(tutors);
-                using (var tx = db.BeginTransaction())
-                {
-                    try
-                    {
-                        foreach (DataRow row in tutors.Rows)
-                        {
-                            if (row["TutorID"] == DBNull.Value)
-                                throw new InvalidOperationException("A tutor has no internal ID.");
-                            int id = Convert.ToInt32(row["TutorID"]);
-                            string expected = "Tut" + id.ToString("D4");
-                            if (Convert.ToString(row["TutorNumber"]) == expected)
-                                continue;
-                            using (var update = new OleDbCommand(
-                                "UPDATE [TUTOR] SET [TutorNumber]=? WHERE [TutorID]=?", db, tx))
-                            {
-                                update.Parameters.Add("@Number", OleDbType.VarWChar).Value = expected;
-                                update.Parameters.Add("@Id", OleDbType.Integer).Value = id;
-                                if (update.ExecuteNonQuery() != 1)
-                                    throw new InvalidOperationException("Could not save tutor number for ID " + id + ".");
-                            }
-                        }
-                        tx.Commit();
-                    }
-                    catch { tx.Rollback(); throw; }
-                }
-            }
+            string dataFolder = Convert.ToString(
+                AppDomain.CurrentDomain.GetData("DataDirectory"));
+            if (string.IsNullOrWhiteSpace(dataFolder))
+                throw new InvalidOperationException("EduConnect database directory is not set.");
+            TutorNumberMigration.Ensure(
+                System.IO.Path.Combine(dataFolder, "Edu_Connect.accdb"),
+                connectionString);
         }
 
         private void LoadTutors()
@@ -452,6 +414,19 @@ namespace NextGen__7
                                 {
                                     using (var identity = new OleDbCommand("SELECT @@IDENTITY", db, transaction))
                                         savedId = Convert.ToInt32(identity.ExecuteScalar());
+                                }
+
+                                using (var numberCommand = new OleDbCommand(
+                                    "UPDATE [TUTOR] SET [TutorNumber]=? WHERE [" +
+                                    tutorId + "]=?", db, transaction))
+                                {
+                                    numberCommand.Parameters.Add("@TutorNumber", OleDbType.VarWChar).Value =
+                                        "Tut" + savedId.ToString("D4");
+                                    numberCommand.Parameters.Add("@TutorID", OleDbType.Integer).Value =
+                                        savedId;
+                                    if (numberCommand.ExecuteNonQuery() != 1)
+                                        throw new InvalidOperationException(
+                                            "The tutor number was not saved.");
                                 }
                             }
                             else
