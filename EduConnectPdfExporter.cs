@@ -156,11 +156,7 @@ namespace NextGen__7
                     18, 1, 1, 1);
                 Label(canvas, Fit(description, 762, 9), 36, 504,
                     9, 0.29, 0.39, 0.53);
-                if (!string.IsNullOrWhiteSpace(dataNote))
-                    Label(canvas, Fit(dataNote, 755, 8), 36, 488,
-                        8, 0.55, 0.31, 0.11);
-
-                double top = chartPage ? 260 : (string.IsNullOrWhiteSpace(dataNote) ? 477 : 465);
+                double top = chartPage ? 260 : 477;
                 if (chartPage)
                 {
                     Rect(canvas, 35, 283, 772, 195, 0.96, 0.98, 1);
@@ -203,6 +199,9 @@ namespace NextGen__7
                         CultureInfo.CurrentCulture) + "  |  " + table.Rows.Count +
                         " record(s)", 35, 22, 8, 0.37, 0.44, 0.54);
                 Label(canvas, "Page " + pageNumber, 755, 22, 8, 0.37, 0.44, 0.54);
+                if (!string.IsNullOrWhiteSpace(dataNote))
+                    Label(canvas, Fit(dataNote, 700, 7), 35, 10,
+                        7, 0.43, 0.48, 0.55);
                 pages.Add(new PdfPage { Content = canvas.ToString(), HasImage = chartPage });
                 pageNumber++;
             } while (row < table.Rows.Count);
