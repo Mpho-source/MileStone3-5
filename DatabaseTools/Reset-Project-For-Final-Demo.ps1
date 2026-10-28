@@ -25,7 +25,11 @@ function Execute-Command($connection, $transaction, [string]$sql, [object[]]$arg
     $cmd.Transaction = $transaction
     try {
         foreach ($argument in $arguments) {
-            $p = $cmd.Parameters.Add("?", [System.Data.OleDb.OleDbType]::Variant)
+            $type = [System.Data.OleDb.OleDbType]::VarWChar
+            if ($argument -is [DateTime]) { $type = [System.Data.OleDb.OleDbType]::Date }
+            elseif ($argument -is [bool]) { $type = [System.Data.OleDb.OleDbType]::Boolean }
+            elseif ($argument -is [int]) { $type = [System.Data.OleDb.OleDbType]::Integer }
+            $p = $cmd.Parameters.Add("?", $type)
             if ($null -eq $argument) { $p.Value = [DBNull]::Value }
             else { $p.Value = $argument }
         }
@@ -115,9 +119,9 @@ try {
         foreach ($tutor in $tutors.Rows) {
             $tutorId = [int]$tutor["TutorID"]
             foreach ($day in $dates) {
-                foreach ($range in @(@(9,12), @(13,16))) {
-                    $start = $day.AddHours($range[0])
-                    $end = $day.AddHours($range[1])
+                foreach ($range in @([pscustomobject]@{ Start=9; End=12 }, [pscustomobject]@{ Start=13; End=16 })) {
+                    $start = $day.AddHours($range.Start)
+                    $end = $day.AddHours($range.End)
                     if ($null -ne $idName -and -not $idIsAuto) {
                         $sql = "INSERT INTO [TUTOR_AVAILABILITY] ([$idName],[TutorID],[AvailableDate],[StartTime],[EndTime],[IsAvailable]) VALUES (?,?,?,?,?,?)"
                         $args = @($nextId, $tutorId, $day, $start, $end, $true)
