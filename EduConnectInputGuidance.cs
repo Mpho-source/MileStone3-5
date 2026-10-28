@@ -188,7 +188,7 @@ namespace NextGen__7
                 case "Login":
                     order = new[] { "cmbSignInRole", "txtStudentNo", "txtPassword", "btnLogin", "btnAdminSetup" };
                     hints["cmbSignInRole"] = "Choose Student, Staff or Tutor before signing in.";
-                    hints["txtStudentNo"] = "Student / staff number or Tutor ID";
+                    hints["txtStudentNo"] = "Student or staff number, or tutor number e.g. Tut0001";
                     hints["txtPassword"] = "Enter your password for the selected role (case-sensitive).";
                     break;
                 case "StudentDashboard":
@@ -224,7 +224,7 @@ namespace NextGen__7
                     break;
                 case "ManagaeTutors":
                     order = new[] { "txtSearch", "gridTutors", "btnNew", "txtFirstName", "txtLastName", "txtEmail", "btnSave", "btnRemoveTutor", "cmbCourse", "btnAssignCourse", "btnAvailability", "btnCreateTutorLogin", "btnResetTutorLogin", "btnRefresh", "btnCancel", "btnBack" };
-                    hints["txtSearch"] = "Search by name or email";
+                    hints["txtSearch"] = "Search tutor number, name or email";
                     hints["gridTutors"] = "Select a tutor to edit their details, courses, availability or sign-in.";
                     hints["btnRemoveTutor"] = "Permanently remove a tutor with no session history; related access and availability are removed.";
                     hints["txtFirstName"] = "First name";
