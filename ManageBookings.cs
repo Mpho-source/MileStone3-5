@@ -53,6 +53,7 @@ namespace NextGen__7
             {
                 using (var page = new BookingTutoringSession(studentID, studentNo))
                     page.ShowDialog(this);
+                LoadBookings();
             };
             btnNavBack.Click += (sender, e) => Close();
             statusFilter.SelectedIndexChanged += (s, e) =>
