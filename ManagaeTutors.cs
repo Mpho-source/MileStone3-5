@@ -307,7 +307,7 @@ namespace NextGen__7
             int tutorId = selectedId;
             string tutorName = (txtFirstName.Text.Trim() + " " + txtLastName.Text.Trim()).Trim();
             if (MessageBox.Show("Permanently remove " + tutorName + " (Tut" +
-                tutorId + ")? Their course assignments, availability, and sign-in will also be removed. " +
+                tutorId.ToString("D4") + ")? Their course assignments, availability, and sign-in will also be removed. " +
                 "Tutors who have any session history cannot be removed.",
                 "Confirm tutor removal", MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning) != DialogResult.Yes)
