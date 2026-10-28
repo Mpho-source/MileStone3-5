@@ -204,8 +204,9 @@ namespace NextGen__7
 
         private static bool TutorCanTake(
             OleDbConnection db, OleDbTransaction tx, int tutorId, string courseId,
-            DateTime day, TimeSpan start, TimeSpan end)
+            DateTime day, TimeSpan start, TimeSpan end, out string failure)
         {
+            failure = "";
             string courseTutorColumn = BookingData.GetColumn(db, tx, "TUTOR_COURSE", "TutorID");
             string courseKeyColumn = BookingData.GetColumn(db, tx, "TUTOR_COURSE", "CourseID");
             using (var command = new OleDbCommand(
@@ -218,7 +219,11 @@ namespace NextGen__7
                     command.Parameters.Add("@Course", OleDbType.Integer).Value = numericCourseId;
                 else
                     command.Parameters.Add("@Course", OleDbType.VarWChar).Value = courseId;
-                if (Convert.ToInt32(command.ExecuteScalar()) < 1) return false;
+                if (Convert.ToInt32(command.ExecuteScalar()) < 1)
+                {
+                    failure = "course";
+                    return false;
+                }
             }
 
             bool offered = false;
@@ -249,7 +254,11 @@ namespace NextGen__7
                     }
                 }
             }
-            if (!offered) return false;
+            if (!offered)
+            {
+                failure = "availability";
+                return false;
+            }
 
             using (var command = new OleDbCommand(
                 "SELECT [StartTime],[EndTime],[SessionStatus] FROM [TUTORING_SESSION] " +
@@ -270,7 +279,10 @@ namespace NextGen__7
                             continue;
                         if (start < BookingData.ReadTime(reader[1]) &&
                             end > BookingData.ReadTime(reader[0]))
+                        {
+                            failure = "conflict";
                             return false;
+                        }
                     }
                 }
             }
@@ -383,13 +395,22 @@ namespace NextGen__7
                                     Convert.ToString(reader[2])).Trim()
                             });
 
+                    int lackingCourse = 0, lackingAvailability = 0, conflicting = 0;
                     foreach (var tutor in tutors)
-                        if (TutorCanTake(db, null, tutor.Id, course, day, start, end))
+                    {
+                        string reason;
+                        if (TutorCanTake(db, null, tutor.Id, course, day, start, end, out reason))
                             cmbMatchTutor.Items.Add(tutor);
+                        else if (reason == "course") lackingCourse++;
+                        else if (reason == "availability") lackingAvailability++;
+                        else if (reason == "conflict") conflicting++;
+                    }
                     lblMatchHelp.Text = cmbMatchTutor.Items.Count == 0
-                        ? "No eligible tutor has BOTH the course qualification and an available slot on " +
-                          day.ToString("dd MMM yyyy") + " at " + start.ToString(@"hh\:mm") +
-                          ". Check the tutor's course assignments and availability."
+                        ? "No tutor matches " + day.ToString("dd MMM yyyy") + " " +
+                          start.ToString(@"hh\:mm") + "-" + end.ToString(@"hh\:mm") +
+                          ". Unqualified: " + lackingCourse +
+                          "; without available slot: " + lackingAvailability +
+                          "; booked already: " + conflicting + "."
                         : cmbMatchTutor.Items.Count + " eligible tutor(s) for request #" +
                           requestId + " on " + day.ToString("dd MMM yyyy") + " " +
                           start.ToString(@"hh\:mm") + "-" + end.ToString(@"hh\:mm") + ".";
@@ -445,9 +466,11 @@ namespace NextGen__7
                                 db, tx, student, requestId, day, start, end))
                                 throw new InvalidOperationException(
                                     "The student has an overlapping booking.");
-                            if (!TutorCanTake(db, tx, option.Id, course, day, start, end))
+                            string matchingReason;
+                            if (!TutorCanTake(db, tx, option.Id, course, day, start, end, out matchingReason))
                                 throw new InvalidOperationException(
-                                    "Tutor availability or course qualification has changed.");
+                                    "Tutor cannot be assigned (" + matchingReason +
+                                    "). Refresh the request and availability.");
 
                             string sessionIdField = BookingData.GetColumn(
                                 db, tx, "TUTORING_SESSION", "SessionID");
