@@ -217,10 +217,18 @@ namespace NextGen__7
                 command.Parameters.Add("@TutorID", OleDbType.Integer).Value = tutorId;
                 using (var reader = command.ExecuteReader())
                 {
-                    if (!reader.Read()) return false;
-                    salt = Convert.FromBase64String(Convert.ToString(reader[0]));
-                    expected = Convert.FromBase64String(Convert.ToString(reader[1]));
-                    iterations = Convert.ToInt32(reader[2]);
+                    if (!reader.Read() ||
+                        reader.IsDBNull(0) || reader.IsDBNull(1) || reader.IsDBNull(2))
+                        return false;
+                    try
+                    {
+                        salt = Convert.FromBase64String(Convert.ToString(reader[0]));
+                        expected = Convert.FromBase64String(Convert.ToString(reader[1]));
+                        iterations = Convert.ToInt32(reader[2]);
+                    }
+                    catch (FormatException) { return false; }
+                    catch (InvalidCastException) { return false; }
+                    catch (OverflowException) { return false; }
                 }
             }
             if (iterations < 10000 || iterations > 2000000) return false;
