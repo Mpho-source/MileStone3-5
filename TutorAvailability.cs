@@ -66,7 +66,16 @@ namespace NextGen__7
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
                 gridSlots.Columns[e.ColumnIndex].Name != "IsAvailable") return;
-            e.Value = IsSlotAvailable(e.Value) ? "Available" : "Unavailable";
+            bool active = IsSlotAvailable(e.Value);
+            e.Value = active ? "Available" : "Unavailable";
+            e.CellStyle.BackColor = active
+                ? System.Drawing.Color.FromArgb(225, 245, 233)
+                : System.Drawing.Color.FromArgb(255, 232, 232);
+            e.CellStyle.ForeColor = active
+                ? System.Drawing.Color.FromArgb(18, 103, 67)
+                : System.Drawing.Color.FromArgb(146, 44, 51);
+            e.CellStyle.SelectionBackColor = e.CellStyle.BackColor;
+            e.CellStyle.SelectionForeColor = e.CellStyle.ForeColor;
             e.FormattingApplied = true;
         }
 
