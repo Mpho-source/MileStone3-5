@@ -29,7 +29,7 @@ namespace NextGen__7
                 "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
             if (cfg == null) throw new InvalidOperationException("Database configuration is missing.");
             connectionString = cfg.ConnectionString;
-            lblTutor.Text = tutorName + "   |   Tutor #" + tutorId;
+            lblTutor.Text = tutorName + "   |   Tut" + tutorId.ToString("D4");
             dtpDate.MinDate = DateTime.Today;
             dtpDate.Value = DateTime.Today.AddDays(1);
             dtpDate.Format = DateTimePickerFormat.Custom;
@@ -70,6 +70,23 @@ namespace NextGen__7
                    text.Equals("Yes", StringComparison.OrdinalIgnoreCase) ||
                    text.Equals("On", StringComparison.OrdinalIgnoreCase) ||
                    text == "1" || text == "-1";
+        }
+
+        private static void AddAvailabilityParameter(OleDbCommand command, OleDbConnection connection, bool available)
+        {
+            using (var schemaCommand = new OleDbCommand("SELECT [IsAvailable] FROM [TUTOR_AVAILABILITY] WHERE 1=0", connection, command.Transaction))
+            using (var reader = schemaCommand.ExecuteReader(CommandBehavior.SchemaOnly))
+            {
+                Type type = (Type)reader.GetSchemaTable().Rows[0]["DataType"];
+                if (type == typeof(bool))
+                    command.Parameters.Add("@Available", OleDbType.Boolean).Value = available;
+                else if (type == typeof(string))
+                    command.Parameters.Add("@Available", OleDbType.VarWChar).Value = available ? "True" : "False";
+                else if (type == typeof(short) || type == typeof(int) || type == typeof(long))
+                    command.Parameters.Add("@Available", OleDbType.Integer).Value = available ? -1 : 0;
+                else
+                    throw new InvalidOperationException("The IsAvailable column has an unsupported data type.");
+            }
         }
 
         private void FormatAvailability(object sender, DataGridViewCellFormattingEventArgs e)
@@ -235,7 +252,7 @@ namespace NextGen__7
                                 cmd.Parameters.Add("@Date", OleDbType.Date).Value = date;
                                 cmd.Parameters.Add("@Start", OleDbType.Date).Value = start;
                                 cmd.Parameters.Add("@End", OleDbType.Date).Value = end;
-                                cmd.Parameters.Add("@Available", OleDbType.Boolean).Value = true;
+                                AddAvailabilityParameter(cmd, db, true);
                                 if (cmd.ExecuteNonQuery() != 1)
                                     throw new InvalidOperationException("No availability was saved.");
                             }
@@ -322,7 +339,7 @@ namespace NextGen__7
                         "UPDATE [TUTOR_AVAILABILITY] SET [IsAvailable]=? WHERE [" +
                         availabilityIdColumn + "]=? AND [TutorID]=?", db))
                     {
-                        cmd.Parameters.Add("@Available", OleDbType.Boolean).Value = false;
+                        AddAvailabilityParameter(cmd, db, false);
                         cmd.Parameters.Add("@ID", OleDbType.Integer).Value = id;
                         cmd.Parameters.Add("@Tutor", OleDbType.Integer).Value = tutorId;
                         if (cmd.ExecuteNonQuery() != 1)
