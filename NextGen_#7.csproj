@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="BookingData.cs" />
     <Compile Include="BusyButton.cs" />
+    <Compile Include="TutorNumberMigration.cs" />
     <Compile Include="TutorAuthentication.cs" />
     <Compile Include="RolePasswords.cs" />
     <Compile Include="AccountPasswordsForm.cs"><SubType>Form</SubType></Compile>
