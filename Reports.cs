@@ -29,6 +29,7 @@ namespace NextGen__7
         private int printRow;
         private bool printTrendCoverPending;
         private List<DataRow> printRows = new List<DataRow>();
+        private DataTable printTable;
         private readonly Font printBody = new Font("Segoe UI", 9F);
         private readonly Font printHead = new Font("Segoe UI", 9F, FontStyle.Bold);
 
@@ -786,7 +787,8 @@ namespace NextGen__7
             try
             {
                 printRow = 0;
-                printer.DefaultPageSettings.Landscape = result.Columns.Count > 5;
+                printer.DefaultPageSettings.Landscape =
+                    cmbReport.SelectedIndex == 2 || result.Columns.Count > 5;
                 using (var preview = new PrintPreviewDialog())
                 {
                     preview.Document = printer;
@@ -840,7 +842,7 @@ namespace NextGen__7
                         }
                     }
 
-                    if (cmbReport.SelectedIndex == 2 && chartTrends.Visible && !grid.Visible)
+                    if (cmbReport.SelectedIndex == 2)
                         exported = GpaStudentSummary(exported);
 
                     string context = cmbReport.SelectedIndex == 1
@@ -864,7 +866,7 @@ namespace NextGen__7
 
                     byte[] chart = null;
                     int width = 0, height = 0;
-                    if (cmbReport.SelectedIndex == 2 && chartTrends.Visible && !grid.Visible && chartTrends.Series.Count > 0)
+                    if (cmbReport.SelectedIndex == 2 && chartTrends.Series.Count > 0)
                     {
                         using (var stream = new MemoryStream())
                         {
@@ -893,20 +895,32 @@ namespace NextGen__7
         private void PreparePrintPages()
         {
             printRow = 0;
-            printTrendCoverPending = cmbReport.SelectedIndex == 2 && chartTrends.Visible && !grid.Visible;
             printRows = new List<DataRow>();
+            printTable = null;
+            printTrendCoverPending = cmbReport.SelectedIndex == 2 &&
+                chartTrends.Series.Count > 0;
             if (result == null) return;
-            string studentNumber = "";
-            bool filterByStudent = cmbReport.SelectedIndex == 2 &&
-                result.Columns.Contains("Student number");
-            var selected = cmbStudentChoice.SelectedItem as StudentTrendChoice;
-            if (filterByStudent && selected != null)
-                studentNumber = selected.Number ?? "";
 
-            foreach (DataRow row in result.Rows)
-                if (!filterByStudent || studentNumber.Length == 0 ||
-                    Convert.ToString(row["Student number"]) == studentNumber)
-                    printRows.Add(row);
+            if (cmbReport.SelectedIndex == 2)
+            {
+                DataTable details = result;
+                var selected = cmbStudentChoice.SelectedItem as StudentTrendChoice;
+                if (selected != null && !string.IsNullOrWhiteSpace(selected.Number))
+                {
+                    details = result.Clone();
+                    foreach (DataRow row in result.Rows)
+                        if (Convert.ToString(row["Student number"]) == selected.Number)
+                            details.ImportRow(row);
+                }
+                printTable = GpaStudentSummary(details);
+            }
+            else
+                printTable = result.Copy();
+
+            if (printTable.Columns.Contains("Data origin"))
+                printTable.Columns.Remove("Data origin");
+
+            printRows.AddRange(printTable.AsEnumerable());
         }
 
         private void PrintPage(object sender, PrintPageEventArgs e)
@@ -957,12 +971,17 @@ namespace NextGen__7
                 return;
             }
 
-            int columns = result.Columns.Count;
+            int columns = printTable == null ? 0 : printTable.Columns.Count;
+            if (columns == 0)
+            {
+                e.HasMorePages = false;
+                return;
+            }
             int columnWidth = Math.Max(48, width / columns);
             for (int c = 0; c < columns; c++)
             {
                 var rect = new RectangleF(left + c * columnWidth, y, columnWidth - 3, 34);
-                e.Graphics.DrawString(result.Columns[c].ColumnName, printHead,
+                e.Graphics.DrawString(printTable.Columns[c].ColumnName, printHead,
                     Brushes.Black, rect);
             }
             y += 39;
