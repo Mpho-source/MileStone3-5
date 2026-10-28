@@ -16,6 +16,8 @@ namespace NextGen__7
         public static readonly Color SoftBlue = Color.FromArgb(243, 248, 255);
         public static readonly Color HoverBlue = Color.FromArgb(222, 235, 252);
         public static readonly Color Danger = Color.FromArgb(164, 47, 65);
+        public static readonly Color Success = Color.FromArgb(21, 112, 82);
+        public static readonly Color Warning = Color.FromArgb(151, 92, 18);
 
         public static void Apply(Form form)
         {
@@ -102,20 +104,30 @@ namespace NextGen__7
                           name.IndexOf("Logout", StringComparison.OrdinalIgnoreCase) >= 0;
             bool secondary = name.IndexOf("Back", StringComparison.OrdinalIgnoreCase) >= 0 ||
                              name.IndexOf("Clear", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             name.IndexOf("Refresh", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             name.IndexOf("Preview", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             name.IndexOf("New", StringComparison.OrdinalIgnoreCase) >= 0 ||
                              button.Text.Trim().Equals("Cancel", StringComparison.OrdinalIgnoreCase);
+            bool success = !danger && !secondary &&
+                           (name.IndexOf("Save", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            name.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            name.IndexOf("Record", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            name.IndexOf("Assign", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            name.IndexOf("Verify", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            name.IndexOf("Print", StringComparison.OrdinalIgnoreCase) >= 0);
             button.FlatStyle = FlatStyle.Flat;
             button.FlatAppearance.BorderSize = secondary ? 2 : 1;
-            button.FlatAppearance.BorderColor = secondary ? Edge : danger ? Danger : Blue;
-            button.BackColor = danger ? Danger : secondary ? SoftBlue : Blue;
+            button.FlatAppearance.BorderColor = secondary ? Edge : danger ? Danger : success ? Success : Blue;
+            button.BackColor = danger ? Danger : secondary ? SoftBlue : success ? Success : Blue;
             button.ForeColor = secondary ? Navy : Color.White;
             button.FlatAppearance.MouseOverBackColor = danger
                 ? Color.FromArgb(131, 36, 52)
-                : secondary ? HoverBlue : Color.FromArgb(26, 73, 148);
+                : secondary ? HoverBlue : success ? Color.FromArgb(13, 89, 64) : Color.FromArgb(26, 73, 148);
             button.FlatAppearance.MouseDownBackColor = NavyDark;
             button.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             button.Cursor = Cursors.Hand;
             button.UseVisualStyleBackColor = false;
-            button.MinimumSize = new Size(110, 39);
+            button.MinimumSize = new Size(Math.Min(button.Width, 110), Math.Min(button.Height, 39));
             button.AccessibleName = button.Text;
             button.TabStop = true;
         }
@@ -136,7 +148,9 @@ namespace NextGen__7
                 new Font("Segoe UI", 10F, FontStyle.Bold);
             grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             grid.ColumnHeadersHeight = 45;
-            grid.RowTemplate.Height = 43;
+            grid.RowTemplate.Height = 44;
+            grid.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            grid.DefaultCellStyle.Padding = new Padding(6, 3, 6, 3);
             grid.DefaultCellStyle.Font = new Font("Segoe UI", 9.5F);
             grid.DefaultCellStyle.ForeColor = Ink;
             grid.DefaultCellStyle.BackColor = Color.White;
