@@ -165,7 +165,7 @@ namespace NextGen__7
                     double imageLeft = (842.0 - imageWidth) / 2.0;
                     double imageBottom = 298.0 - imageHeight / 2.0;
                     canvas.AppendFormat(CultureInfo.InvariantCulture,
-                        "q {0:0.###} 0 0 {1:0.###} {2:0.###} {3:0.###} cm /Im1 Do Q\\n",
+                        "q {0:0.###} 0 0 {1:0.###} {2:0.###} {3:0.###} cm /Im1 Do Q\n",
                         imageWidth, imageHeight, imageLeft, imageBottom);
                 }
                 else
