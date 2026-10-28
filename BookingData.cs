@@ -91,11 +91,12 @@ namespace NextGen__7
 
             if (!status.Equals("Submitted",
                     StringComparison.OrdinalIgnoreCase) &&
+                !status.Equals("Verified", StringComparison.OrdinalIgnoreCase) &&
                 !status.Equals("Scheduled",
                     StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException(
-                    "Only Submitted or Scheduled bookings can be changed.");
+                    "Only Submitted, Verified or Scheduled bookings can be changed.");
             }
 
             DateTime sessionDate =
@@ -139,7 +140,7 @@ namespace NextGen__7
                 "FROM [TUTORING_REQUEST] " +
                 "WHERE [StudentID] = ? AND [" + id + "] <> ? " +
                 "AND [PreferredDate] >= ? AND [PreferredDate] < ? " +
-                "AND [Status] IN ('Submitted','Scheduled')",
+                "AND [Status] IN ('Submitted','Verified','Scheduled')",
                 connection, transaction))
             {
                 command.Parameters.Add(
@@ -370,12 +371,7 @@ namespace NextGen__7
                                 "You already have another active booking " +
                                 "that overlaps this time.");
 
-                        int tutorID = FindTutor(
-                            connection, transaction, courseID,
-                            date, start, end, requestID);
-
-                        string newStatus =
-                            tutorID > 0 ? "Scheduled" : "Submitted";
+                        string newStatus = "Submitted";
 
                         string requestIdColumn = GetColumn(
                             connection, transaction,
@@ -475,46 +471,6 @@ namespace NextGen__7
                                     "@SessionID", OleDbType.Integer).Value =
                                     activeSessionID;
                                 command.ExecuteNonQuery();
-                            }
-                        }
-
-                        if (tutorID > 0)
-                        {
-                            int newSessionID = NextSessionID(
-                                connection, transaction);
-
-                            using (OleDbCommand command = new OleDbCommand(
-                                "INSERT INTO [TUTORING_SESSION] " +
-                                "([" + sessionIdColumn + "], [RequestID], " +
-                                "[TutorID], [SessionDate], [StartTime], " +
-                                "[EndTime], [SessionStatus]) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                                connection, transaction))
-                            {
-                                command.Parameters.Add(
-                                    "@SessionID", OleDbType.Integer).Value =
-                                    newSessionID;
-                                command.Parameters.Add(
-                                    "@RequestID", OleDbType.Integer).Value =
-                                    requestID;
-                                command.Parameters.Add(
-                                    "@TutorID", OleDbType.Integer).Value =
-                                    tutorID;
-                                command.Parameters.Add(
-                                    "@Date", OleDbType.Date).Value = date.Date;
-                                command.Parameters.Add(
-                                    "@Start", OleDbType.Date).Value =
-                                    startDateTime;
-                                command.Parameters.Add(
-                                    "@End", OleDbType.Date).Value =
-                                    endDateTime;
-                                command.Parameters.Add(
-                                    "@Status", OleDbType.VarWChar).Value =
-                                    "Scheduled";
-
-                                if (command.ExecuteNonQuery() != 1)
-                                    throw new InvalidOperationException(
-                                        "The tutor session could not be saved.");
                             }
                         }
 
