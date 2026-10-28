@@ -512,8 +512,8 @@ namespace NextGen__7
                                 command.Parameters.Add("@RequestID", OleDbType.Integer).Value = requestId;
                                 command.Parameters.Add("@TutorID", OleDbType.Integer).Value = option.Id;
                                 command.Parameters.Add("@Date", OleDbType.Date).Value = day;
-                                command.Parameters.Add("@Start", OleDbType.Date).Value = day.Add(start);
-                                command.Parameters.Add("@End", OleDbType.Date).Value = day.Add(end);
+                                command.Parameters.Add("@Start", OleDbType.Date).Value = DateTime.FromOADate(0).Add(start);
+                                command.Parameters.Add("@End", OleDbType.Date).Value = DateTime.FromOADate(0).Add(end);
                                 command.Parameters.Add("@Status", OleDbType.VarWChar).Value = "Scheduled";
                                 if (command.ExecuteNonQuery() != 1)
                                     throw new InvalidOperationException("Could not create session.");
