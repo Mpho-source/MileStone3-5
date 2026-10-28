@@ -11,6 +11,7 @@ namespace NextGen__7
         private NextGen__7.BusyButton btnVerify;
         private NextGen__7.BusyButton btnBack;
         private NextGen__7.BusyButton btnAssign;
+        private NextGen__7.BusyButton btnPrepareTutors;
         private System.Windows.Forms.ComboBox cmbMatchTutor;
         private System.Windows.Forms.Label lblMatchHelp;
         private System.Windows.Forms.DataGridView requests;
@@ -31,6 +32,7 @@ namespace NextGen__7
             this.btnVerify = new NextGen__7.BusyButton();
             this.btnBack = new NextGen__7.BusyButton();
             this.btnAssign = new NextGen__7.BusyButton();
+            this.btnPrepareTutors = new NextGen__7.BusyButton();
             this.cmbMatchTutor = new System.Windows.Forms.ComboBox();
             this.lblMatchHelp = new System.Windows.Forms.Label();
             this.requests = new System.Windows.Forms.DataGridView();
@@ -54,6 +56,16 @@ namespace NextGen__7
             this.lblSubtitle.ForeColor = System.Drawing.Color.Gainsboro;
             this.pnlHeader.Controls.Add(this.lblTitle);
             this.pnlHeader.Controls.Add(this.lblSubtitle);
+            this.btnPrepareTutors.Name = "btnPrepareTutors";
+            this.btnPrepareTutors.Text = "Manage tutor availability";
+            this.btnPrepareTutors.Location = new System.Drawing.Point(806, 25);
+            this.btnPrepareTutors.Size = new System.Drawing.Size(248, 41);
+            this.btnPrepareTutors.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            this.btnPrepareTutors.BackColor = System.Drawing.Color.FromArgb(25, 121, 94);
+            this.btnPrepareTutors.ForeColor = System.Drawing.Color.White;
+            this.btnPrepareTutors.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPrepareTutors.Click += new System.EventHandler(this.btnPrepareTutors_Click);
+            this.pnlHeader.Controls.Add(this.btnPrepareTutors);
 
             this.pnlButtons.Name = "pnlButtons";
             this.pnlButtons.Dock = System.Windows.Forms.DockStyle.Top;
