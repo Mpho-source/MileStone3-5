@@ -218,9 +218,10 @@ namespace NextGen__7
                     order = new[] { "btnTutors", "btnRequests", "btnReports", "btnManageAccounts", "btnChangeStaffPassword", "btnSignOut" };
                     break;
                 case "AdminRequests":
-                    order = new[] { "requests", "btnVerify", "cmbMatchTutor", "btnAssign", "btnRefresh", "btnBack" };
+                    order = new[] { "requests", "btnVerify", "cmbMatchTutor", "btnAssign", "btnPrepareTutors", "btnRefresh", "btnBack" };
                     hints["requests"] = "Select a Submitted request to verify it, or a Verified request to assign a tutor.";
                     hints["cmbMatchTutor"] = "Only qualified tutors available at the requested time will appear.";
+                    hints["btnPrepareTutors"] = "Assign a course and add available dates and times for tutors, then return to match this request.";
                     break;
                 case "ManagaeTutors":
                     order = new[] { "txtSearch", "gridTutors", "btnNew", "txtFirstName", "txtLastName", "txtEmail", "btnSave", "btnRemoveTutor", "cmbCourse", "btnAssignCourse", "btnAvailability", "btnCreateTutorLogin", "btnResetTutorLogin", "btnRefresh", "btnCancel", "btnBack" };
