@@ -16,6 +16,7 @@ namespace NextGen__7
         public TutorSessions()
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
         }
 
         public TutorSessions(int tutorId, string tutorName) : this()
