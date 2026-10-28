@@ -133,6 +133,13 @@ namespace NextGen__7
             button.MinimumSize = new Size(Math.Min(button.Width, 110), Math.Min(button.Height, 39));
             button.AccessibleName = button.Text;
             button.TabStop = true;
+            if (!button.Enabled)
+            {
+                button.BackColor = Color.FromArgb(211, 220, 231);
+                button.ForeColor = Color.FromArgb(86, 101, 120);
+                button.FlatAppearance.BorderColor = Edge;
+                button.FlatAppearance.MouseOverBackColor = button.BackColor;
+            }
         }
 
         public static void StyleGrid(DataGridView grid)
