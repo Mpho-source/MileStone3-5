@@ -271,7 +271,7 @@ namespace NextGen__7
                 "WHERE [StudentID] = ? " +
                 "AND [PreferredDate] >= ? " +
                 "AND [PreferredDate] < ? " +
-                "AND [Status] IN ('Submitted', 'Scheduled')";
+                "AND [Status] IN ('Submitted', 'Verified', 'Scheduled')";
 
             using (OleDbCommand command =
                 new OleDbCommand(query, connection, transaction))
@@ -781,8 +781,6 @@ namespace NextGen__7
             btnBookSession.Enabled = false;
 
             bool bookingSaved = false;
-            bool tutorMatched = false;
-            string tutorName = "";
 
             try
             {
@@ -816,77 +814,23 @@ namespace NextGen__7
                                     "TUTORING_REQUEST",
                                     "RequestID");
 
-                            string sessionIdColumn =
-                                GetColumnName(
-                                    connection,
-                                    transaction,
-                                    "TUTORING_SESSION",
-                                    "SessionID");
-
-                            int tutorID = FindAvailableTutor(
-                                connection,
-                                transaction,
-                                courseID,
-                                preferredDate,
-                                startTime,
-                                endTime);
-
                             int newRequestID = GetNextID(
                                 connection,
                                 transaction,
                                 "TUTORING_REQUEST",
                                 requestIdColumn);
 
-                            if (tutorID > 0)
-                            {
-                                tutorName = GetTutorName(
-                                    connection, transaction, tutorID);
-
-                                int newSessionID = GetNextID(
-                                    connection,
-                                    transaction,
-                                    "TUTORING_SESSION",
-                                    sessionIdColumn);
-
-                                InsertRequest(
-                                    connection,
-                                    transaction,
-                                    requestIdColumn,
-                                    newRequestID,
-                                    courseID,
-                                    supportType,
-                                    preferredDate,
-                                    preferredStart,
-                                    preferredEnd,
-                                    "Scheduled");
-
-                                InsertSession(
-                                    connection,
-                                    transaction,
-                                    sessionIdColumn,
-                                    newSessionID,
-                                    newRequestID,
-                                    tutorID,
-                                    preferredDate,
-                                    preferredStart,
-                                    preferredEnd);
-
-                                tutorMatched = true;
-                            }
-                            else
-                            {
-                                InsertRequest(
-                                    connection,
-                                    transaction,
-                                    requestIdColumn,
-                                    newRequestID,
-                                    courseID,
-                                    supportType,
-                                    preferredDate,
-                                    preferredStart,
-                                    preferredEnd,
-                                    "Submitted");
-                            }
+                            InsertRequest(
+                                connection,
+                                transaction,
+                                requestIdColumn,
+                                newRequestID,
+                                courseID,
+                                supportType,
+                                preferredDate,
+                                preferredStart,
+                                preferredEnd,
+                                "Submitted");
 
                             transaction.Commit();
                             bookingSaved = true;
@@ -913,32 +857,15 @@ namespace NextGen__7
                     preferredDate.ToString("dd MMM yyyy") +
                     "\nTime: " + selectedSlot;
 
-                if (tutorMatched)
-                {
-                    MessageBox.Show(
-                        "Your tutoring session has been scheduled successfully!" +
-                        "\n\n" + message +
-                        "\nAssigned Tutor: " + tutorName +
-                        "\nStatus: Scheduled" +
-                        "\n\nYour tutor has been assigned and " +
-                        "your session is confirmed.",
-                        "Booking Successful",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show(
-                        "Your tutoring request has been submitted successfully!" +
-                        "\n\n" + message +
-                        "\nStatus: Submitted" +
-                        "\n\nNo qualified tutor is currently available " +
-                        "for your selected date and time." +
-                        "\nYour request is awaiting tutor assignment.",
-                        "Request Submitted",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                }
+                MessageBox.Show(
+                    "Your tutoring request has been submitted successfully!" +
+                    "\n\n" + message +
+                    "\nStatus: Submitted" +
+                    "\n\nAn administrator will verify your request and assign " +
+                    "a qualified, available tutor before confirming the session.",
+                    "Request Submitted",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
