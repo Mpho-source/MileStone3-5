@@ -621,10 +621,10 @@ namespace NextGen__7
                     "@SessionDate", OleDbType.Date).Value = date;
 
                 command.Parameters.Add(
-                    "@StartTime", OleDbType.Date).Value = start;
+                    "@StartTime", OleDbType.Date).Value = DateTime.FromOADate(0).Add(start.TimeOfDay);
 
                 command.Parameters.Add(
-                    "@EndTime", OleDbType.Date).Value = end;
+                    "@EndTime", OleDbType.Date).Value = DateTime.FromOADate(0).Add(end.TimeOfDay);
 
                 command.Parameters.Add(
                     "@SessionStatus", OleDbType.VarWChar).Value =
