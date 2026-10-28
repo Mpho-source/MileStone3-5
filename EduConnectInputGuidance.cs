@@ -54,12 +54,11 @@ namespace NextGen__7
                 control.AccessibleDescription = hint;
                 tips.SetToolTip(control, hint);
                 TextBox textBox = control as TextBox;
-                if (textBox != null && !textBox.ReadOnly)
+                if (textBox != null && !textBox.ReadOnly && !textBox.Multiline)
                 {
-                    if (textBox.Multiline || IsPasswordField(form.GetType().Name, entry.Key))
-                        AddVisiblePlaceholder(textBox, hint);
-                    else
-                        SendMessage(textBox.Handle, EmSetCueBanner, new IntPtr(1), hint);
+                    SendMessage(textBox.Handle, EmSetCueBanner, IntPtr.Zero, hint);
+                    textBox.HandleCreated += (sender, args) =>
+                        SendMessage(textBox.Handle, EmSetCueBanner, IntPtr.Zero, hint);
                 }
                 ComboBox combo = control as ComboBox;
                 if (combo != null)
@@ -73,44 +72,6 @@ namespace NextGen__7
             EnhanceControls(form);
         }
 
-        private static void AddVisiblePlaceholder(TextBox input, string hint)
-        {
-            Label placeholder = new Label();
-            placeholder.Name = input.Name + "InputHint";
-            placeholder.AutoSize = false;
-            placeholder.Font = new Font("Segoe UI", 8.5F);
-            placeholder.BackColor = input.BackColor;
-            placeholder.ForeColor = Color.FromArgb(108, 118, 136);
-            placeholder.Text = hint;
-            placeholder.TextAlign = ContentAlignment.MiddleLeft;
-            placeholder.AutoEllipsis = true;
-            placeholder.Cursor = Cursors.IBeam;
-            placeholder.TabStop = false;
-            input.Parent.Controls.Add(placeholder);
-
-            Action position = () =>
-            {
-                if (input.IsDisposed || placeholder.IsDisposed) return;
-                placeholder.Bounds = new Rectangle(input.Left + 7, input.Top + 4,
-                    Math.Max(12, input.Width - 15), Math.Min(28, input.Height - 7));
-                placeholder.BringToFront();
-            };
-            Action show = () =>
-            {
-                if (input.IsDisposed || placeholder.IsDisposed) return;
-                placeholder.Visible = !input.Focused && input.TextLength == 0 && input.Visible;
-                if (placeholder.Visible) placeholder.BringToFront();
-            };
-            placeholder.Click += (sender, args) => input.Focus();
-            input.Enter += (sender, args) => show();
-            input.Leave += (sender, args) => show();
-            input.TextChanged += (sender, args) => show();
-            input.LocationChanged += (sender, args) => position();
-            input.SizeChanged += (sender, args) => position();
-            position();
-            show();
-        }
-
         private static void EnhanceControls(Control parent)
         {
             foreach (Control control in parent.Controls)
@@ -121,6 +82,29 @@ namespace NextGen__7
                     EduConnectTheme.StyleGrid(grid);
                     grid.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.True;
                     grid.ColumnHeadersHeight = 50;
+                    grid.DataBindingComplete += (sender, args) =>
+                    {
+                        grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                        grid.ScrollBars = ScrollBars.Both;
+                        grid.ColumnHeadersHeight = 54;
+                        grid.RowTemplate.Height = 42;
+                        foreach (DataGridViewColumn column in grid.Columns)
+                        {
+                            if (!column.Visible) continue;
+                            string heading = column.HeaderText ?? column.Name;
+                            string lower = heading.ToLowerInvariant();
+                            int minimum = lower.Contains("name") || lower.Contains("feedback") ||
+                                lower.Contains("student") || lower.Contains("tutor") ? 145 :
+                                lower.Contains("email") || lower.Contains("course") ? 130 :
+                                lower.Contains("status") ? 115 : 95;
+                            column.MinimumWidth = minimum;
+                            column.FillWeight = minimum;
+                            column.HeaderCell.Style.Alignment =
+                                DataGridViewContentAlignment.MiddleLeft;
+                            column.DefaultCellStyle.Padding = new Padding(5, 0, 5, 0);
+                            column.ToolTipText = heading;
+                        }
+                    };
                     grid.CellFormatting += (sender, args) =>
                     {
                         if (args.ColumnIndex < 0 || args.RowIndex < 0) return;
@@ -154,13 +138,6 @@ namespace NextGen__7
                     EduConnectTheme.StyleButton(button);
                 if (control.HasChildren) EnhanceControls(control);
             }
-        }
-
-        private static bool IsPasswordField(string formName, string controlName)
-        {
-            return formName == "Login" && controlName == "txtPassword"
-                || formName == "AccountPasswordsForm"
-                || formName == "TutorChangePassword";
         }
 
         private static int Priority(Control control, Dictionary<string, int> positions)
