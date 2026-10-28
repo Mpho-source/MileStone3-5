@@ -21,6 +21,7 @@ namespace NextGen__7
         public TutorAvailability(int tutorId, string tutorName)
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
             if (LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
             this.tutorId = tutorId;
             this.tutorName = tutorName;
