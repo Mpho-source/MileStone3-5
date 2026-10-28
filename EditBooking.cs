@@ -17,6 +17,7 @@ namespace NextGen__7
         public EditBooking()
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
         }
 
         public EditBooking(int studentID, int requestID, string connectionString) : this()
