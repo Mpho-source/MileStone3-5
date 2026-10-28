@@ -84,16 +84,19 @@ namespace NextGen__7
             return table.Rows[0];
         }
 
+        public static bool IsChangeableStatus(string status)
+        {
+            return string.Equals(status, "Submitted", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(status, "Verified", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(status, "Scheduled", StringComparison.OrdinalIgnoreCase);
+        }
+
         public static void EnsureEditable(DataRow request)
         {
             string status =
                 Convert.ToString(request["Status"]).Trim();
 
-            if (!status.Equals("Submitted",
-                    StringComparison.OrdinalIgnoreCase) &&
-                !status.Equals("Verified", StringComparison.OrdinalIgnoreCase) &&
-                !status.Equals("Scheduled",
-                    StringComparison.OrdinalIgnoreCase))
+            if (!IsChangeableStatus(status))
             {
                 throw new InvalidOperationException(
                     "Only Submitted, Verified or Scheduled bookings can be changed.");
