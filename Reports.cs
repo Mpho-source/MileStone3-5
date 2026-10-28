@@ -871,7 +871,7 @@ namespace NextGen__7
                 dialog.OverwritePrompt = true;
                 dialog.FileName = "EduConnect_Report_" +
                     (cmbReport.SelectedIndex + 1) + "_" +
-                    DateTime.Now.ToString("yyyyMMdd_HHmm");
+                    DateTime.Now.ToString("yyyyMMdd_HHmmss");
                 if (dialog.ShowDialog(this) != DialogResult.OK)
                     return;
 
@@ -884,14 +884,21 @@ namespace NextGen__7
                         ? "Reporting period: " + fromDate.Value.ToString("dd MMM yyyy") +
                           " - " + toDate.Value.ToString("dd MMM yyyy")
                         : cmbReport.SelectedIndex == 2
-                            ? "Academic year: " + numYear.Value
+                            ? "Academic year: " + numYear.Value + " | All students"
                             : "Submitted requests outstanding for seven days or more";
                     string note = "";
-                    if (cmbReport.SelectedIndex == 2 &&
-                        exported.Columns.Contains("Data origin") &&
-                        exported.AsEnumerable().Any(row =>
-                            Convert.ToString(row["Data origin"]) == "Illustrative records"))
-                        note = "Academic GPA values include illustrative sample records.";
+                    if (cmbReport.SelectedIndex == 2)
+                    {
+                        bool illustrative = exported.Columns.Contains("Data origin") &&
+                            exported.AsEnumerable().Any(row =>
+                                Convert.ToString(row["Data origin"]) == "Illustrative records");
+                        bool noAttendance = result.AsEnumerable().All(row =>
+                            Convert.ToInt32(row["Recorded sessions"]) == 0);
+                        note = illustrative ? "Academic results are illustrative sample records." : "";
+                        if (noAttendance)
+                            note += (note.Length > 0 ? " " : "") +
+                                "No tutoring attendance has been recorded.";
+                    }
 
                     if (exported.Columns.Contains("Data origin"))
                     {
