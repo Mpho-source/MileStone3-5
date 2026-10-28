@@ -23,9 +23,8 @@ namespace NextGen__7
 
         internal static int Ensure(string databasePath, string connectionString)
         {
-            if (File.Exists(Path.ChangeExtension(databasePath, ".laccdb")))
-                throw new InvalidOperationException(
-                    "Close Microsoft Access and any other EduConnect window before updating tutor numbers.");
+            bool databaseAlreadyOpen = File.Exists(
+                Path.ChangeExtension(databasePath, ".laccdb"));
 
             var records = new List<Tuple<int, string>>();
             bool hasColumn;
@@ -61,6 +60,12 @@ namespace NextGen__7
 
             if (hasColumn && records.Count == 0)
                 return 0;
+
+            if (databaseAlreadyOpen)
+                throw new InvalidOperationException(
+                    "Close Microsoft Access and other EduConnect instances before updating the TUTOR table.");
+
+            OleDbConnection.ReleaseObjectPool();
 
             string backupPath = databasePath + ".tutor-numbers-" +
                 DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".bak";
