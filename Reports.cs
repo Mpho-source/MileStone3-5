@@ -30,6 +30,7 @@ namespace NextGen__7
         private bool printTrendCoverPending;
         private List<DataRow> printRows = new List<DataRow>();
         private DataTable printTable;
+        private byte[] printTrendImage;
         private readonly Font printBody = new Font("Segoe UI", 9F);
         private readonly Font printHead = new Font("Segoe UI", 9F, FontStyle.Bold);
 
@@ -579,7 +580,11 @@ namespace NextGen__7
 
         private void ShowTrendChart(DataTable data)
         {
-            var selected = cmbStudentChoice.SelectedItem as StudentTrendChoice;
+            ShowTrendChart(data, cmbStudentChoice.SelectedItem as StudentTrendChoice);
+        }
+
+        private void ShowTrendChart(DataTable data, StudentTrendChoice selected)
+        {
             bool individual = selected != null && !string.IsNullOrEmpty(selected.Number);
             var rows = data.AsEnumerable()
                 .Where(r => !individual ||
@@ -776,6 +781,49 @@ namespace NextGen__7
                 : "Student GPA and attendance by academic term.";
         }
 
+        private byte[] CaptureCohortChart(ChartImageFormat format)
+        {
+            if (result == null || result.Rows.Count == 0 ||
+                cmbReport.SelectedIndex != 2) return null;
+
+            var currentStudent = cmbStudentChoice.SelectedItem as StudentTrendChoice;
+            bool wasChartVisible = chartTrends.Visible;
+            bool wasGridVisible = grid.Visible;
+            bool wasSummaryVisible = lblTrendSummary.Visible;
+            string oldSummary = lblTrendSummary.Text;
+            string oldStatus = lblStatus.Text;
+            string oldToggleLabel = btnToggleView.Text;
+            Size oldChartSize = chartTrends.Size;
+            try
+            {
+                chartTrends.Size = new Size(1200, 650);
+                ShowTrendChart(result, new StudentTrendChoice
+                {
+                    Number = "",
+                    Label = "All students (average)"
+                });
+                using (var stream = new MemoryStream())
+                {
+                    chartTrends.SaveImage(stream, format);
+                    return stream.ToArray();
+                }
+            }
+            finally
+            {
+                chartTrends.Size = oldChartSize;
+                ShowTrendChart(result, currentStudent);
+                chartTrends.Visible = wasChartVisible;
+                grid.Visible = wasGridVisible;
+                lblTrendSummary.Visible = wasSummaryVisible;
+                lblTrendSummary.Text = oldSummary;
+                lblStatus.Text = oldStatus;
+                btnToggleView.Text = oldToggleLabel;
+                if (wasChartVisible) chartTrends.BringToFront();
+                if (wasGridVisible) grid.BringToFront();
+                if (wasSummaryVisible) lblTrendSummary.BringToFront();
+            }
+        }
+
         private void PreviewReport()
         {
             if (result == null || result.Rows.Count == 0)
@@ -829,21 +877,8 @@ namespace NextGen__7
 
                 try
                 {
-                    DataTable exported = result;
-                    if (cmbReport.SelectedIndex == 2)
-                    {
-                        var selected = cmbStudentChoice.SelectedItem as StudentTrendChoice;
-                        if (selected != null && !string.IsNullOrWhiteSpace(selected.Number))
-                        {
-                            exported = result.Clone();
-                            foreach (DataRow row in result.Rows)
-                                if (Convert.ToString(row["Student number"]) == selected.Number)
-                                    exported.ImportRow(row);
-                        }
-                    }
-
-                    if (cmbReport.SelectedIndex == 2)
-                        exported = GpaStudentSummary(exported);
+                    DataTable exported = cmbReport.SelectedIndex == 2
+                        ? GpaStudentSummary(result) : result.Copy();
 
                     string context = cmbReport.SelectedIndex == 1
                         ? "Reporting period: " + fromDate.Value.ToString("dd MMM yyyy") +
@@ -864,21 +899,11 @@ namespace NextGen__7
                         exported.Columns.Remove("Data origin");
                     }
 
-                    byte[] chart = null;
-                    int width = 0, height = 0;
-                    if (cmbReport.SelectedIndex == 2 && chartTrends.Series.Count > 0)
-                    {
-                        using (var stream = new MemoryStream())
-                        {
-                            chartTrends.SaveImage(stream, ChartImageFormat.Jpeg);
-                            chart = stream.ToArray();
-                        }
-                        width = chartTrends.Width;
-                        height = chartTrends.Height;
-                    }
-
+                    byte[] chart = cmbReport.SelectedIndex == 2
+                        ? CaptureCohortChart(ChartImageFormat.Jpeg) : null;
                     EduConnectPdfExporter.Save(dialog.FileName, reportTitle, context,
-                        exported, chart, width, height, note);
+                        exported, chart, chart == null ? 0 : 1200,
+                        chart == null ? 0 : 650, note);
                     lblStatus.Text = "PDF saved: " + Path.GetFileName(dialog.FileName);
                     MessageBox.Show("Report saved successfully as a PDF.\n\n" +
                         dialog.FileName, "PDF saved", MessageBoxButtons.OK,
@@ -897,25 +922,14 @@ namespace NextGen__7
             printRow = 0;
             printRows = new List<DataRow>();
             printTable = null;
-            printTrendCoverPending = cmbReport.SelectedIndex == 2 &&
-                chartTrends.Series.Count > 0;
+            printTrendCoverPending = cmbReport.SelectedIndex == 2;
+            printTrendImage = null;
             if (result == null) return;
 
-            if (cmbReport.SelectedIndex == 2)
-            {
-                DataTable details = result;
-                var selected = cmbStudentChoice.SelectedItem as StudentTrendChoice;
-                if (selected != null && !string.IsNullOrWhiteSpace(selected.Number))
-                {
-                    details = result.Clone();
-                    foreach (DataRow row in result.Rows)
-                        if (Convert.ToString(row["Student number"]) == selected.Number)
-                            details.ImportRow(row);
-                }
-                printTable = GpaStudentSummary(details);
-            }
-            else
-                printTable = result.Copy();
+            printTable = cmbReport.SelectedIndex == 2
+                ? GpaStudentSummary(result) : result.Copy();
+            if (printTrendCoverPending)
+                printTrendImage = CaptureCohortChart(ChartImageFormat.Png);
 
             if (printTable.Columns.Contains("Data origin"))
                 printTable.Columns.Remove("Data origin");
@@ -942,10 +956,8 @@ namespace NextGen__7
 
             if (printTrendCoverPending)
             {
-                using (var stream = new MemoryStream())
+                using (var stream = new MemoryStream(printTrendImage))
                 {
-                    chartTrends.SaveImage(stream, ChartImageFormat.Png);
-                    stream.Position = 0;
                     using (var picture = Image.FromStream(stream))
                     {
                         float factor = Math.Min((float)width / picture.Width,
