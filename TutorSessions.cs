@@ -76,6 +76,31 @@ namespace NextGen__7
             return false;
         }
 
+        private static string DisplayFeedback(object value)
+        {
+            string feedback = Convert.ToString(value).Trim();
+            if (feedback.StartsWith("EDUCONNECT SYNTHETIC TEST",
+                StringComparison.OrdinalIgnoreCase))
+                return "";
+            return feedback;
+        }
+
+        private void SetRecordingControls(bool ready)
+        {
+            btnRecord.Enabled = ready;
+            cmbAttendance.Enabled = ready;
+            txtFeedback.ReadOnly = !ready;
+            txtFeedback.BackColor = ready
+                ? System.Drawing.Color.White
+                : System.Drawing.Color.FromArgb(240, 244, 250);
+            btnRecord.BackColor = ready
+                ? System.Drawing.Color.FromArgb(21, 112, 82)
+                : System.Drawing.Color.FromArgb(209, 217, 228);
+            btnRecord.ForeColor = ready
+                ? System.Drawing.Color.White
+                : System.Drawing.Color.FromArgb(81, 95, 114);
+        }
+
         private static string RecordingEligibility(DataRow session)
         {
             string status = Convert.ToString(session["SessionStatus"]).Trim();
@@ -104,7 +129,7 @@ namespace NextGen__7
         private void LoadSessions()
         {
             if (tutorId <= 0) return;
-            btnRecord.Enabled = false;
+            SetRecordingControls(false);
             gridSessions.DataSource = null;
             try
             {
@@ -158,7 +183,7 @@ namespace NextGen__7
                                 Convert.ToDateTime(session["SessionDate"]),
                             time, Convert.ToString(session["SessionStatus"]),
                             Convert.ToString(session["AttendanceStatus"]),
-                            Convert.ToString(session["Feedback"]), RecordingEligibility(session));
+                            DisplayFeedback(session["Feedback"]), RecordingEligibility(session));
                     }
                     gridSessions.DataSource = result;
                     if (gridSessions.Columns.Contains("Date"))
@@ -181,12 +206,12 @@ namespace NextGen__7
 
         private void UpdateSelection()
         {
-            btnRecord.Enabled = false;
+            SetRecordingControls(false);
             if (gridSessions.SelectedRows.Count != 1) return;
             DataGridViewRow row = gridSessions.SelectedRows[0];
             if (row.IsNewRow || !gridSessions.Columns.Contains("Recording")) return;
             string state = Convert.ToString(row.Cells["Recording"].Value);
-            btnRecord.Enabled = state == "Ready";
+            SetRecordingControls(state == "Ready");
             string currentAttendance = Convert.ToString(row.Cells["Attendance"].Value);
             int ix = cmbAttendance.Items.IndexOf(currentAttendance);
             cmbAttendance.SelectedIndex = ix;
