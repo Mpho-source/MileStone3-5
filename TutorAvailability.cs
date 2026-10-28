@@ -44,6 +44,8 @@ namespace NextGen__7
             dtpEnd.Value = DateTime.Today.AddHours(11);
             btnAdd.Click += (s, e) => AddSlot();
             btnDisable.Click += (s, e) => DisableSlot();
+            gridSlots.SelectionChanged += (s, e) => UpdateUnavailableAction();
+            btnDisable.Enabled = false;
             btnRefresh.Click += (s, e) => LoadSlots();
             btnBack.Click += (s, e) => Close();
             gridSlots.CellFormatting += FormatAvailability;
@@ -141,6 +143,7 @@ namespace NextGen__7
                 if (gridSlots.Columns.Contains("IsAvailable"))
                     gridSlots.Columns["IsAvailable"].HeaderText = "Availability";
                 gridSlots.ClearSelection();
+                UpdateUnavailableAction();
                 lblStatus.Text = slots.Rows.Count + " recorded availability slots.";
             }
             catch (Exception ex)
@@ -159,6 +162,10 @@ namespace NextGen__7
             if (date < DateTime.Today)
             {
                 MessageBox.Show("Availability cannot be created for a past date."); return;
+            }
+            if (start <= DateTime.Now)
+            {
+                MessageBox.Show("Availability must start in the future."); return;
             }
             if (start <= DateTime.Now)
             {
@@ -245,6 +252,13 @@ namespace NextGen__7
                 MessageBox.Show("Unable to add availability.\n\n" + ex.Message,
                     "Save error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void UpdateUnavailableAction()
+        {
+            btnDisable.Enabled = gridSlots.SelectedRows.Count == 1 &&
+                gridSlots.Columns.Contains("IsAvailable") &&
+                IsSlotAvailable(gridSlots.SelectedRows[0].Cells["IsAvailable"].Value);
         }
 
         private void DisableSlot()
