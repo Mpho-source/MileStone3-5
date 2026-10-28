@@ -18,7 +18,7 @@ if ($AcademicYear -lt 2000 -or $AcademicYear -gt 2100) {
 function Open-Access([string]$path) {
     $errors = @()
     foreach ($provider in @("Microsoft.ACE.OLEDB.12.0", "Microsoft.ACE.OLEDB.16.0")) {
-        $db = New-Object System.Data.OleDb.OleDbConnection(
+        $db = [System.Data.OleDb.OleDbConnection]::new(
             "Provider=$provider;Data Source=$path;Persist Security Info=False;")
         try {
             $db.Open()
@@ -33,10 +33,10 @@ function Open-Access([string]$path) {
 }
 
 function Read-Data([System.Data.OleDb.OleDbConnection]$db, [string]$sql) {
-    $table = New-Object System.Data.DataTable
+    $table = [System.Data.DataTable]::new()
     $command = $db.CreateCommand()
     $command.CommandText = $sql
-    $adapter = New-Object System.Data.OleDb.OleDbDataAdapter($command)
+    $adapter = [System.Data.OleDb.OleDbDataAdapter]::new($command)
     try { [void]$adapter.Fill($table) }
     finally { $adapter.Dispose(); $command.Dispose() }
     return ,$table
@@ -58,7 +58,7 @@ try {
     }
 
     $sourceValue = "Illustrative records"
-    $existing = New-Object "System.Collections.Generic.HashSet[string]" (
+    $existing = [System.Collections.Generic.HashSet[string]]::new(
         [System.StringComparer]::OrdinalIgnoreCase)
     foreach ($row in $academic.Rows) {
         $number = [string]$row["StudentNo"]
@@ -69,8 +69,8 @@ try {
         }
     }
 
-    $planned = New-Object System.Collections.Generic.List[object]
-    $seenStudents = New-Object "System.Collections.Generic.HashSet[string]" (
+    $planned = [System.Collections.Generic.List[object]]::new()
+    $seenStudents = [System.Collections.Generic.HashSet[string]]::new(
         [System.StringComparer]::OrdinalIgnoreCase)
     $studentIndex = 0
     foreach ($row in $students.Rows) {
@@ -181,7 +181,7 @@ try {
             else {
                 "INSERT INTO [STUDENTACADEMICRECORD] ([AcademicRecordID],[StudentNo],[GPA],[AcademicPeriod],[RecordDate],[RecordSource]) VALUES (?,?,?,?,?,?)"
             }
-            $cmd = New-Object System.Data.OleDb.OleDbCommand($sql, $db, $tx)
+            $cmd = [System.Data.OleDb.OleDbCommand]::new($sql, $db, $tx)
             try {
                 if (-not $isAutoId) {
                     $nextId++
@@ -206,7 +206,7 @@ try {
             finally { $cmd.Dispose() }
         }
 
-        $verify = New-Object System.Data.OleDb.OleDbCommand(
+        $verify = [System.Data.OleDb.OleDbCommand]::new(
             "SELECT COUNT(*) FROM [STUDENTACADEMICRECORD] WHERE [RecordSource]=?", $db, $tx)
         try {
             [void]$verify.Parameters.Add("@Source", [System.Data.OleDb.OleDbType]::VarWChar)
