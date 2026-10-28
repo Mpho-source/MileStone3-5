@@ -846,7 +846,7 @@ namespace NextGen__7
                         }
                     }
 
-                    if (cmbReport.SelectedIndex == 2)
+                    if (cmbReport.SelectedIndex == 2 && chartTrends.Visible && !grid.Visible)
                         exported = GpaStudentSummary(exported);
 
                     string context = cmbReport.SelectedIndex == 1
@@ -870,7 +870,7 @@ namespace NextGen__7
 
                     byte[] chart = null;
                     int width = 0, height = 0;
-                    if (cmbReport.SelectedIndex == 2 && chartTrends.Series.Count > 0)
+                    if (cmbReport.SelectedIndex == 2 && chartTrends.Visible && !grid.Visible && chartTrends.Series.Count > 0)
                     {
                         using (var stream = new MemoryStream())
                         {
@@ -903,12 +903,14 @@ namespace NextGen__7
             printRows = new List<DataRow>();
             if (result == null) return;
             string studentNumber = "";
+            bool filterByStudent = cmbReport.SelectedIndex == 2 &&
+                result.Columns.Contains("Student number");
             var selected = cmbStudentChoice.SelectedItem as StudentTrendChoice;
-            if (printTrendCoverPending && selected != null)
+            if (filterByStudent && selected != null)
                 studentNumber = selected.Number ?? "";
 
             foreach (DataRow row in result.Rows)
-                if (studentNumber.Length == 0 ||
+                if (!filterByStudent || studentNumber.Length == 0 ||
                     Convert.ToString(row["Student number"]) == studentNumber)
                     printRows.Add(row);
         }
