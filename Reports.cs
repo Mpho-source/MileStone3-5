@@ -229,7 +229,7 @@ namespace NextGen__7
                         break;
                     default: return;
                 }
-                grid.DataSource = result;
+                grid.DataSource = cmbReport.SelectedIndex == 2\n                    ? GpaStudentSummary(result) : result;
                 if (grid.Columns.Contains("Data origin"))
                     grid.Columns["Data origin"].Visible = false;
                 grid.ClearSelection();
@@ -406,15 +406,15 @@ namespace NextGen__7
             output.Columns.Add("Attendance (%)", typeof(double));
             output.Columns.Add("Data origin", typeof(string));
             int year = (int)numYear.Value;
+
             using (var db = new OleDbConnection(connectionString))
             {
                 db.Open();
-                if (!HasTable(db, "STUDENTACADEMICRECORD") ||
-                    !HasColumn(db, "TUTORING_SESSION", "AttendanceStatus"))
+                if (!HasColumn(db, "TUTORING_SESSION", "AttendanceStatus"))
                     throw new InvalidOperationException(
-                        "The database does not contain both academic results and " +
-                        "tutor-recorded session attendance. No values will be invented.");
-                var studentTable = ReadTable(db, "STUDENT");
+                        "The database does not contain tutor-recorded session attendance.");
+
+                DataTable studentTable = ReadTable(db, "STUDENT");
                 var students = Index(studentTable, "StudentID");
                 var studentsByNumber = new Dictionary<string, DataRow>(
                     StringComparer.OrdinalIgnoreCase);
@@ -423,12 +423,14 @@ namespace NextGen__7
                     string number = Convert.ToString(studentRow["StudentNo"]).Trim();
                     if (number.Length > 0) studentsByNumber[number] = studentRow;
                 }
-                var records = ReadTable(db, "STUDENTACADEMICRECORD");
-                var sessions = ReadTable(db, "TUTORING_SESSION");
+
+                DataTable records = EduConnectGpaStore.Load(db, year);
+                DataTable sessions = ReadTable(db, "TUTORING_SESSION");
                 var requests = Index(ReadTable(db, "TUTORING_REQUEST"), "RequestID");
                 string sessionRequestId = Column(sessions, "RequestID");
                 var attendance = new Dictionary<string, int[]>();
-                var syntheticAttendance = new HashSet<string>();
+                var illustrativeAttendance = new HashSet<string>();
+
                 foreach (DataRow row in sessions.Rows)
                 {
                     if (row[sessionRequestId] == DBNull.Value ||
@@ -438,7 +440,6 @@ namespace NextGen__7
                         request["StudentID"] == DBNull.Value) continue;
                     DateTime when = Convert.ToDateTime(row["SessionDate"]);
                     if (when.Year != year) continue;
-                    // An attendance value on an unfinished booking is not a held session.
                     if (!Convert.ToString(row["SessionStatus"]).Trim().Equals(
                         "Completed", StringComparison.OrdinalIgnoreCase)) continue;
                     string status = Convert.ToString(row["AttendanceStatus"]).Trim();
@@ -450,57 +451,77 @@ namespace NextGen__7
                     if (sessions.Columns.Contains("Feedback") &&
                         Convert.ToString(row["Feedback"]).Contains(
                             "EDUCONNECT SYNTHETIC TEST ATTENDANCE"))
-                        syntheticAttendance.Add(key);
+                        illustrativeAttendance.Add(key);
                     attendance[key][1]++;
                     if (status.Equals("Attended", StringComparison.OrdinalIgnoreCase))
                         attendance[key][0]++;
                 }
-                bool byStudentNumber = records.Columns.Contains("StudentNo");
-                if (!byStudentNumber && !records.Columns.Contains("StudentID"))
-                    throw new InvalidOperationException(
-                        "Academic records require StudentNo or the legacy StudentID.");
-                foreach (DataRow rec in records.Rows)
+
+                foreach (DataRow record in records.Rows)
                 {
-                    if (rec["GPA"] == DBNull.Value) continue;
-                    int studentID;
+                    string studentNo = Convert.ToString(record["StudentNo"]).Trim();
                     DataRow student;
-                    if (byStudentNumber)
+                    if (!studentsByNumber.TryGetValue(studentNo, out student)) continue;
+                    int studentID = Convert.ToInt32(student["StudentID"]);
+                    string name = (Convert.ToString(student["FirstName"]) + " " +
+                        Convert.ToString(student["LastName"])).Trim();
+                    for (int term = 1; term <= 4; term++)
                     {
-                        string number = Convert.ToString(rec["StudentNo"]).Trim();
-                        if (!studentsByNumber.TryGetValue(number, out student)) continue;
-                        studentID = Convert.ToInt32(student["StudentID"]);
+                        string column = "T" + term;
+                        if (record[column] == DBNull.Value) continue;
+                        double gpa = Convert.ToDouble(record[column]);
+                        string key = studentID + "-T" + term;
+                        int[] stats;
+                        if (!attendance.TryGetValue(key, out stats)) stats = new int[2];
+                        object percentage = stats[1] == 0 ? (object)DBNull.Value :
+                            Math.Round(100.0 * stats[0] / stats[1], 1);
+                        string origin = Convert.ToString(record["DataOrigin"]) ==
+                            "Illustrative records" || illustrativeAttendance.Contains(key)
+                            ? "Illustrative records" : "Recorded data";
+                        output.Rows.Add(studentNo, name, "Term " + term, gpa,
+                            stats[0], stats[1], percentage, origin);
                     }
-                    else
-                    {
-                        if (rec["StudentID"] == DBNull.Value) continue;
-                        studentID = Convert.ToInt32(rec["StudentID"]);
-                        if (!students.TryGetValue(studentID, out student)) continue;
-                    }
-                    string period = Convert.ToString(rec["AcademicPeriod"]).Trim();
-                    if (!period.StartsWith(year + "-T", StringComparison.OrdinalIgnoreCase)) continue;
-                    int term;
-                    if (!int.TryParse(period.Substring((year + "-T").Length), out term) ||
-                        term < 1 || term > 4) continue;
-                    double gpa = Convert.ToDouble(rec["GPA"]);
-                    string key = studentID + "-T" + term;
-                    int[] stats;
-                    if (!attendance.TryGetValue(key, out stats)) stats = new int[2];
-                    object percent = stats[1] == 0 ? (object)DBNull.Value :
-                        Math.Round(100.0 * stats[0] / stats[1], 1);
-                    bool demoGpa = records.Columns.Contains("RecordSource") &&
-                        Convert.ToString(rec["RecordSource"]).Contains(
-                            "EDUCONNECT SYNTHETIC TEST GPA");
-                    string dataOrigin = demoGpa || syntheticAttendance.Contains(key) ?
-                        "Illustrative records" : "Recorded data";
-                    output.Rows.Add(Convert.ToString(student["StudentNo"]),
-                        (Convert.ToString(student["FirstName"]) + " " +
-                        Convert.ToString(student["LastName"])).Trim(),
-                        "Term " + term, gpa, stats[0], stats[1], percent, dataOrigin);
                 }
             }
-            var view = output.DefaultView; view.Sort = "[Student] ASC, [Term] ASC";
-            output = view.ToTable();
-            return output;
+
+            var view = output.DefaultView;
+            view.Sort = "[Student] ASC, [Term] ASC";
+            return view.ToTable();
+        }
+
+        private static DataTable GpaStudentSummary(DataTable details)
+        {
+            var result = new DataTable();
+            result.Columns.Add("Student number", typeof(string));
+            result.Columns.Add("Student", typeof(string));
+            for (int term = 1; term <= 4; term++)
+                result.Columns.Add("T" + term, typeof(double));
+            result.Columns.Add("Attendance (%)", typeof(double));
+            result.Columns.Add("Data origin", typeof(string));
+
+            foreach (var group in details.AsEnumerable().GroupBy(row =>
+                Convert.ToString(row["Student number"])))
+            {
+                DataRow summary = result.NewRow();
+                summary["Student number"] = group.Key;
+                summary["Student"] = Convert.ToString(group.First()["Student"]);
+                summary["Data origin"] = group.Any(row =>
+                    Convert.ToString(row["Data origin"]) == "Illustrative records")
+                    ? "Illustrative records" : "Recorded data";
+                int attended = 0, recorded = 0;
+                foreach (DataRow row in group)
+                {
+                    string term = Convert.ToString(row["Term"]).Replace("Term ", "T");
+                    if (result.Columns.Contains(term))
+                        summary[term] = row["GPA (%)"];
+                    attended += Convert.ToInt32(row["Attended"]);
+                    recorded += Convert.ToInt32(row["Recorded sessions"]);
+                }
+                if (recorded > 0)
+                    summary["Attendance (%)"] = Math.Round(100.0 * attended / recorded, 1);
+                result.Rows.Add(summary);
+            }
+            return result;
         }
 
         private void BindTrendChoices(DataTable data)
@@ -827,6 +848,9 @@ namespace NextGen__7
                                     exported.ImportRow(row);
                         }
                     }
+
+                    if (cmbReport.SelectedIndex == 2)
+                        exported = GpaStudentSummary(exported);
 
                     string context = cmbReport.SelectedIndex == 1
                         ? "Reporting period: " + fromDate.Value.ToString("dd MMM yyyy") +
