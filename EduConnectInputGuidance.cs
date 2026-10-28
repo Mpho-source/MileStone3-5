@@ -219,9 +219,10 @@ namespace NextGen__7
                     hints["cmbMatchTutor"] = "Only qualified tutors available at the requested time will appear.";
                     break;
                 case "ManagaeTutors":
-                    order = new[] { "txtSearch", "gridTutors", "btnNew", "txtFirstName", "txtLastName", "txtEmail", "btnSave", "cmbCourse", "btnAssignCourse", "btnAvailability", "btnCreateTutorLogin", "btnResetTutorLogin", "btnRefresh", "btnCancel", "btnBack" };
+                    order = new[] { "txtSearch", "gridTutors", "btnNew", "txtFirstName", "txtLastName", "txtEmail", "btnSave", "btnRemoveTutor", "cmbCourse", "btnAssignCourse", "btnAvailability", "btnCreateTutorLogin", "btnResetTutorLogin", "btnRefresh", "btnCancel", "btnBack" };
                     hints["txtSearch"] = "Search by name or email";
                     hints["gridTutors"] = "Select a tutor to edit their details, courses, availability or sign-in.";
+                    hints["btnRemoveTutor"] = "Permanently remove a tutor with no session history; related access and availability are removed.";
                     hints["txtFirstName"] = "First name";
                     hints["txtLastName"] = "Last name";
                     hints["txtEmail"] = "Email e.g. tutor@example.com";
