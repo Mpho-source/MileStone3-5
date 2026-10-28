@@ -23,9 +23,6 @@ namespace NextGen__7
 
         internal static int Ensure(string databasePath, string connectionString)
         {
-            bool databaseAlreadyOpen = File.Exists(
-                Path.ChangeExtension(databasePath, ".laccdb"));
-
             var records = new List<Tuple<int, string>>();
             bool hasColumn;
             using (var db = new OleDbConnection(connectionString))
@@ -61,15 +58,24 @@ namespace NextGen__7
             if (hasColumn && records.Count == 0)
                 return 0;
 
-            if (databaseAlreadyOpen)
-                throw new InvalidOperationException(
-                    "Close Microsoft Access and other EduConnect instances before updating the TUTOR table.");
-
             OleDbConnection.ReleaseObjectPool();
 
             string backupPath = databasePath + ".tutor-numbers-" +
                 DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".bak";
-            File.Copy(databasePath, backupPath, false);
+            try
+            {
+                using (var source = new FileStream(databasePath, FileMode.Open,
+                    FileAccess.Read, FileShare.None))
+                using (var backup = new FileStream(backupPath, FileMode.CreateNew,
+                    FileAccess.Write, FileShare.None))
+                    source.CopyTo(backup);
+            }
+            catch (IOException ex)
+            {
+                throw new InvalidOperationException(
+                    "The TUTOR database update is deferred because the Access file " +
+                    "is currently in use. Close Microsoft Access and restart EduConnect.", ex);
+            }
 
             using (var db = new OleDbConnection(connectionString))
             {
