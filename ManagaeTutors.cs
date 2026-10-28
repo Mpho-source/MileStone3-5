@@ -306,7 +306,7 @@ namespace NextGen__7
 
             int tutorId = selectedId;
             string tutorName = (txtFirstName.Text.Trim() + " " + txtLastName.Text.Trim()).Trim();
-            if (MessageBox.Show("Permanently remove " + tutorName + " (Tutor #" +
+            if (MessageBox.Show("Permanently remove " + tutorName + " (Tut" +
                 tutorId + ")? Their course assignments, availability, and sign-in will also be removed. " +
                 "Tutors who have any session history cannot be removed.",
                 "Confirm tutor removal", MessageBoxButtons.YesNo,
@@ -379,7 +379,7 @@ namespace NextGen__7
                 }
 
                 LoadTutors();
-                lblMessage.Text = "Tutor #" + tutorId + " removed from the database.";
+                lblMessage.Text = "Tut" + tutorId.ToString("D4") + " removed from the database.";
                 MessageBox.Show("Tutor and related sign-in, course and availability records " +
                     "were removed successfully.", "Tutor removed",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -525,7 +525,7 @@ namespace NextGen__7
                 MessageBox.Show("Select an existing tutor first."); return;
             }
             if (MessageBox.Show(
-                "Reset the password for Tutor #" + selectedId + "? " +
+                "Reset the password for Tut" + selectedId.ToString("D4") + "? " +
                 "Their previous password will immediately stop working.",
                 "Reset tutor password", MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning) != DialogResult.Yes)
@@ -545,7 +545,7 @@ namespace NextGen__7
                     "is now invalid. The new password will not be shown again.",
                     "Tutor password reset", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
-                lblMessage.Text = "Password reset for tutor #" + selectedId + ".";
+                lblMessage.Text = "Password reset for Tut" + selectedId.ToString("D4") + ".";
                 RefreshTutorLoginState();
             }
             catch (Exception ex)
@@ -563,7 +563,7 @@ namespace NextGen__7
                 return;
             }
             if (MessageBox.Show(
-                "Create a tutor sign-in account for Tutor #" + selectedId + "? " +
+                "Create a tutor sign-in account for Tut" + selectedId.ToString("D4") + "? " +
                 "A temporary password will be shown once. Hand it directly to the tutor.",
                 "Tutor account", MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question) != DialogResult.Yes)
@@ -583,7 +583,7 @@ namespace NextGen__7
                     "It will not be shown again.",
                     "New tutor sign-in", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
-                lblMessage.Text = "Tutor #" + selectedId + " now has a sign-in account.";
+                lblMessage.Text = "Tut" + selectedId.ToString("D4") + " now has a sign-in account.";
                 RefreshTutorLoginState();
             }
             catch (Exception ex)
@@ -634,7 +634,7 @@ namespace NextGen__7
                     }
                 }
                 LoadTutorCourses();
-                lblMessage.Text = "Course assigned to tutor #" + selectedId + ".";
+                lblMessage.Text = "Course assigned to Tut" + selectedId.ToString("D4") + ".";
             }
             catch (Exception ex)
             {
