@@ -6,3 +6,4 @@ obj/
 *.laccdb
 DemoData/
 DatabaseBackups/
+*.accdb.tutor-numbers-*.bak
