@@ -133,10 +133,22 @@ finally {
 [System.Data.OleDb.OleDbConnection]::ReleaseObjectPool()
 
 $backupPath = "$DatabasePath.academic-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss-fff')"
-if (Test-Path -LiteralPath ([System.IO.Path]::ChangeExtension($DatabasePath, ".laccdb"))) {
-    throw "Close Microsoft Access and all running EduConnect instances before applying academic results."
+try {
+    $source = [System.IO.FileStream]::new($DatabasePath,
+        [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read,
+        [System.IO.FileShare]::None)
+    try {
+        $destination = [System.IO.FileStream]::new($backupPath,
+            [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write,
+            [System.IO.FileShare]::None)
+        try { $source.CopyTo($destination) }
+        finally { $destination.Dispose() }
+    }
+    finally { $source.Dispose() }
 }
-Copy-Item -LiteralPath $DatabasePath -Destination $backupPath -ErrorAction Stop
+catch [System.IO.IOException] {
+    throw "The database could not be backed up exclusively. Close Microsoft Access and all EduConnect instances before applying grades. $($_.Exception.Message)"
+}
 Write-Host "Backup created: $backupPath"
 
 $db = Open-Access $DatabasePath
