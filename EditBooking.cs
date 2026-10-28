@@ -235,10 +235,10 @@ namespace NextGen__7
                     start,
                     end);
 
-                string extra = status == "Scheduled"
-                    ? "A qualified tutor has been assigned."
-                    : "No qualified tutor is available for this slot. " +
-                      "Your request is awaiting assignment.";
+                string extra = status == "Submitted"
+                    ? "Your updated request is awaiting administrator verification. " +
+                      "A tutor can be assigned after verification."
+                    : "Your booking was updated.";
 
                 MessageBox.Show(
                     "Your booking has been updated successfully!" +
