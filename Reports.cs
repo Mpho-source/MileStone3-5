@@ -494,7 +494,7 @@ namespace NextGen__7
             result.Columns.Add("Student number", typeof(string));
             result.Columns.Add("Student", typeof(string));
             for (int term = 1; term <= 4; term++)
-                result.Columns.Add("T" + term, typeof(double));
+                result.Columns.Add("Term " + term, typeof(double));
             result.Columns.Add("Attendance (%)", typeof(double));
             result.Columns.Add("Data origin", typeof(string));
 
@@ -510,7 +510,7 @@ namespace NextGen__7
                 int attended = 0, recorded = 0;
                 foreach (DataRow row in group)
                 {
-                    string term = Convert.ToString(row["Term"]).Replace("Term ", "T");
+                    string term = Convert.ToString(row["Term"]);
                     if (result.Columns.Contains(term))
                         summary[term] = row["GPA (%)"];
                     attended += Convert.ToInt32(row["Attended"]);
