@@ -72,7 +72,7 @@ namespace NextGen__7
             this.pnlEditor.BackColor = System.Drawing.Color.White;
             this.pnlEditor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblAttendance.Name = "lblAttendance";
-            this.lblAttendance.Text = "Student attendance";
+            this.lblAttendance.Text = "Student attendance (required)";
             this.lblAttendance.Location = new System.Drawing.Point(18,15);
             this.lblAttendance.Size = new System.Drawing.Size(275,28);
             this.lblAttendance.Font = new System.Drawing.Font("Segoe UI",10F);
@@ -83,7 +83,7 @@ namespace NextGen__7
             this.cmbAttendance.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbAttendance.Items.AddRange(new object[] { "Attended", "Absent" });
             this.lblFeedback.Name = "lblFeedback";
-            this.lblFeedback.Text = "Session feedback";
+            this.lblFeedback.Text = "Session feedback (required, maximum 240 characters)";
             this.lblFeedback.Location = new System.Drawing.Point(289,15);
             this.lblFeedback.Size = new System.Drawing.Size(690,28);
             this.lblFeedback.Font = new System.Drawing.Font("Segoe UI",10F);
