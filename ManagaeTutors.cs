@@ -30,6 +30,7 @@ namespace NextGen__7
             gridTutors.SelectionChanged += (s, e) => ShowSelected();
             btnNew.Click += (s, e) => NewTutor();
             btnSave.Click += (s, e) => SaveTutor();
+            btnRemoveTutor.Click += (s, e) => RemoveTutor();
             btnCancel.Click += (s, e) => ClearEditor();
             btnBack.Click += (s, e) => Close();
             btnRefresh.Click += (s, e) => LoadTutors();
@@ -165,6 +166,7 @@ namespace NextGen__7
                 lblMessage.Text = "Editing tutor #" + selectedId;
                 btnAssignCourse.Enabled = true;
                 btnAvailability.Enabled = true;
+                btnRemoveTutor.Enabled = true;
                 RefreshTutorLoginState();
                 LoadTutorCourses();
             }
@@ -189,6 +191,7 @@ namespace NextGen__7
             lblAssignedCourses.Text = "Save this tutor before assigning a course.";
             btnAssignCourse.Enabled = false;
             btnAvailability.Enabled = false;
+            btnRemoveTutor.Enabled = false;
             btnCreateTutorLogin.Enabled = false;
             btnResetTutorLogin.Enabled = false;
             cmbCourse.SelectedIndex = -1;
@@ -239,6 +242,107 @@ namespace NextGen__7
                 MessageBox.Show("Enter a valid tutor email address."); return false;
             }
             return true;
+        }
+
+        private void RemoveTutor()
+        {
+            if (selectedId <= 0)
+            {
+                MessageBox.Show("Select an existing tutor first.", "Remove tutor",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            int tutorId = selectedId;
+            string tutorName = (txtFirstName.Text.Trim() + " " + txtLastName.Text.Trim()).Trim();
+            if (MessageBox.Show("Permanently remove " + tutorName + " (Tutor #" +
+                tutorId + ")? Their course assignments, availability, and sign-in will also be removed. " +
+                "Tutors who have any session history cannot be removed.",
+                "Confirm tutor removal", MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning) != DialogResult.Yes)
+                return;
+
+            btnRemoveTutor.Enabled = false;
+            try
+            {
+                using (var db = new OleDbConnection(connectionString))
+                {
+                    db.Open();
+                    bool hasLoginTable = false;
+                    DataTable schema = db.GetSchema("Tables");
+                    foreach (DataRow table in schema.Rows)
+                        if (Convert.ToString(table["TABLE_NAME"]).Equals(
+                            "TUTOR_LOGIN", StringComparison.OrdinalIgnoreCase))
+                        {
+                            hasLoginTable = true;
+                            break;
+                        }
+
+                    using (var transaction = db.BeginTransaction())
+                    {
+                        try
+                        {
+                            using (var check = new OleDbCommand(
+                                "SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE [TutorID]=?",
+                                db, transaction))
+                            {
+                                check.Parameters.Add("@TutorID", OleDbType.Integer).Value = tutorId;
+                                if (Convert.ToInt32(check.ExecuteScalar()) > 0)
+                                    throw new InvalidOperationException(
+                                        "This tutor has recorded or scheduled tutoring sessions. " +
+                                        "Removing them would damage session history and reports. " +
+                                        "Keep the tutor record instead.");
+                            }
+
+                            string[] linkedTables = hasLoginTable
+                                ? new[] { "TUTOR_LOGIN", "TUTOR_AVAILABILITY", "TUTOR_COURSE" }
+                                : new[] { "TUTOR_AVAILABILITY", "TUTOR_COURSE" };
+                            foreach (string table in linkedTables)
+                            {
+                                using (var command = new OleDbCommand(
+                                    "DELETE FROM [" + table + "] WHERE [TutorID]=?",
+                                    db, transaction))
+                                {
+                                    command.Parameters.Add("@TutorID", OleDbType.Integer).Value = tutorId;
+                                    command.ExecuteNonQuery();
+                                }
+                            }
+
+                            using (var command = new OleDbCommand(
+                                "DELETE FROM [TUTOR] WHERE [" + idColumn + "]=?",
+                                db, transaction))
+                            {
+                                command.Parameters.Add("@TutorID", OleDbType.Integer).Value = tutorId;
+                                if (command.ExecuteNonQuery() != 1)
+                                    throw new InvalidOperationException(
+                                        "The selected tutor no longer exists. Nothing was removed.");
+                            }
+                            transaction.Commit();
+                        }
+                        catch
+                        {
+                            transaction.Rollback();
+                            throw;
+                        }
+                    }
+                }
+
+                LoadTutors();
+                lblMessage.Text = "Tutor #" + tutorId + " removed from the database.";
+                MessageBox.Show("Tutor and related sign-in, course and availability records " +
+                    "were removed successfully.", "Tutor removed",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                lblMessage.Text = "Tutor removal did not complete.";
+                MessageBox.Show("Tutor could not be removed. No partial removal was saved.\n\n" +
+                    ex.Message, "Remove tutor", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnRemoveTutor.Enabled = selectedId > 0;
+            }
         }
 
         private void SaveTutor()
