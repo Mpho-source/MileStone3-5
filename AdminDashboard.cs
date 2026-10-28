@@ -9,6 +9,7 @@ namespace NextGen__7
         public AdminDashboard()
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
         }
 
         public AdminDashboard(string staffNumber, string staffName) : this()
