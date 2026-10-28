@@ -39,6 +39,7 @@ namespace NextGen__7
             this.pnlFooter = new System.Windows.Forms.Panel();
             this.btnNew = new NextGen__7.BusyButton();
             this.btnSave = new NextGen__7.BusyButton();
+            this.btnRemoveTutor = new NextGen__7.BusyButton();
             this.btnCancel = new NextGen__7.BusyButton();
             this.btnBack = new NextGen__7.BusyButton();
             this.lblMessage = new System.Windows.Forms.Label();
@@ -248,6 +249,16 @@ namespace NextGen__7
             this.btnSave.BackColor = System.Drawing.Color.FromArgb(35, 93, 177);
             this.btnSave.ForeColor = System.Drawing.Color.White;
             this.btnSave.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnRemoveTutor.Name = "btnRemoveTutor";
+            this.btnRemoveTutor.Text = "Remove tutor";
+            this.btnRemoveTutor.Location = new System.Drawing.Point(524,15);
+            this.btnRemoveTutor.Size = new System.Drawing.Size(158,43);
+            this.btnRemoveTutor.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnRemoveTutor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRemoveTutor.BackColor = System.Drawing.Color.FromArgb(164, 47, 65);
+            this.btnRemoveTutor.ForeColor = System.Drawing.Color.White;
+            this.btnRemoveTutor.Enabled = false;
+            this.btnRemoveTutor.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Text = "Clear form";
             this.btnCancel.Location = new System.Drawing.Point(362,15);
@@ -268,12 +279,13 @@ namespace NextGen__7
             this.btnBack.Cursor = System.Windows.Forms.Cursors.Hand;
             this.lblMessage.Name = "lblMessage";
             this.lblMessage.Text = "Ready";
-            this.lblMessage.Location = new System.Drawing.Point(534,16);
-            this.lblMessage.Size = new System.Drawing.Size(490,28);
+            this.lblMessage.Location = new System.Drawing.Point(30,70);
+            this.lblMessage.Size = new System.Drawing.Size(1130,24);
             this.lblMessage.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblMessage.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
             this.pnlFooter.Controls.Add(this.btnNew);
             this.pnlFooter.Controls.Add(this.btnSave);
+            this.pnlFooter.Controls.Add(this.btnRemoveTutor);
             this.pnlFooter.Controls.Add(this.btnCancel);
             this.pnlFooter.Controls.Add(this.btnBack);
             this.pnlFooter.Controls.Add(this.lblMessage);
@@ -320,6 +332,7 @@ namespace NextGen__7
         private System.Windows.Forms.Panel pnlFooter;
         private NextGen__7.BusyButton btnNew;
         private NextGen__7.BusyButton btnSave;
+        private NextGen__7.BusyButton btnRemoveTutor;
         private NextGen__7.BusyButton btnCancel;
         private NextGen__7.BusyButton btnBack;
         private System.Windows.Forms.Label lblMessage;
