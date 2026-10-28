@@ -137,7 +137,11 @@ namespace NextGen__7
                 }
                 Button button = control as Button;
                 if (button != null)
+                {
+                    button.EnabledChanged += (sender, args) =>
+                        EduConnectTheme.StyleButton(button);
                     EduConnectTheme.StyleButton(button);
+                }
                 if (control.HasChildren) EnhanceControls(control);
             }
         }
