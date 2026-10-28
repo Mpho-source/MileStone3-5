@@ -786,21 +786,77 @@ namespace NextGen__7
         {
             if (result == null || result.Rows.Count == 0)
             {
-                MessageBox.Show("Generate a report with results before printing."); return;
+                MessageBox.Show("Generate a report with results before saving a PDF.",
+                    "No report results", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
             }
-            try
+
+            using (var dialog = new SaveFileDialog())
             {
-                printRow = 0;
-                printer.DefaultPageSettings.Landscape = result.Columns.Count > 5;
-                using (var dialog = new PrintDialog { Document = printer, UseEXDialog = true })
+                dialog.Title = "Save EduConnect report as PDF";
+                dialog.Filter = "PDF document (*.pdf)|*.pdf";
+                dialog.DefaultExt = "pdf";
+                dialog.AddExtension = true;
+                dialog.OverwritePrompt = true;
+                dialog.FileName = "EduConnect_Report_" +
+                    (cmbReport.SelectedIndex + 1) + "_" +
+                    DateTime.Now.ToString("yyyyMMdd_HHmm");
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                    return;
+
+                try
                 {
-                    if (dialog.ShowDialog(this) == DialogResult.OK) printer.Print();
+                    DataTable exported = result;
+                    if (cmbReport.SelectedIndex == 2)
+                    {
+                        var selected = cmbStudentChoice.SelectedItem as StudentTrendChoice;
+                        if (selected != null && !string.IsNullOrWhiteSpace(selected.Number))
+                        {
+                            exported = result.Clone();
+                            foreach (DataRow row in result.Rows)
+                                if (Convert.ToString(row["Student number"]) == selected.Number)
+                                    exported.ImportRow(row);
+                        }
+                    }
+
+                    string context = cmbReport.SelectedIndex == 1
+                        ? "Reporting period: " + fromDate.Value.ToString("dd MMM yyyy") +
+                          " - " + toDate.Value.ToString("dd MMM yyyy")
+                        : cmbReport.SelectedIndex == 2
+                            ? "Academic year: " + numYear.Value
+                            : "Submitted requests outstanding for seven days or more";
+                    string note = "";
+                    if (cmbReport.SelectedIndex == 2 &&
+                        exported.Columns.Contains("Data origin") &&
+                        exported.AsEnumerable().Any(row =>
+                            Convert.ToString(row["Data origin"]) == "Illustrative records"))
+                        note = "Note: illustrative records are not verified academic results.";
+
+                    byte[] chart = null;
+                    int width = 0, height = 0;
+                    if (cmbReport.SelectedIndex == 2 && chartTrends.Series.Count > 0)
+                    {
+                        using (var stream = new MemoryStream())
+                        {
+                            chartTrends.SaveImage(stream, ChartImageFormat.Jpeg);
+                            chart = stream.ToArray();
+                        }
+                        width = chartTrends.Width;
+                        height = chartTrends.Height;
+                    }
+
+                    EduConnectPdfExporter.Save(dialog.FileName, reportTitle, context,
+                        exported, chart, width, height, note);
+                    lblStatus.Text = "PDF saved: " + Path.GetFileName(dialog.FileName);
+                    MessageBox.Show("Report saved successfully as a PDF.\n\n" +
+                        dialog.FileName, "PDF saved", MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Printing failed.\n\n" + ex.Message,
-                    "Print error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                catch (Exception ex)
+                {
+                    MessageBox.Show("The PDF could not be saved.\n\n" + ex.Message,
+                        "PDF export error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
