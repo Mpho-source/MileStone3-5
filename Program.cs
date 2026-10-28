@@ -37,6 +37,8 @@ namespace NextGen__7
                 return;
             }
             AppDomain.CurrentDomain.SetData("DataDirectory", databaseFolder);
+            Application.Idle += (sender, args) =>
+                EduConnectResponsive.AttachToOpenForms();
             using (var login = new Login())
             {
                 Application.Run(login);
