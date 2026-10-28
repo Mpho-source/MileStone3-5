@@ -66,6 +66,7 @@ namespace NextGen__7
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
                 gridSlots.Columns[e.ColumnIndex].Name != "IsAvailable") return;
+            if (gridSlots.Columns[e.ColumnIndex] is DataGridViewCheckBoxColumn) return;
             bool active = IsSlotAvailable(e.Value);
             e.Value = active ? "Available" : "Unavailable";
             e.CellStyle.BackColor = active
@@ -149,6 +150,12 @@ namespace NextGen__7
             if (date < DateTime.Today)
             {
                 MessageBox.Show("Availability cannot be created for a past date."); return;
+            }
+            if (start <= DateTime.Now)
+            {
+                MessageBox.Show("Choose an availability start time in the future.");
+                dtpStart.Focus();
+                return;
             }
             if (end <= start)
             {
