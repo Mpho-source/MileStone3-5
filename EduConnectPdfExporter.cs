@@ -139,7 +139,7 @@ namespace NextGen__7
         }
 
         private static List<PdfPage> MakePages(string title, string description,
-            DataTable table, bool hasImage, string dataNote)
+            DataTable table, bool hasImage, int chartWidth, int chartHeight, string dataNote)
         {
             var pages = new List<PdfPage>();
             int row = 0;
@@ -156,43 +156,52 @@ namespace NextGen__7
                     18, 1, 1, 1);
                 Label(canvas, Fit(description, 762, 9), 36, 504,
                     9, 0.29, 0.39, 0.53);
-                double top = chartPage ? 260 : 477;
                 if (chartPage)
                 {
-                    Rect(canvas, 35, 283, 772, 195, 0.96, 0.98, 1);
-                    canvas.Append("q 575 0 0 190 133 286 cm /Im1 Do Q\n");
+                    Rect(canvas, 35, 120, 772, 356, 0.96, 0.98, 1);
+                    double scale = Math.Min(740.0 / chartWidth, 336.0 / chartHeight);
+                    double imageWidth = chartWidth * scale;
+                    double imageHeight = chartHeight * scale;
+                    double imageLeft = (842.0 - imageWidth) / 2.0;
+                    double imageBottom = 298.0 - imageHeight / 2.0;
+                    canvas.AppendFormat(CultureInfo.InvariantCulture,
+                        "q {0:0.###} 0 0 {1:0.###} {2:0.###} {3:0.###} cm /Im1 Do Q\\n",
+                        imageWidth, imageHeight, imageLeft, imageBottom);
                 }
-
-                double left = 35;
-                double tableWidth = 772;
-                double[] columnWidths = GetColumnWidths(table, tableWidth);
-                double[] columnLeft = new double[table.Columns.Count];
-                double offset = left;
-                for (int i = 0; i < table.Columns.Count; i++)
+                else
                 {
-                    columnLeft[i] = offset;
-                    offset += columnWidths[i];
-                }
-                Rect(canvas, left, top - 32, tableWidth, 32, 0.12, 0.27, 0.46);
-                for (int i = 0; i < table.Columns.Count; i++)
-                    Label(canvas, Fit(table.Columns[i].ColumnName, columnWidths[i] - 10, 7.5),
-                        columnLeft[i] + 5, top - 20, 7.5, 1, 1, 1);
-
-                double y = top - 32;
-                while (row < table.Rows.Count && y - 31 >= 43)
-                {
-                    y -= 31;
-                    if (row % 2 == 0)
-                        Rect(canvas, left, y, tableWidth, 31, 0.94, 0.97, 1);
+                    double top = 477;
+                    double left = 35;
+                    double tableWidth = 772;
+                    double[] columnWidths = GetColumnWidths(table, tableWidth);
+                    double[] columnLeft = new double[table.Columns.Count];
+                    double offset = left;
                     for (int i = 0; i < table.Columns.Count; i++)
                     {
-                        string value = ReadValue(table.Rows[row], i);
-                        double r, g, b;
-                        TextColors(table.Columns[i].ColumnName, value, out r, out g, out b);
-                        Label(canvas, Fit(value, columnWidths[i] - 10, 8),
-                            columnLeft[i] + 5, y + 11, 8, r, g, b);
+                        columnLeft[i] = offset;
+                        offset += columnWidths[i];
                     }
-                    row++;
+                    Rect(canvas, left, top - 32, tableWidth, 32, 0.12, 0.27, 0.46);
+                    for (int i = 0; i < table.Columns.Count; i++)
+                        Label(canvas, Fit(table.Columns[i].ColumnName, columnWidths[i] - 10, 7.5),
+                            columnLeft[i] + 5, top - 20, 7.5, 1, 1, 1);
+
+                    double y = top - 32;
+                    while (row < table.Rows.Count && y - 31 >= 43)
+                    {
+                        y -= 31;
+                        if (row % 2 == 0)
+                            Rect(canvas, left, y, tableWidth, 31, 0.94, 0.97, 1);
+                        for (int i = 0; i < table.Columns.Count; i++)
+                        {
+                            string value = ReadValue(table.Rows[row], i);
+                            double r, g, b;
+                            TextColors(table.Columns[i].ColumnName, value, out r, out g, out b);
+                            Label(canvas, Fit(value, columnWidths[i] - 10, 8),
+                                columnLeft[i] + 5, y + 11, 8, r, g, b);
+                        }
+                        row++;
+                    }
                 }
                 Rect(canvas, 35, 34, 772, 1, 0.83, 0.88, 0.94);
                 Label(canvas, "Generated " + DateTime.Now.ToString("dd MMM yyyy HH:mm",
@@ -216,7 +225,8 @@ namespace NextGen__7
                 throw new InvalidOperationException("Generate a report with results before saving a PDF.");
             bool hasImage = chartJpeg != null && chartJpeg.Length > 0 &&
                 chartWidth > 0 && chartHeight > 0;
-            List<PdfPage> pages = MakePages(title, description, table, hasImage, dataNote);
+            List<PdfPage> pages = MakePages(title, description, table, hasImage,
+                chartWidth, chartHeight, dataNote);
             var objects = new List<byte[]> { null };
             Func<int> reserve = () => { objects.Add(null); return objects.Count - 1; };
             int catalogId = reserve();
