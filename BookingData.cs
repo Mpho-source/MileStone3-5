@@ -233,7 +233,7 @@ namespace NextGen__7
                                     StringComparison.OrdinalIgnoreCase) ||
                                 value.Equals("Yes",
                                     StringComparison.OrdinalIgnoreCase) ||
-                                value == "1";
+                                value == "1" || value == "-1";
 
                             if (enabled &&
                                 ReadTime(reader[0]) <= start &&
