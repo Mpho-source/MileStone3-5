@@ -103,7 +103,8 @@ namespace NextGen__7
             bool danger = name.IndexOf("CancelBooking", StringComparison.OrdinalIgnoreCase) >= 0 ||
                           name.IndexOf("Logout", StringComparison.OrdinalIgnoreCase) >= 0 ||
                           name.IndexOf("SignOut", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                          name.IndexOf("Delete", StringComparison.OrdinalIgnoreCase) >= 0;
+                          name.IndexOf("Delete", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                          name.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0;
             bool secondary = name.IndexOf("Back", StringComparison.OrdinalIgnoreCase) >= 0 ||
                              name.IndexOf("Clear", StringComparison.OrdinalIgnoreCase) >= 0 ||
                              name.IndexOf("Refresh", StringComparison.OrdinalIgnoreCase) >= 0 ||
