@@ -35,6 +35,7 @@ namespace NextGen__7
         public Reports()
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
             if (LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
             var settings = ConfigurationManager.ConnectionStrings[
                 "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
