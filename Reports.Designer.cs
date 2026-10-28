@@ -228,7 +228,7 @@ namespace NextGen__7
             this.printer.PrintPage += new System.Drawing.Printing.PrintPageEventHandler(this.PrintPage);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1200, 792);
-            this.MinimumSize = new System.Drawing.Size(1200, 792);
+            this.MinimumSize = new System.Drawing.Size(1050, 680);
             this.Text = "EduConnect | Reports";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.BackColor = System.Drawing.Color.FromArgb(230, 237, 249);
