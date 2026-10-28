@@ -196,7 +196,7 @@ namespace NextGen__7
             this.btnToggleView.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnToggleView.Visible = false;
             this.btnPreview.Name = "btnPreview";
-            this.btnPreview.Text = "Print preview";
+            this.btnPreview.Text = "Preview";
             this.btnPreview.Location = new System.Drawing.Point(565, 19);
             this.btnPreview.Size = new System.Drawing.Size(133, 45);
             this.btnPreview.BackColor = System.Drawing.Color.FromArgb(78, 105, 145);
@@ -204,7 +204,7 @@ namespace NextGen__7
             this.btnPreview.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPreview.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnPrint.Name = "btnPrint";
-            this.btnPrint.Text = "Print report (PDF)";
+            this.btnPrint.Text = "Print report to PDF";
             this.btnPrint.Location = new System.Drawing.Point(708, 19);
             this.btnPrint.Size = new System.Drawing.Size(166, 45);
             this.btnPrint.BackColor = System.Drawing.Color.FromArgb(21, 112, 82);
