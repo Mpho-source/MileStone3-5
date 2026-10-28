@@ -147,23 +147,6 @@ namespace NextGen__7
                 }
             }
 
-            if (HasTable(db, "STUDENT_TERM_GPA"))
-            {
-                DataTable wide = Read(db, "STUDENT_TERM_GPA");
-                foreach (DataRow record in wide.Rows)
-                {
-                    if (record["AcademicYear"] == DBNull.Value ||
-                        Convert.ToInt32(record["AcademicYear"]) != academicYear)
-                        continue;
-                    string number = Convert.ToString(record["StudentNo"]).Trim();
-                    if (number.Length == 0) continue;
-                    DataRow row = GetOrAdd(output, index, number, academicYear);
-                    string source = wide.Columns.Contains("DataOrigin")
-                        ? Convert.ToString(record["DataOrigin"]) : "";
-                    for (int term = 1; term <= 4; term++)
-                        SetValue(row, term, record["T" + term], source, false);
-                }
-            }
             return output;
         }
     }
