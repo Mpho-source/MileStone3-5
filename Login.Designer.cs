@@ -85,7 +85,7 @@ namespace NextGen__7
             this.pnlHero.Size = new System.Drawing.Size(455, 498);
             this.pnlHero.BackColor = System.Drawing.Color.FromArgb(31, 56, 100);
             this.lblHeroTitle.Name = "lblHeroTitle";
-            this.lblHeroTitle.Text = "One place.\\nBetter support.";
+            this.lblHeroTitle.Text = "One place.\r\nBetter support.";
             this.lblHeroTitle.Location = new System.Drawing.Point(35, 93);
             this.lblHeroTitle.Size = new System.Drawing.Size(390, 125);
             this.lblHeroTitle.ForeColor = System.Drawing.Color.White;
