@@ -14,6 +14,7 @@ namespace NextGen__7
         public TutorChangePassword()
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
         }
 
         public TutorChangePassword(int tutorId, string connectionString) : this()
