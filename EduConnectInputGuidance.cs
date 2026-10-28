@@ -185,7 +185,7 @@ namespace NextGen__7
                     order = new[] { "cmbSignInRole", "txtStudentNo", "txtPassword", "btnLogin", "btnAdminSetup" };
                     hints["cmbSignInRole"] = "Choose Student, Staff or Tutor before signing in.";
                     hints["txtStudentNo"] = "Student / staff number or Tutor ID";
-                    hints["txtPassword"] = "Password";
+                    hints["txtPassword"] = "Enter your password for the selected role (case-sensitive).";
                     break;
                 case "StudentDashboard":
                     order = new[] { "pnlBook", "pnlManageBooking", "pnlLogout", "btnNavBook", "btnNavManage", "btnChangeStudentPassword", "btnNavLogout" };
@@ -239,7 +239,7 @@ namespace NextGen__7
                     order = new[] { "gridSessions", "cmbAttendance", "txtFeedback", "btnRecord", "btnRefresh", "btnChangePassword", "btnLogout" };
                     hints["gridSessions"] = "Select a session that has ended to record attendance.";
                     hints["cmbAttendance"] = "Choose Attended or Absent.";
-                    hints["txtFeedback"] = "Add session feedback (maximum 240 characters)";
+                    hints["txtFeedback"] = "Required: brief factual feedback after a completed session (1-240 characters)";
                     break;
                 case "Reports":
                     order = new[] { "cmbReport", "fromDate", "toDate", "numYear", "cmbStudentChoice", "btnGenerate", "grid", "btnToggleView", "btnPreview", "btnPrint", "btnBack" };
@@ -256,14 +256,14 @@ namespace NextGen__7
                     order = new[] { "cmbRole", "txtAccount", "txtPassword", "txtConfirm", "txtSetupKey", "btnSave", "btnClose" };
                     hints["cmbRole"] = "Choose Student or Staff.";
                     hints["txtAccount"] = "Enter an existing student or staff number.";
-                    hints["txtPassword"] = "New password (12+ characters)";
+                    hints["txtPassword"] = "12-128 characters, including uppercase, lowercase and a number";
                     hints["txtConfirm"] = "Confirm new password";
                     hints["txtSetupKey"] = "Administrator setup key";
                     break;
                 case "TutorChangePassword":
                     order = new[] { "txtCurrent", "txtNew", "txtConfirm", "btnSave", "btnCancel" };
                     hints["txtCurrent"] = "Current password";
-                    hints["txtNew"] = "New password (12+ characters)";
+                    hints["txtNew"] = "12-128 characters, including uppercase, lowercase and a number";
                     hints["txtConfirm"] = "Confirm new password";
                     break;
                 default:
