@@ -8,6 +8,8 @@ namespace NextGen__7
 {
     internal static class Program
     {
+        internal static string TutorNumberMigrationWarning { get; private set; }
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -44,24 +46,13 @@ namespace NextGen__7
                 if (settings == null)
                     throw new InvalidOperationException("Database configuration is missing.");
 
-                int updated = TutorNumberMigration.Ensure(databaseFile, settings.ConnectionString);
-                if (updated > 0)
-                    MessageBox.Show(
-                        updated + " tutor number(s) saved in the TUTOR database table. " +
-                        "Administrators can view them in Manage Tutors, for example Tut0001.",
-                        "EduConnect tutor numbers", MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                TutorNumberMigration.Ensure(databaseFile, settings.ConnectionString);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "EduConnect could not initialise tutor numbers. " +
-                    "No student, tutor or administrator records were deleted. " +
-                    "Close Microsoft Access and check that the database is writable.\n\n" +
-                    "Database: " + databaseFile + "\n\n" + ex.Message,
-                    "EduConnect database update failed", MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-                return;
+                TutorNumberMigrationWarning = ex.Message;
+                System.Diagnostics.Debug.WriteLine(
+                    "Tutor-number database migration deferred: " + ex);
             }
             Application.Idle += (sender, args) =>
                 EduConnectResponsive.AttachToOpenForms();
