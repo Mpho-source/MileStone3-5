@@ -115,19 +115,24 @@ namespace NextGen__7
                     item.Illustrative = true;
             }
 
+            var saved = new DataTable();
+            using (var adapter = new OleDbDataAdapter(
+                "SELECT [StudentNo],[AcademicYear],[T1],[T2],[T3],[T4],[DataOrigin] " +
+                "FROM [STUDENT_TERM_GPA]", db))
+                adapter.Fill(saved);
+            var savedByKey = new Dictionary<string, DataRow>(
+                StringComparer.OrdinalIgnoreCase);
+            foreach (DataRow row in saved.Rows)
+                savedByKey[Convert.ToString(row["StudentNo"]).Trim() + "/" +
+                    Convert.ToInt32(row["AcademicYear"])] = row;
+
             foreach (TermRecord item in byStudentYear.Values)
             {
-                var existing = new DataTable();
-                using (var cmd = new OleDbCommand(
-                    "SELECT [T1],[T2],[T3],[T4],[DataOrigin] FROM [STUDENT_TERM_GPA] " +
-                    "WHERE [StudentNo]=? AND [AcademicYear]=?", db))
-                {
-                    cmd.Parameters.Add("@StudentNo", OleDbType.VarWChar).Value = item.StudentNo;
-                    cmd.Parameters.Add("@Year", OleDbType.Integer).Value = item.Year;
-                    using (var adapter = new OleDbDataAdapter(cmd))
-                        adapter.Fill(existing);
-                }
-                if (existing.Rows.Count == 0)
+                DataRow stored;
+                bool hasExisting = savedByKey.TryGetValue(
+                    item.StudentNo + "/" + item.Year, out stored);
+                if (!hasExisting)
+
                 {
                     using (var cmd = new OleDbCommand(
                         "INSERT INTO [STUDENT_TERM_GPA] " +
@@ -150,14 +155,14 @@ namespace NextGen__7
                     bool changed = false;
                     for (int i = 0; i < 4; i++)
                     {
-                        values[i] = existing.Rows[0][i];
+                        values[i] = stored["T" + (i + 1)];
                         if (values[i] == DBNull.Value && item.Values[i] != DBNull.Value)
                         {
                             values[i] = item.Values[i];
                             changed = true;
                         }
                     }
-                    string source = Convert.ToString(existing.Rows[0]["DataOrigin"]);
+                    string source = Convert.ToString(stored["DataOrigin"]);
                     if (item.Illustrative && source != "Illustrative records")
                     {
                         source = "Illustrative records";
