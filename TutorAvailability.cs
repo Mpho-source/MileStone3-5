@@ -38,6 +38,7 @@ namespace NextGen__7
             btnDisable.Click += (s, e) => DisableSlot();
             btnRefresh.Click += (s, e) => LoadSlots();
             btnBack.Click += (s, e) => Close();
+            gridSlots.CellFormatting += FormatAvailability;
             Load += (s, e) => LoadSlots();
         }
 
@@ -48,6 +49,25 @@ namespace NextGen__7
                     if (c.ColumnName.Trim('\uFEFF', ' ').Equals(name,
                         StringComparison.OrdinalIgnoreCase)) return c.ColumnName;
             return null;
+        }
+
+        private static bool IsSlotAvailable(object value)
+        {
+            if (value == null || value == DBNull.Value) return false;
+            if (value is bool) return (bool)value;
+            string text = Convert.ToString(value).Trim();
+            return text.Equals("True", StringComparison.OrdinalIgnoreCase) ||
+                   text.Equals("Yes", StringComparison.OrdinalIgnoreCase) ||
+                   text.Equals("On", StringComparison.OrdinalIgnoreCase) ||
+                   text == "1" || text == "-1";
+        }
+
+        private void FormatAvailability(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
+                gridSlots.Columns[e.ColumnIndex].Name != "IsAvailable") return;
+            e.Value = IsSlotAvailable(e.Value) ? "Available" : "Unavailable";
+            e.FormattingApplied = true;
         }
 
         private void LoadSlots()
@@ -100,7 +120,7 @@ namespace NextGen__7
                 if (gridSlots.Columns.Contains("EndTime"))
                     gridSlots.Columns["EndTime"].DefaultCellStyle.Format = "HH:mm";
                 if (gridSlots.Columns.Contains("IsAvailable"))
-                    gridSlots.Columns["IsAvailable"].HeaderText = "Available";
+                    gridSlots.Columns["IsAvailable"].HeaderText = "Availability";
                 gridSlots.ClearSelection();
                 lblStatus.Text = slots.Rows.Count + " recorded availability slots.";
             }
@@ -147,7 +167,7 @@ namespace NextGen__7
                                     while (reader.Read())
                                     {
                                         if (reader.IsDBNull(0) || reader.IsDBNull(1)) continue;
-                                        if (reader.IsDBNull(2) || !Convert.ToBoolean(reader[2])) continue;
+                                        if (reader.IsDBNull(2) || !IsSlotAvailable(reader[2])) continue;
                                         TimeSpan oldStart = BookingData.ReadTime(reader[0]);
                                         TimeSpan oldEnd = BookingData.ReadTime(reader[1]);
                                         if (start.TimeOfDay < oldEnd && end.TimeOfDay > oldStart)
@@ -212,7 +232,7 @@ namespace NextGen__7
                 MessageBox.Show("The table does not expose a supported AvailabilityID, " +
                     "so this slot cannot be safely updated."); return;
             }
-            if (!Convert.ToBoolean(row.Cells["IsAvailable"].Value))
+            if (!IsSlotAvailable(row.Cells["IsAvailable"].Value))
             { MessageBox.Show("This availability slot is already disabled."); return; }
             int id = Convert.ToInt32(row.Cells[availabilityIdColumn].Value);
             DateTime date = Convert.ToDateTime(row.Cells["AvailableDate"].Value).Date;
