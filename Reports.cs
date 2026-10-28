@@ -230,6 +230,8 @@ namespace NextGen__7
                     default: return;
                 }
                 grid.DataSource = result;
+                if (grid.Columns.Contains("Data origin"))
+                    grid.Columns["Data origin"].Visible = false;
                 grid.ClearSelection();
                 bool hasTrend = cmbReport.SelectedIndex == 2 && result.Rows.Count > 0;
                 btnToggleView.Enabled = hasTrend;
@@ -600,8 +602,6 @@ namespace NextGen__7
             area.AxisY.MajorGrid.LineDashStyle = ChartDashStyle.Solid;
             chartTrends.ChartAreas.Add(area);
 
-            bool hasSynthetic = rows.Any(r => Convert.ToString(r["Data origin"]) ==
-                "Illustrative records");
             string title = individual ? selected.Label :
                 "All students - four-term overview";
             chartTrends.Titles.Add(new Title(
@@ -724,18 +724,14 @@ namespace NextGen__7
                     ". Select a student for details.";
             }
 
-            if (hasSynthetic)
-                lblTrendSummary.Text = "Data note: Illustrative records are not verified university academic results." +
-                    Environment.NewLine + lblTrendSummary.Text;
             lblTrendSummary.Visible = true;
             chartTrends.Visible = true;
             chartTrends.BringToFront();
             grid.Visible = false;
             btnToggleView.Text = "Show table";
-            lblStatus.Text = hasSynthetic ?
-                "Some academic records are illustrative; verify them before drawing conclusions." :
-                (individual ? "Student trend from recorded academic and session data." :
-                "Cohort trends - no missing attendance values have been estimated.");
+            lblStatus.Text = individual
+                ? "Student trend from academic results and recorded attendance."
+                : "Cohort GPA and recorded attendance by academic term.";
         }
 
         private void ToggleView()
@@ -830,7 +826,13 @@ namespace NextGen__7
                         exported.Columns.Contains("Data origin") &&
                         exported.AsEnumerable().Any(row =>
                             Convert.ToString(row["Data origin"]) == "Illustrative records"))
-                        note = "Note: illustrative records are not verified academic results.";
+                        note = "Academic GPA values include illustrative sample records.";
+
+                    if (exported.Columns.Contains("Data origin"))
+                    {
+                        exported = exported.Copy();
+                        exported.Columns.Remove("Data origin");
+                    }
 
                     byte[] chart = null;
                     int width = 0, height = 0;
