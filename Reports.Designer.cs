@@ -204,7 +204,7 @@ namespace NextGen__7
             this.btnPreview.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPreview.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnPrint.Name = "btnPrint";
-            this.btnPrint.Text = "Print report";
+            this.btnPrint.Text = "Save as PDF";
             this.btnPrint.Location = new System.Drawing.Point(747, 19);
             this.btnPrint.Size = new System.Drawing.Size(126, 45);
             this.btnPrint.BackColor = System.Drawing.Color.FromArgb(35, 93, 177);
