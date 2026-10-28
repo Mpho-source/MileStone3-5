@@ -29,7 +29,7 @@ namespace NextGen__7
         {
             internal int Id;
             internal string Name;
-            public override string ToString() { return Name + " (Tutor #" + Id + ")"; }
+            public override string ToString() { return Name + " (Tut" + Id.ToString("D4") + ")"; }
         }
 
         private void AdminRequests_Load(object sender, EventArgs e)
@@ -498,7 +498,7 @@ namespace NextGen__7
                     }
                 }
                 Reload(requestId);
-                MessageBox.Show("Tutor #" + option.Id + " assigned to request #" +
+                MessageBox.Show("Tut" + option.Id.ToString("D4") + " assigned to request #" +
                     requestId + ". A Scheduled session is now saved. " +
                     "It will appear in the tutor's portal and Report 2.",
                     "Tutor assigned", MessageBoxButtons.OK, MessageBoxIcon.Information);
