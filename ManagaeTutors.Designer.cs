@@ -21,6 +21,7 @@ namespace NextGen__7
             this.lblTutorCount = new System.Windows.Forms.Label();
             this.pnlGrid = new System.Windows.Forms.Panel();
             this.gridTutors = new System.Windows.Forms.DataGridView();
+            this.colTutorNumber = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pnlEditor = new System.Windows.Forms.Panel();
             this.lblEditorHeading = new System.Windows.Forms.Label();
             this.lblFirstName = new System.Windows.Forms.Label();
@@ -103,6 +104,12 @@ namespace NextGen__7
             this.pnlGrid.BackColor = System.Drawing.Color.White;
             this.pnlGrid.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.gridTutors.Name = "gridTutors";
+            this.colTutorNumber.Name = "TutorNumber";
+            this.colTutorNumber.DataPropertyName = "TutorNumber";
+            this.colTutorNumber.HeaderText = "Tutor number";
+            this.colTutorNumber.ReadOnly = true;
+            this.colTutorNumber.FillWeight = 85;
+            this.gridTutors.Columns.Add(this.colTutorNumber);
             this.gridTutors.Location = new System.Drawing.Point(18,19);
             this.gridTutors.Size = new System.Drawing.Size(672,424);
             this.gridTutors.BackgroundColor = System.Drawing.Color.White;
@@ -314,6 +321,7 @@ namespace NextGen__7
         private System.Windows.Forms.Label lblTutorCount;
         private System.Windows.Forms.Panel pnlGrid;
         private System.Windows.Forms.DataGridView gridTutors;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTutorNumber;
         private System.Windows.Forms.Panel pnlEditor;
         private System.Windows.Forms.Label lblEditorHeading;
         private System.Windows.Forms.Label lblFirstName;
