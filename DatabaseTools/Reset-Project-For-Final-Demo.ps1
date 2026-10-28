@@ -140,6 +140,19 @@ try {
         Write-Host ("CLEAN START COMPLETE. Students kept: " + $KeepStudents + ". Tutors retained: " + $tutors.Rows.Count + ". Availability slots created: " + $created + ". Requests: 0. Sessions: 0.")
         Write-Host "Administrators, tutor profiles, tutor accounts, and tutor course qualifications were preserved."
         Write-Host ("Available dates: " + $dates[0].ToString("dd MMM yyyy") + " and " + $dates[1].ToString("dd MMM yyyy"))
+        foreach ($check in @(
+            @{ Name="Students"; Query="SELECT COUNT(*) AS Total FROM [STUDENT]"; Expected=$KeepStudents },
+            @{ Name="Requests"; Query="SELECT COUNT(*) AS Total FROM [TUTORING_REQUEST]"; Expected=0 },
+            @{ Name="Sessions"; Query="SELECT COUNT(*) AS Total FROM [TUTORING_SESSION]"; Expected=0 },
+            @{ Name="Undated availability"; Query="SELECT COUNT(*) AS Total FROM [TUTOR_AVAILABILITY] WHERE [AvailableDate] IS NULL"; Expected=0 }
+        )) {
+            $countResult = Read-Table $connection $null $check.Query
+            $actual = [int]$countResult.Rows[0]["Total"]
+            Write-Host ($check.Name + ": " + $actual)
+            if ($actual -ne [int]$check.Expected) {
+                throw ("Post-reset validation failed for " + $check.Name + ": expected " + $check.Expected + ", got " + $actual)
+            }
+        }
     }
     catch {
         try { $tx.Rollback() } catch {}
