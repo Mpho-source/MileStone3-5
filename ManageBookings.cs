@@ -22,6 +22,7 @@ namespace NextGen__7
         public ManageBookings(int studentID, string studentNo)
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
             if (System.ComponentModel.LicenseManager.UsageMode ==
                 System.ComponentModel.LicenseUsageMode.Designtime) return;
 
