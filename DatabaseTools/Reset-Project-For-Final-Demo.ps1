@@ -21,7 +21,7 @@ Write-Host ("Database backup created: " + $backup)
 Add-Type -AssemblyName System.Data
 
 function Execute-Command($connection, $transaction, [string]$sql, [object[]]$arguments = @()) {
-    $cmd = New-Object System.Data.OleDb.OleDbCommand($sql, $connection)
+    $cmd = [System.Data.OleDb.OleDbCommand]::new($sql, $connection)
     $cmd.Transaction = $transaction
     try {
         foreach ($argument in $arguments) {
@@ -39,10 +39,10 @@ function Execute-Command($connection, $transaction, [string]$sql, [object[]]$arg
 }
 
 function Read-Table($connection, $transaction, [string]$sql) {
-    $cmd = New-Object System.Data.OleDb.OleDbCommand($sql, $connection)
+    $cmd = [System.Data.OleDb.OleDbCommand]::new($sql, $connection)
     $cmd.Transaction = $transaction
     $table = New-Object System.Data.DataTable
-    $adapter = New-Object System.Data.OleDb.OleDbDataAdapter($cmd)
+    $adapter = [System.Data.OleDb.OleDbDataAdapter]::new($cmd)
     try { [void]$adapter.Fill($table); return ,$table }
     finally { $adapter.Dispose(); $cmd.Dispose() }
 }
@@ -55,7 +55,7 @@ function Has-Table($connection, $transaction, [string]$name) {
     catch { return $false }
 }
 
-$connection = New-Object System.Data.OleDb.OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=$dbPath;Persist Security Info=False;")
+$connection = [System.Data.OleDb.OleDbConnection]::new("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=$dbPath;Persist Security Info=False;")
 try { $connection.Open() }
 catch {
     throw ("Access could not open the database. Install the Access Database Engine matching PowerShell's bitness, and close Access first. " + $_.Exception.Message)
@@ -97,7 +97,7 @@ try {
         $idName = @("AvailabilityID","TutorAvailabilityID") | Where-Object { $availabilitySchema.Columns.Contains($_) } | Select-Object -First 1
         $idIsAuto = $true
         if ($null -ne $idName) {
-            $schemaCmd = New-Object System.Data.OleDb.OleDbCommand("SELECT * FROM [TUTOR_AVAILABILITY] WHERE 1=0", $connection)
+            $schemaCmd = [System.Data.OleDb.OleDbCommand]::new("SELECT * FROM [TUTOR_AVAILABILITY] WHERE 1=0", $connection)
             $schemaCmd.Transaction = $tx
             $schemaReader = $schemaCmd.ExecuteReader([System.Data.CommandBehavior]::SchemaOnly)
             try {
