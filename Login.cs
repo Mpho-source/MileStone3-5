@@ -66,9 +66,16 @@ namespace NextGen__7
                 bool staff = RoleSelector.SelectedIndex == 1;
                 bool tutor = RoleSelector.SelectedIndex == 2;
                 int tutorId = 0;
-                if (tutor && (!int.TryParse(number, out tutorId) || tutorId <= 0))
+                if (tutor)
                 {
-                    MessageBox.Show("Enter a valid numeric Tutor ID."); return;
+                    string numericTutorNumber = number.StartsWith("Tut",
+                        StringComparison.OrdinalIgnoreCase) ? number.Substring(3) : number;
+                    if (!int.TryParse(numericTutorNumber, out tutorId) || tutorId <= 0)
+                    {
+                        MessageBox.Show("Enter your tutor number, for example Tut0001.");
+                        txtStudentNo.Focus();
+                        return;
+                    }
                 }
                 string name = "";
                 int studentId = 0;
@@ -79,7 +86,7 @@ namespace NextGen__7
                     {
                         if (!TutorAuthentication.TryAuthenticate(db, tutorId, password, out name))
                         {
-                            MessageBox.Show("Tutor ID or password is incorrect, or this tutor " +
+                            MessageBox.Show("Tutor number or password is incorrect, or this tutor " +
                                 "does not yet have an account.");
                             return;
                         }
@@ -177,7 +184,7 @@ namespace NextGen__7
 
         private void cmbSignInRole_SelectedIndexChanged(object sender, EventArgs e)
         {
-            label5.Text = cmbSignInRole.SelectedIndex == 1 ? "Staff number" : cmbSignInRole.SelectedIndex == 2 ? "Tutor ID" : "Student number";
+            label5.Text = cmbSignInRole.SelectedIndex == 1 ? "Staff number" : cmbSignInRole.SelectedIndex == 2 ? "Tutor number" : "Student number";
             txtStudentNo.Clear();
             txtPassword.Clear();
             txtStudentNo.Focus();
