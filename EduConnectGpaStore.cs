@@ -8,180 +8,163 @@ namespace NextGen__7
 {
     internal static class EduConnectGpaStore
     {
-        internal static DataTable Load(OleDbConnection db, int academicYear)
+        private static DataTable Empty()
         {
-            EnsureTable(db);
-            MigrateExistingRecords(db);
-            var table = new DataTable();
-            using (var command = new OleDbCommand(
-                "SELECT [StudentNo],[AcademicYear],[T1],[T2],[T3],[T4],[DataOrigin] " +
-                "FROM [STUDENT_TERM_GPA] WHERE [AcademicYear]=? ORDER BY [StudentNo]", db))
-            {
-                command.Parameters.Add("@Year", OleDbType.Integer).Value = academicYear;
-                using (var adapter = new OleDbDataAdapter(command))
-                    adapter.Fill(table);
-            }
-            return table;
+            var result = new DataTable();
+            result.Columns.Add("StudentNo", typeof(string));
+            result.Columns.Add("AcademicYear", typeof(int));
+            for (int term = 1; term <= 4; term++)
+                result.Columns.Add("T" + term, typeof(double));
+            result.Columns.Add("DataOrigin", typeof(string));
+            return result;
         }
 
         private static bool HasTable(OleDbConnection db, string name)
         {
-            DataTable table = db.GetSchema("Tables");
-            foreach (DataRow row in table.Rows)
+            foreach (DataRow row in db.GetSchema("Tables").Rows)
                 if (string.Equals(Convert.ToString(row["TABLE_NAME"]), name,
-                    StringComparison.OrdinalIgnoreCase)) return true;
+                    StringComparison.OrdinalIgnoreCase))
+                    return true;
             return false;
         }
 
-        private static void EnsureTable(OleDbConnection db)
+        private static DataTable Read(OleDbConnection db, string table)
         {
-            if (HasTable(db, "STUDENT_TERM_GPA")) return;
-            using (var cmd = new OleDbCommand(
-                "CREATE TABLE [STUDENT_TERM_GPA] (" +
-                "[StudentNo] TEXT(40) NOT NULL, [AcademicYear] LONG NOT NULL, " +
-                "[T1] DOUBLE, [T2] DOUBLE, [T3] DOUBLE, [T4] DOUBLE, " +
-                "[DataOrigin] TEXT(40), " +
-                "CONSTRAINT [PK_STUDENT_TERM_GPA] PRIMARY KEY ([StudentNo],[AcademicYear]))", db))
-                cmd.ExecuteNonQuery();
+            var data = new DataTable();
+            using (var adapter = new OleDbDataAdapter(
+                "SELECT * FROM [" + table + "]", db))
+                adapter.Fill(data);
+            return data;
         }
 
-        private sealed class TermRecord
+        private static string Origin(string source)
         {
-            internal string StudentNo;
-            internal int Year;
-            internal readonly object[] Values = new object[]
-            {
-                DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value
-            };
-            internal bool Illustrative;
+            return source.IndexOf("SYNTHETIC", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   source.IndexOf("Illustrative", StringComparison.OrdinalIgnoreCase) >= 0
+                ? "Illustrative records" : "Recorded data";
         }
 
-        private static void MigrateExistingRecords(OleDbConnection db)
+        private static DataRow GetOrAdd(DataTable output,
+            Dictionary<string, DataRow> index, string studentNo, int year)
         {
-            if (!HasTable(db, "STUDENTACADEMICRECORD")) return;
-            var legacy = new DataTable();
-            using (var adapter = new OleDbDataAdapter(
-                "SELECT * FROM [STUDENTACADEMICRECORD]", db))
-                adapter.Fill(legacy);
-            if (!legacy.Columns.Contains("AcademicPeriod") ||
-                !legacy.Columns.Contains("GPA")) return;
-
-            var studentsById = new Dictionary<int, string>();
-            var students = new DataTable();
-            using (var adapter = new OleDbDataAdapter(
-                "SELECT [StudentID],[StudentNo] FROM [STUDENT]", db))
-                adapter.Fill(students);
-            foreach (DataRow row in students.Rows)
-                if (row["StudentID"] != DBNull.Value)
-                    studentsById[Convert.ToInt32(row["StudentID"])] =
-                        Convert.ToString(row["StudentNo"]).Trim();
-
-            var byStudentYear = new Dictionary<string, TermRecord>(
-                StringComparer.OrdinalIgnoreCase);
-            foreach (DataRow row in legacy.Rows)
+            string key = studentNo.ToUpperInvariant() + "/" +
+                year.ToString(CultureInfo.InvariantCulture);
+            DataRow row;
+            if (!index.TryGetValue(key, out row))
             {
-                if (row["GPA"] == DBNull.Value) continue;
-                string studentNo = legacy.Columns.Contains("StudentNo")
-                    ? Convert.ToString(row["StudentNo"]).Trim() : "";
-                if (studentNo.Length == 0 && legacy.Columns.Contains("StudentID") &&
-                    row["StudentID"] != DBNull.Value)
-                    studentsById.TryGetValue(Convert.ToInt32(row["StudentID"]), out studentNo);
-                if (string.IsNullOrWhiteSpace(studentNo)) continue;
-                string period = Convert.ToString(row["AcademicPeriod"]).Trim();
-                int dash = period.LastIndexOf("-T", StringComparison.OrdinalIgnoreCase);
-                if (dash < 0) continue;
-                int year, term;
-                if (!int.TryParse(period.Substring(0, dash), NumberStyles.Integer,
-                        CultureInfo.InvariantCulture, out year) ||
-                    !int.TryParse(period.Substring(dash + 2), NumberStyles.Integer,
-                        CultureInfo.InvariantCulture, out term) ||
-                    year < 1900 || year > 2200 || term < 1 || term > 4) continue;
-                double gpa;
-                try { gpa = Convert.ToDouble(row["GPA"]); }
-                catch { continue; }
-                if (double.IsNaN(gpa) || double.IsInfinity(gpa) || gpa < 0 || gpa > 100)
-                    continue;
-                string key = studentNo + "/" + year;
-                TermRecord item;
-                if (!byStudentYear.TryGetValue(key, out item))
-                {
-                    item = new TermRecord { StudentNo = studentNo, Year = year };
-                    byStudentYear.Add(key, item);
-                }
-                item.Values[term - 1] = gpa;
-                if (legacy.Columns.Contains("RecordSource") &&
-                    Convert.ToString(row["RecordSource"]).IndexOf("SYNTHETIC",
-                        StringComparison.OrdinalIgnoreCase) >= 0)
-                    item.Illustrative = true;
+                row = output.NewRow();
+                row["StudentNo"] = studentNo;
+                row["AcademicYear"] = year;
+                row["DataOrigin"] = "Recorded data";
+                output.Rows.Add(row);
+                index.Add(key, row);
             }
+            return row;
+        }
 
-            var saved = new DataTable();
-            using (var adapter = new OleDbDataAdapter(
-                "SELECT [StudentNo],[AcademicYear],[T1],[T2],[T3],[T4],[DataOrigin] " +
-                "FROM [STUDENT_TERM_GPA]", db))
-                adapter.Fill(saved);
-            var savedByKey = new Dictionary<string, DataRow>(
+        private static void SetValue(DataRow row, int term, object value,
+            string source, bool overwrite)
+        {
+            if (value == null || value == DBNull.Value) return;
+            double grade = Convert.ToDouble(value, CultureInfo.InvariantCulture);
+            if (double.IsNaN(grade) || double.IsInfinity(grade) ||
+                grade < 0 || grade > 100) return;
+            string name = "T" + term;
+            if (overwrite || row[name] == DBNull.Value)
+                row[name] = grade;
+            if (Origin(source) == "Illustrative records")
+                row["DataOrigin"] = "Illustrative records";
+        }
+
+        internal static DataTable Load(OleDbConnection db, int academicYear)
+        {
+            DataTable output = Empty();
+            var index = new Dictionary<string, DataRow>(
                 StringComparer.OrdinalIgnoreCase);
-            foreach (DataRow row in saved.Rows)
-                savedByKey[Convert.ToString(row["StudentNo"]).Trim() + "/" +
-                    Convert.ToInt32(row["AcademicYear"])] = row;
 
-            foreach (TermRecord item in byStudentYear.Values)
+            if (HasTable(db, "STUDENTACADEMICRECORD"))
             {
-                DataRow stored;
-                bool hasExisting = savedByKey.TryGetValue(
-                    item.StudentNo + "/" + item.Year, out stored);
-                if (!hasExisting)
+                DataTable academic = Read(db, "STUDENTACADEMICRECORD");
+                bool compact = academic.Columns.Contains("AcademicYear") &&
+                    academic.Columns.Contains("Term1") &&
+                    academic.Columns.Contains("Term2") &&
+                    academic.Columns.Contains("Term3") &&
+                    academic.Columns.Contains("Term4");
 
+                if (compact)
                 {
-                    using (var cmd = new OleDbCommand(
-                        "INSERT INTO [STUDENT_TERM_GPA] " +
-                        "([StudentNo],[AcademicYear],[T1],[T2],[T3],[T4],[DataOrigin]) " +
-                        "VALUES (?,?,?,?,?,?,?)", db))
+                    foreach (DataRow record in academic.Rows)
                     {
-                        cmd.Parameters.Add("@StudentNo", OleDbType.VarWChar).Value = item.StudentNo;
-                        cmd.Parameters.Add("@Year", OleDbType.Integer).Value = item.Year;
-                        for (int i = 0; i < 4; i++)
-                            cmd.Parameters.Add("@T" + (i + 1), OleDbType.Double).Value =
-                                item.Values[i];
-                        cmd.Parameters.Add("@Origin", OleDbType.VarWChar).Value =
-                            item.Illustrative ? "Illustrative records" : "Recorded data";
-                        cmd.ExecuteNonQuery();
+                        if (record["AcademicYear"] == DBNull.Value ||
+                            Convert.ToInt32(record["AcademicYear"]) != academicYear)
+                            continue;
+                        string number = Convert.ToString(record["StudentNo"]).Trim();
+                        if (number.Length == 0) continue;
+                        DataRow row = GetOrAdd(output, index, number, academicYear);
+                        string source = academic.Columns.Contains("RecordSource")
+                            ? Convert.ToString(record["RecordSource"]) : "";
+                        for (int term = 1; term <= 4; term++)
+                            SetValue(row, term, record["Term" + term], source, true);
                     }
+                    return output;
                 }
-                else
+
+                if (academic.Columns.Contains("AcademicPeriod") &&
+                    academic.Columns.Contains("GPA"))
                 {
-                    var values = new object[4];
-                    bool changed = false;
-                    for (int i = 0; i < 4; i++)
+                    var studentsById = new Dictionary<int, string>();
+                    if (HasTable(db, "STUDENT"))
                     {
-                        values[i] = stored["T" + (i + 1)];
-                        if (values[i] == DBNull.Value && item.Values[i] != DBNull.Value)
+                        DataTable students = Read(db, "STUDENT");
+                        foreach (DataRow student in students.Rows)
                         {
-                            values[i] = item.Values[i];
-                            changed = true;
+                            if (student["StudentID"] != DBNull.Value)
+                                studentsById[Convert.ToInt32(student["StudentID"])] =
+                                    Convert.ToString(student["StudentNo"]).Trim();
                         }
                     }
-                    string source = Convert.ToString(stored["DataOrigin"]);
-                    if (item.Illustrative && source != "Illustrative records")
+                    foreach (DataRow record in academic.Rows)
                     {
-                        source = "Illustrative records";
-                        changed = true;
-                    }
-                    if (!changed) continue;
-                    using (var cmd = new OleDbCommand(
-                        "UPDATE [STUDENT_TERM_GPA] SET [T1]=?,[T2]=?,[T3]=?,[T4]=?," +
-                        "[DataOrigin]=? WHERE [StudentNo]=? AND [AcademicYear]=?", db))
-                    {
-                        for (int i = 0; i < 4; i++)
-                            cmd.Parameters.Add("@T" + (i + 1), OleDbType.Double).Value = values[i];
-                        cmd.Parameters.Add("@Origin", OleDbType.VarWChar).Value = source;
-                        cmd.Parameters.Add("@StudentNo", OleDbType.VarWChar).Value = item.StudentNo;
-                        cmd.Parameters.Add("@Year", OleDbType.Integer).Value = item.Year;
-                        cmd.ExecuteNonQuery();
+                        string number = academic.Columns.Contains("StudentNo")
+                            ? Convert.ToString(record["StudentNo"]).Trim() : "";
+                        if (number.Length == 0 && academic.Columns.Contains("StudentID") &&
+                            record["StudentID"] != DBNull.Value)
+                            studentsById.TryGetValue(Convert.ToInt32(record["StudentID"]),
+                                out number);
+                        if (string.IsNullOrWhiteSpace(number)) continue;
+                        string period = Convert.ToString(record["AcademicPeriod"]).Trim();
+                        int split = period.LastIndexOf("-T", StringComparison.OrdinalIgnoreCase);
+                        if (split < 0) continue;
+                        int year, term;
+                        if (!int.TryParse(period.Substring(0, split), out year) ||
+                            !int.TryParse(period.Substring(split + 2), out term) ||
+                            year != academicYear || term < 1 || term > 4) continue;
+                        DataRow row = GetOrAdd(output, index, number, year);
+                        string source = academic.Columns.Contains("RecordSource")
+                            ? Convert.ToString(record["RecordSource"]) : "";
+                        SetValue(row, term, record["GPA"], source, true);
                     }
                 }
             }
+
+            if (HasTable(db, "STUDENT_TERM_GPA"))
+            {
+                DataTable wide = Read(db, "STUDENT_TERM_GPA");
+                foreach (DataRow record in wide.Rows)
+                {
+                    if (record["AcademicYear"] == DBNull.Value ||
+                        Convert.ToInt32(record["AcademicYear"]) != academicYear)
+                        continue;
+                    string number = Convert.ToString(record["StudentNo"]).Trim();
+                    if (number.Length == 0) continue;
+                    DataRow row = GetOrAdd(output, index, number, academicYear);
+                    string source = wide.Columns.Contains("DataOrigin")
+                        ? Convert.ToString(record["DataOrigin"]) : "";
+                    for (int term = 1; term <= 4; term++)
+                        SetValue(row, term, record["T" + term], source, false);
+                }
+            }
+            return output;
         }
     }
 }
