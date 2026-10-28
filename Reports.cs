@@ -273,8 +273,6 @@ namespace NextGen__7
                     lblStatus.Text = result.Rows.Count + " matching records | " +
                         (cmbReport.SelectedIndex == 2 ? numYear.Value + " academic year" :
                          "Submitted requests aged 7+ days");
-                    if (cmbReport.SelectedIndex == 2 && HasIllustrativeRecords(result))
-                        lblStatus.Text += " | Includes illustrative academic records";
                 }
             }
             catch (Exception ex)
@@ -781,8 +779,6 @@ namespace NextGen__7
             lblStatus.Text = showChart
                 ? "Four-term GPA and recorded tutoring attendance trends."
                 : "Student GPA and attendance by academic term.";
-            if (HasIllustrativeRecords(result))
-                lblStatus.Text += " | Includes illustrative academic records";
         }
 
         private void PreviewReport()
