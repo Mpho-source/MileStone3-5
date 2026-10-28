@@ -79,8 +79,7 @@ namespace NextGen__7
         private static string RecordingEligibility(DataRow session)
         {
             string status = Convert.ToString(session["SessionStatus"]).Trim();
-            if (!status.Equals("Scheduled", StringComparison.OrdinalIgnoreCase) &&
-                !status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
+            if (!status.Equals("Scheduled", StringComparison.OrdinalIgnoreCase))
                 return "Not eligible: " + status;
             if (session["SessionDate"] == DBNull.Value)
                 return "Date missing";
