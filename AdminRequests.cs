@@ -15,6 +15,7 @@ namespace NextGen__7
         public AdminRequests()
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
             if (System.ComponentModel.LicenseManager.UsageMode ==
                 System.ComponentModel.LicenseUsageMode.Designtime) return;
 
