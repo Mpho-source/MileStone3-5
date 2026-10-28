@@ -14,6 +14,7 @@ namespace NextGen__7
         public Login()
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
             if (System.ComponentModel.LicenseManager.UsageMode ==
                 System.ComponentModel.LicenseUsageMode.Designtime) return;
             RoleSelector = cmbSignInRole;
