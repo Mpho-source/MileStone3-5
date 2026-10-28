@@ -257,16 +257,10 @@ namespace NextGen__7
                 {
                     int scheduled = result.AsEnumerable().Sum(row => row.Field<int>("Scheduled"));
                     int completed = result.AsEnumerable().Sum(row => row.Field<int>("Completed"));
-                    lblStatus.Text = scheduled + " scheduled, " + completed + " completed | " +
-                        fromDate.Value.ToShortDateString() + " to " + toDate.Value.ToShortDateString();
-                    if (scheduled == 0 && completed == 0)
-                        MessageBox.Show("The TUTOR table has " + result.Rows.Count +
-                            " tutors, but no Scheduled or Completed tutoring sessions fall in " +
-                            "the selected period.\n\n" +
-                            "Check TUTORING_SESSION: TutorID, SessionDate, and SessionStatus. " +
-                            "Book a session with an available tutor or select a period containing sessions.",
-                            "No matching tutor sessions", MessageBoxButtons.OK,
-                            MessageBoxIcon.Information);
+                    lblStatus.Text = scheduled == 0 && completed == 0
+                        ? "No tutoring sessions found for the selected period."
+                        : scheduled + " scheduled, " + completed + " completed | " +
+                          fromDate.Value.ToShortDateString() + " to " + toDate.Value.ToShortDateString();
                 }
                 else
                 {
