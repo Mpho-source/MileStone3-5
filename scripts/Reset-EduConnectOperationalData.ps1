@@ -149,8 +149,10 @@ try {
     }
 
     $backup = "$DatabasePath.backup-$(Get-Date -Format yyyyMMdd-HHmmss)"
+    $db.Close()
     Copy-Item -LiteralPath $DatabasePath -Destination $backup -ErrorAction Stop
     Write-Host "Backup created: $backup"
+    $db.Open()
 
     $transaction = $db.BeginTransaction()
     try {
