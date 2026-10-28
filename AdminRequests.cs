@@ -60,6 +60,33 @@ namespace NextGen__7
                         StringComparison.OrdinalIgnoreCase))
                         requestIdColumn = column.ColumnName;
                 requests.DataSource = table;
+                requests.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                requests.RowHeadersVisible = false;
+                requests.ReadOnly = true;
+                requests.MultiSelect = false;
+                requests.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                foreach (DataGridViewColumn column in requests.Columns)
+                {
+                    string key = column.Name.Trim('\uFEFF', ' ');
+                    if (key.Equals("RequestID", StringComparison.OrdinalIgnoreCase))
+                    { column.HeaderText = "Request ID"; column.FillWeight = 65; }
+                    else if (key.Equals("StudentID", StringComparison.OrdinalIgnoreCase))
+                    { column.HeaderText = "Student ID"; column.FillWeight = 70; }
+                    else if (key.Equals("CourseID", StringComparison.OrdinalIgnoreCase))
+                    { column.HeaderText = "Course ID"; column.FillWeight = 70; }
+                    else if (key.Equals("SupportType", StringComparison.OrdinalIgnoreCase))
+                    { column.HeaderText = "Support type"; column.FillWeight = 120; }
+                    else if (key.Equals("PreferredDate", StringComparison.OrdinalIgnoreCase))
+                    { column.HeaderText = "Session date"; column.DefaultCellStyle.Format = "dd MMM yyyy"; }
+                    else if (key.Equals("RequestDate", StringComparison.OrdinalIgnoreCase))
+                    { column.HeaderText = "Requested on"; column.DefaultCellStyle.Format = "dd MMM yyyy"; }
+                    else if (key.Equals("PreferredStartTime", StringComparison.OrdinalIgnoreCase))
+                    { column.HeaderText = "Start time"; column.DefaultCellStyle.Format = "HH:mm"; }
+                    else if (key.Equals("PreferredEndTime", StringComparison.OrdinalIgnoreCase))
+                    { column.HeaderText = "End time"; column.DefaultCellStyle.Format = "HH:mm"; }
+                    else if (key.Equals("Status", StringComparison.OrdinalIgnoreCase))
+                    { column.HeaderText = "Status"; column.FillWeight = 85; }
+                }
                 requests.ClearSelection();
                 cmbMatchTutor.Items.Clear();
                 btnAssign.Enabled = false;
