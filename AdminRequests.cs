@@ -51,9 +51,45 @@ namespace NextGen__7
             {
                 var table = new DataTable();
                 using (var db = new OleDbConnection(connectionString))
-                using (var adapter = new OleDbDataAdapter(
-                    "SELECT * FROM [TUTORING_REQUEST] ORDER BY [PreferredDate] DESC", db))
-                    adapter.Fill(table);
+                {
+                    db.Open();
+                    using (var adapter = new OleDbDataAdapter(
+                        "SELECT * FROM [TUTORING_REQUEST] ORDER BY [PreferredDate] DESC", db))
+                        adapter.Fill(table);
+
+                    var studentNames = new Dictionary<int, string>();
+                    var courseNames = new Dictionary<int, string>();
+                    using (var cmd = new OleDbCommand(
+                        "SELECT [StudentID],[StudentNo],[FirstName],[LastName] FROM [STUDENT]", db))
+                    using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            if (reader.IsDBNull(0)) continue;
+                            studentNames[Convert.ToInt32(reader[0])] =
+                                Convert.ToString(reader[1]) + " - " +
+                                (Convert.ToString(reader[2]) + " " + Convert.ToString(reader[3])).Trim();
+                        }
+                    using (var cmd = new OleDbCommand(
+                        "SELECT [CourseID],[CourseCode],[CourseName] FROM [COURSE]", db))
+                    using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            if (reader.IsDBNull(0)) continue;
+                            courseNames[Convert.ToInt32(reader[0])] =
+                                Convert.ToString(reader[1]) + " - " + Convert.ToString(reader[2]);
+                        }
+
+                    table.Columns.Add("Student", typeof(string));
+                    table.Columns.Add("Course", typeof(string));
+                    foreach (DataRow row in table.Rows)
+                    {
+                        int id; string value;
+                        row["Student"] = int.TryParse(Convert.ToString(row["StudentID"]), out id) &&
+                            studentNames.TryGetValue(id, out value) ? value : "Unknown student";
+                        row["Course"] = int.TryParse(Convert.ToString(row["CourseID"]), out id) &&
+                            courseNames.TryGetValue(id, out value) ? value : "Unknown course";
+                    }
+                }
                 requestIdColumn = null;
                 foreach (DataColumn column in table.Columns)
                     if (column.ColumnName.Trim('\uFEFF', ' ').Equals("RequestID",
@@ -70,10 +106,13 @@ namespace NextGen__7
                     string key = column.Name.Trim('\uFEFF', ' ');
                     if (key.Equals("RequestID", StringComparison.OrdinalIgnoreCase))
                     { column.HeaderText = "Request ID"; column.FillWeight = 65; }
-                    else if (key.Equals("StudentID", StringComparison.OrdinalIgnoreCase))
-                    { column.HeaderText = "Student ID"; column.FillWeight = 70; }
-                    else if (key.Equals("CourseID", StringComparison.OrdinalIgnoreCase))
-                    { column.HeaderText = "Course ID"; column.FillWeight = 70; }
+                    else if (key.Equals("StudentID", StringComparison.OrdinalIgnoreCase) ||
+                             key.Equals("CourseID", StringComparison.OrdinalIgnoreCase))
+                    { column.Visible = false; }
+                    else if (key.Equals("Student", StringComparison.OrdinalIgnoreCase))
+                    { column.HeaderText = "Student"; column.FillWeight = 170; }
+                    else if (key.Equals("Course", StringComparison.OrdinalIgnoreCase))
+                    { column.HeaderText = "Course"; column.FillWeight = 175; }
                     else if (key.Equals("SupportType", StringComparison.OrdinalIgnoreCase))
                     { column.HeaderText = "Support type"; column.FillWeight = 120; }
                     else if (key.Equals("PreferredDate", StringComparison.OrdinalIgnoreCase))
@@ -90,7 +129,9 @@ namespace NextGen__7
                 requests.ClearSelection();
                 cmbMatchTutor.Items.Clear();
                 btnAssign.Enabled = false;
-                lblMatchHelp.Text = "Select a Submitted request and verify it, or select a Verified request to choose an available tutor.";
+                lblMatchHelp.Text = table.Rows.Count == 0
+                    ? "No requests yet. Students can submit their first tutoring request from the Student Portal."
+                    : "Select a Submitted request and verify it, or select a Verified request to choose an available tutor.";
                 if (selectedRequestId.HasValue && requestIdColumn != null)
                 {
                     foreach (DataGridViewRow gridRow in requests.Rows)
