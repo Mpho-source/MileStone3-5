@@ -182,10 +182,6 @@ namespace NextGen__7
             }
             if (start <= DateTime.Now)
             {
-                MessageBox.Show("Availability must start in the future."); return;
-            }
-            if (start <= DateTime.Now)
-            {
                 MessageBox.Show("Choose an availability start time in the future.");
                 dtpStart.Focus();
                 return;
@@ -250,8 +246,10 @@ namespace NextGen__7
                                 }
                                 cmd.Parameters.Add("@Tutor", OleDbType.Integer).Value = tutorId;
                                 cmd.Parameters.Add("@Date", OleDbType.Date).Value = date;
-                                cmd.Parameters.Add("@Start", OleDbType.Date).Value = start;
-                                cmd.Parameters.Add("@End", OleDbType.Date).Value = end;
+                                cmd.Parameters.Add("@Start", OleDbType.Date).Value =
+                                    DateTime.FromOADate(0).Add(start.TimeOfDay);
+                                cmd.Parameters.Add("@End", OleDbType.Date).Value =
+                                    DateTime.FromOADate(0).Add(end.TimeOfDay);
                                 AddAvailabilityParameter(cmd, db, true);
                                 if (cmd.ExecuteNonQuery() != 1)
                                     throw new InvalidOperationException("No availability was saved.");
