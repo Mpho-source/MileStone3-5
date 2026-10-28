@@ -1,3 +1,4 @@
+throw 'This legacy population script creates separate GPA rows per term and has been retired. Use DatabaseTools/Consolidate-Academic-Terms.ps1 to convert the academic table; enter future GPA values into the Term1-Term4 columns.'
 # Populate the actual EduConnect project database with clearly marked synthetic test records.
 # This is for functional testing, NOT evidence of real attendance.
 # Close Access, EduConnect and Visual Studio debugging before running.
