@@ -24,6 +24,7 @@ namespace NextGen__7
         public BookingTutoringSession(int studentID, string studentNo)
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
             if (System.ComponentModel.LicenseManager.UsageMode ==
                 System.ComponentModel.LicenseUsageMode.Designtime) return;
 
