@@ -13,6 +13,7 @@ namespace NextGen__7
         public AccountPasswordsForm()
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
         }
 
         public AccountPasswordsForm(bool firstSetup) : this()
