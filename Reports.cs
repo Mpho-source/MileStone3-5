@@ -268,9 +268,13 @@ namespace NextGen__7
                             MessageBoxIcon.Information);
                 }
                 else
+                {
                     lblStatus.Text = result.Rows.Count + " matching records | " +
                         (cmbReport.SelectedIndex == 2 ? numYear.Value + " academic year" :
                          "Submitted requests aged 7+ days");
+                    if (cmbReport.SelectedIndex == 2 && HasIllustrativeRecords(result))
+                        lblStatus.Text += " | Includes illustrative academic records";
+                }
             }
             catch (Exception ex)
             {
@@ -734,6 +738,13 @@ namespace NextGen__7
                 : "Cohort GPA and recorded attendance by academic term.";
         }
 
+        private static bool HasIllustrativeRecords(DataTable rows)
+        {
+            return rows != null && rows.Columns.Contains("Data origin") &&
+                rows.AsEnumerable().Any(row =>
+                    Convert.ToString(row["Data origin"]) == "Illustrative records");
+        }
+
         private void ToggleView()
         {
             if (result == null || result.Rows.Count == 0 ||
@@ -748,6 +759,8 @@ namespace NextGen__7
             lblStatus.Text = showChart
                 ? "Four-term GPA and recorded tutoring attendance trends."
                 : "Student GPA and attendance by academic term.";
+            if (HasIllustrativeRecords(result))
+                lblStatus.Text += " | Includes illustrative academic records";
         }
 
         private void PreviewReport()
