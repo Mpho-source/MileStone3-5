@@ -21,6 +21,7 @@ namespace NextGen__7
         public ManagaeTutors()
         {
             InitializeComponent();
+            EduConnectInputGuidance.Attach(this);
             if (LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
             var cfg = ConfigurationManager.ConnectionStrings[
                 "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
