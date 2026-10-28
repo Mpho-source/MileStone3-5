@@ -119,6 +119,8 @@ namespace NextGen__7
                 using (var reader = cmd.ExecuteReader())
                 {
                     if (!reader.Read()) return false;
+                    if (reader.IsDBNull(0) || reader.IsDBNull(1) || reader.IsDBNull(2))
+                        return false;
                     try
                     {
                         byte[] salt = Convert.FromBase64String(Convert.ToString(reader[0]));
@@ -128,6 +130,8 @@ namespace NextGen__7
                         return ConstantTimeEqual(Derive(password, salt, count), expected);
                     }
                     catch (FormatException) { return false; }
+                    catch (InvalidCastException) { return false; }
+                    catch (OverflowException) { return false; }
                 }
             }
         }
