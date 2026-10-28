@@ -24,7 +24,7 @@ namespace NextGen__7
             if (tutorId <= 0)
                 throw new ArgumentOutOfRangeException("tutorId");
             this.tutorId = tutorId;
-            lblTutorName.Text = tutorName + "  |  Tutor #" + tutorId;
+            lblTutorName.Text = tutorName + "  |  Tut" + tutorId.ToString("D4");
             var cfg = ConfigurationManager.ConnectionStrings[
                 "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
             if (cfg == null)
