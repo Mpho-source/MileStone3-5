@@ -212,10 +212,7 @@ namespace NextGen__7
                     TimeSpan start = BookingData.ReadTime(
                         row.Cells["PreferredStartTime"].Value);
                     DateTime sessionStart = date.Add(start);
-                    bool active = status.Equals("Submitted",
-                            StringComparison.OrdinalIgnoreCase) ||
-                        status.Equals("Scheduled",
-                            StringComparison.OrdinalIgnoreCase);
+                    bool active = BookingData.IsChangeableStatus(status);
 
                     allowed = active && DateTime.Now <= sessionStart.AddHours(-48);
                     message = !active
