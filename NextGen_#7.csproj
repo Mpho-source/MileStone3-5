@@ -69,6 +69,7 @@
     <Compile Include="TutorAvailability.cs"><SubType>Form</SubType></Compile>
     <Compile Include="TutorAvailability.Designer.cs"><DependentUpon>TutorAvailability.cs</DependentUpon></Compile>
     <Compile Include="EduConnectInputGuidance.cs" />
+    <Compile Include="EduConnectPdfExporter.cs" />
     <Compile Include="EduConnectTheme.cs" />
     <Compile Include="BookingResult.cs">
       <SubType>Form</SubType>
