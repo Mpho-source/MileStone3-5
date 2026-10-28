@@ -899,7 +899,7 @@ namespace NextGen__7
         private void PreparePrintPages()
         {
             printRow = 0;
-            printTrendCoverPending = cmbReport.SelectedIndex == 2;
+            printTrendCoverPending = cmbReport.SelectedIndex == 2 && chartTrends.Visible && !grid.Visible;
             printRows = new List<DataRow>();
             if (result == null) return;
             string studentNumber = "";
@@ -932,8 +932,6 @@ namespace NextGen__7
 
             if (printTrendCoverPending)
             {
-                // For Report 3 print the four-term chart first regardless of whether
-                // the administrator was viewing the table or graph when printing.
                 using (var stream = new MemoryStream())
                 {
                     chartTrends.SaveImage(stream, ChartImageFormat.Png);
