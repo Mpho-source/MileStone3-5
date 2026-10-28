@@ -69,7 +69,7 @@ namespace NextGen__7
 
             this.pnlButtons.Name = "pnlButtons";
             this.pnlButtons.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlButtons.Height = 122;
+            this.pnlButtons.Height = 165;
             this.pnlButtons.Padding = new System.Windows.Forms.Padding(20, 10, 10, 4);
             this.pnlButtons.BackColor = System.Drawing.Color.White;
             this.btnRefresh.Name = "btnRefresh";
@@ -119,7 +119,7 @@ namespace NextGen__7
             this.lblMatchHelp.Name = "lblMatchHelp";
             this.lblMatchHelp.Text = "Verify a tutoring request before assigning a tutor.";
             this.lblMatchHelp.AutoSize = false;
-            this.lblMatchHelp.Size = new System.Drawing.Size(1010, 31);
+            this.lblMatchHelp.Size = new System.Drawing.Size(980, 66);
             this.lblMatchHelp.Margin = new System.Windows.Forms.Padding(6, 3, 2, 0);
             this.lblMatchHelp.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblMatchHelp.ForeColor = System.Drawing.Color.FromArgb(31, 56, 100);
