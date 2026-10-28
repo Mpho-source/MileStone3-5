@@ -59,10 +59,60 @@ namespace NextGen__7
             return table;
         }
 
+        private void EnsureTutorNumbers()
+        {
+            using (var db = new OleDbConnection(connectionString))
+            {
+                db.Open();
+                bool hasTutorNumber = false;
+                using (var command = new OleDbCommand("SELECT * FROM [TUTOR] WHERE 1=0", db))
+                using (var reader = command.ExecuteReader(CommandBehavior.SchemaOnly))
+                    foreach (DataRow row in reader.GetSchemaTable().Rows)
+                        if (string.Equals(Convert.ToString(row["ColumnName"]), "TutorNumber",
+                            StringComparison.OrdinalIgnoreCase))
+                            hasTutorNumber = true;
+                if (!hasTutorNumber)
+                    using (var add = new OleDbCommand(
+                        "ALTER TABLE [TUTOR] ADD COLUMN [TutorNumber] TEXT(16)", db))
+                        add.ExecuteNonQuery();
+
+                var tutors = new DataTable();
+                using (var cmd = new OleDbCommand("SELECT [TutorID],[TutorNumber] FROM [TUTOR]", db))
+                using (var adapter = new OleDbDataAdapter(cmd))
+                    adapter.Fill(tutors);
+                using (var tx = db.BeginTransaction())
+                {
+                    try
+                    {
+                        foreach (DataRow row in tutors.Rows)
+                        {
+                            if (row["TutorID"] == DBNull.Value)
+                                throw new InvalidOperationException("A tutor has no internal ID.");
+                            int id = Convert.ToInt32(row["TutorID"]);
+                            string expected = "Tut" + id.ToString("D4");
+                            if (Convert.ToString(row["TutorNumber"]) == expected)
+                                continue;
+                            using (var update = new OleDbCommand(
+                                "UPDATE [TUTOR] SET [TutorNumber]=? WHERE [TutorID]=?", db, tx))
+                            {
+                                update.Parameters.Add("@Number", OleDbType.VarWChar).Value = expected;
+                                update.Parameters.Add("@Id", OleDbType.Integer).Value = id;
+                                if (update.ExecuteNonQuery() != 1)
+                                    throw new InvalidOperationException("Could not save tutor number for ID " + id + ".");
+                            }
+                        }
+                        tx.Commit();
+                    }
+                    catch { tx.Rollback(); throw; }
+                }
+            }
+        }
+
         private void LoadTutors()
         {
             try
             {
+                EnsureTutorNumbers();
                 var table = ReadTable("TUTOR");
                 idColumn = Column(table, "TutorID");
                 if (idColumn == null)
@@ -93,8 +143,9 @@ namespace NextGen__7
                 gridTutors.DataSource = table;
                 gridTutors.AutoGenerateColumns = true;
                 gridTutors.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-                gridTutors.Columns[idColumn].HeaderText = "Tutor ID";
-                gridTutors.Columns[idColumn].FillWeight = 48;
+                gridTutors.Columns[idColumn].Visible = false;
+                gridTutors.Columns["TutorNumber"].HeaderText = "Tutor number";
+                gridTutors.Columns["TutorNumber"].FillWeight = 85;
                 gridTutors.Columns["FirstName"].HeaderText = "First name";
                 gridTutors.Columns["LastName"].HeaderText = "Last name";
                 gridTutors.Columns["Email"].HeaderText = "Email address";
@@ -143,8 +194,8 @@ namespace NextGen__7
             var query = txtSearch.Text.Trim().Replace("'", "''").Replace("[", "[[]")
                 .Replace("%", "[%]").Replace("*", "[*]");
             table.DefaultView.RowFilter = query.Length == 0 ? "" :
-                "[FirstName] LIKE '%" + query + "%' OR [LastName] LIKE '%" + query +
-                "%' OR [Email] LIKE '%" + query + "%'";
+                "[TutorNumber] LIKE '%" + query + "%' OR [FirstName] LIKE '%" + query +
+                "%' OR [LastName] LIKE '%" + query + "%' OR [Email] LIKE '%" + query + "%'";
             lblTutorCount.Text = table.DefaultView.Count + " tutors";
             gridTutors.ClearSelection();
         }
@@ -161,9 +212,9 @@ namespace NextGen__7
                 txtFirstName.Text = Convert.ToString(row.Cells["FirstName"].Value);
                 txtLastName.Text = Convert.ToString(row.Cells["LastName"].Value);
                 txtEmail.Text = Convert.ToString(row.Cells["Email"].Value);
-                lblEditorHeading.Text = "Edit tutor #" + selectedId;
+                lblEditorHeading.Text = "Edit Tut" + selectedId.ToString("D4");
                 btnSave.Text = "Save changes";
-                lblMessage.Text = "Editing tutor #" + selectedId;
+                lblMessage.Text = "Editing Tut" + selectedId.ToString("D4");
                 btnAssignCourse.Enabled = true;
                 btnAvailability.Enabled = true;
                 btnRemoveTutor.Enabled = true;
@@ -428,7 +479,7 @@ namespace NextGen__7
                     if (row.Cells[idColumn].Value != DBNull.Value &&
                         Convert.ToInt32(row.Cells[idColumn].Value) == savedId)
                     { row.Selected = true; break; }
-                lblMessage.Text = "Tutor #" + savedId + " saved to the project database.";
+                lblMessage.Text = "Tut" + savedId.ToString("D4") + " saved to the project database.";
                 MessageBox.Show("Tutor saved successfully to the Access database.",
                     "EduConnect", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
