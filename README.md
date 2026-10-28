@@ -45,6 +45,34 @@ The system will provide the following functionality:
 The repository will contain the application source code, database setup files, documentation and other files required to build, test and run the system.
 
 
+
+## Academic GPA Table (one student per academic year)
+
+The academic GPA table is `STUDENTACADEMICRECORD` with the fields
+`StudentNo`, `AcademicYear`, `Term1`, `Term2`, `Term3`, `Term4`, and `RecordSource`.
+The primary key is the pair (`StudentNo`, `AcademicYear`), so each student has
+one row for 2026 instead of four separate 2026-T1 through 2026-T4 rows.
+
+To migrate a PC that still shows the older one-record-per-term table:
+
+1. Switch to `integration/test-student-tutor` and pull the latest changes.
+2. Close Microsoft Access, the running EduConnect application and Visual Studio debugging.
+3. From the project directory, run:
+   `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\\DatabaseTools\\Consolidate-Academic-Terms.ps1`
+4. Reopen `Edu_Connect.accdb` and verify `STUDENTACADEMICRECORD` shows the four term columns.
+5. Rebuild the C# application and generate Report 3 for 2026.
+6. Commit and push only the updated `Edu_Connect.accdb` after verifying the records.
+
+The migration creates a backup in `DatabaseBackups`, prepares a separate database
+copy and verifies all term values before replacing the local original. If values
+from the legacy and intermediate GPA tables conflict, it stops without changing
+the original. This migration does not edit the tutoring-request or session tables.
+The deprecated GPA population script must not be used after migration.
+
+Existing academic records that were synthetic or illustrative remain identified as
+such in their underlying `RecordSource` metadata. Do not present those records as
+verified real student academic results.
+
 ## Team Members
 
 NextGen Group 7 consists of:
