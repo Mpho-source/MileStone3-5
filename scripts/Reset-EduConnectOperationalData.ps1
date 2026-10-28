@@ -48,7 +48,7 @@ function Read-Table($db, [string]$sql) {
     $adapter = New-Object System.Data.OleDb.OleDbDataAdapter($command)
     try { [void]$adapter.Fill($result) }
     finally { $adapter.Dispose(); $command.Dispose() }
-    return $result
+    Write-Output -NoEnumerate $result
 }
 
 function Get-Count($db, [string]$table, $transaction = $null) {
