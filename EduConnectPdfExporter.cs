@@ -88,6 +88,56 @@ namespace NextGen__7
             return Convert.ToString(value, CultureInfo.CurrentCulture) ?? "-";
         }
 
+        private static double[] GetColumnWidths(DataTable table, double totalWidth)
+        {
+            int count = table.Columns.Count;
+            var widths = new double[count];
+            if (count == 0) return widths;
+
+            double minimum = count > 10 ? 42 : count > 8 ? 52 : 65;
+            minimum = Math.Min(minimum, totalWidth / count * 0.78);
+            var weights = new double[count];
+            double sum = 0;
+            for (int i = 0; i < count; i++)
+            {
+                string heading = table.Columns[i].ColumnName;
+                int desired = heading.Length;
+                int sample = Math.Min(75, table.Rows.Count);
+                for (int j = 0; j < sample; j++)
+                    desired = Math.Max(desired, ReadValue(table.Rows[j], i).Length);
+                weights[i] = Math.Max(10, Math.Min(34, desired));
+                sum += weights[i];
+            }
+            double free = totalWidth - minimum * count;
+            for (int i = 0; i < count; i++)
+                widths[i] = minimum + free * weights[i] / sum;
+            return widths;
+        }
+
+        private static void TextColors(string heading, string value,
+            out double r, out double g, out double b)
+        {
+            r = 0.16; g = 0.23; b = 0.33;
+            if (heading.IndexOf("status", StringComparison.OrdinalIgnoreCase) < 0 &&
+                heading.IndexOf("attendance", StringComparison.OrdinalIgnoreCase) < 0)
+                return;
+            switch ((value ?? "").Trim().ToLowerInvariant())
+            {
+                case "scheduled":
+                case "attended":
+                    r = 0.07; g = 0.40; b = 0.27; break;
+                case "submitted":
+                    r = 0.57; g = 0.34; b = 0.08; break;
+                case "verified":
+                    r = 0.16; g = 0.27; b = 0.57; break;
+                case "completed":
+                    r = 0.11; g = 0.33; b = 0.57; break;
+                case "cancelled":
+                case "absent":
+                    r = 0.64; g = 0.16; b = 0.20; break;
+            }
+        }
+
         private static List<PdfPage> MakePages(string title, string description,
             DataTable table, bool hasImage, string dataNote)
         {
@@ -117,26 +167,35 @@ namespace NextGen__7
                     canvas.Append("q 575 0 0 190 133 286 cm /Im1 Do Q\n");
                 }
 
-                int count = Math.Max(1, table.Columns.Count);
                 double left = 35;
                 double tableWidth = 772;
-                double columnWidth = tableWidth / count;
-                Rect(canvas, left, top - 30, tableWidth, 30, 0.12, 0.27, 0.46);
+                double[] columnWidths = GetColumnWidths(table, tableWidth);
+                double[] columnLeft = new double[table.Columns.Count];
+                double offset = left;
                 for (int i = 0; i < table.Columns.Count; i++)
-                    Label(canvas, Fit(table.Columns[i].ColumnName, columnWidth - 12, 8),
-                        left + columnWidth * i + 6, top - 20,
-                        8, 1, 1, 1);
-
-                double y = top - 30;
-                while (row < table.Rows.Count && y - 30 >= 43)
                 {
-                    y -= 30;
+                    columnLeft[i] = offset;
+                    offset += columnWidths[i];
+                }
+                Rect(canvas, left, top - 32, tableWidth, 32, 0.12, 0.27, 0.46);
+                for (int i = 0; i < table.Columns.Count; i++)
+                    Label(canvas, Fit(table.Columns[i].ColumnName, columnWidths[i] - 10, 7.5),
+                        columnLeft[i] + 5, top - 20, 7.5, 1, 1, 1);
+
+                double y = top - 32;
+                while (row < table.Rows.Count && y - 31 >= 43)
+                {
+                    y -= 31;
                     if (row % 2 == 0)
-                        Rect(canvas, left, y, tableWidth, 30, 0.94, 0.97, 1);
+                        Rect(canvas, left, y, tableWidth, 31, 0.94, 0.97, 1);
                     for (int i = 0; i < table.Columns.Count; i++)
-                        Label(canvas, Fit(ReadValue(table.Rows[row], i), columnWidth - 12, 8),
-                            left + columnWidth * i + 6, y + 10,
-                            8, 0.16, 0.23, 0.33);
+                    {
+                        string value = ReadValue(table.Rows[row], i);
+                        double r, g, b;
+                        TextColors(table.Columns[i].ColumnName, value, out r, out g, out b);
+                        Label(canvas, Fit(value, columnWidths[i] - 10, 8),
+                            columnLeft[i] + 5, y + 11, 8, r, g, b);
+                    }
                     row++;
                 }
                 Rect(canvas, 35, 34, 772, 1, 0.83, 0.88, 0.94);
