@@ -37,6 +37,32 @@ namespace NextGen__7
                 return;
             }
             AppDomain.CurrentDomain.SetData("DataDirectory", databaseFolder);
+            try
+            {
+                var settings = System.Configuration.ConfigurationManager.ConnectionStrings[
+                    "NextGen__7.Properties.Settings.Edu_ConnectConnectionString"];
+                if (settings == null)
+                    throw new InvalidOperationException("Database configuration is missing.");
+
+                int updated = TutorNumberMigration.Ensure(databaseFile, settings.ConnectionString);
+                if (updated > 0)
+                    MessageBox.Show(
+                        updated + " tutor number(s) saved in the TUTOR database table. " +
+                        "Administrators can view them in Manage Tutors, for example Tut0001.",
+                        "EduConnect tutor numbers", MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "EduConnect could not initialise tutor numbers. " +
+                    "No student, tutor or administrator records were deleted. " +
+                    "Close Microsoft Access and check that the database is writable.\n\n" +
+                    "Database: " + databaseFile + "\n\n" + ex.Message,
+                    "EduConnect database update failed", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
             Application.Idle += (sender, args) =>
                 EduConnectResponsive.AttachToOpenForms();
             using (var login = new Login())
