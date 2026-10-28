@@ -229,7 +229,8 @@ namespace NextGen__7
                         break;
                     default: return;
                 }
-                grid.DataSource = cmbReport.SelectedIndex == 2\n                    ? GpaStudentSummary(result) : result;
+                grid.DataSource = cmbReport.SelectedIndex == 2
+                    ? GpaStudentSummary(result) : result;
                 if (grid.Columns.Contains("Data origin"))
                     grid.Columns["Data origin"].Visible = false;
                 grid.ClearSelection();
