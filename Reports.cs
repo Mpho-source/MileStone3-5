@@ -485,7 +485,7 @@ namespace NextGen__7
                         Convert.ToString(rec["RecordSource"]).Contains(
                             "EDUCONNECT SYNTHETIC TEST GPA");
                     string dataOrigin = demoGpa || syntheticAttendance.Contains(key) ?
-                        "SYNTHETIC TEST DATA" : "Recorded data";
+                        "Illustrative records" : "Recorded data";
                     output.Rows.Add(Convert.ToString(student["StudentNo"]),
                         (Convert.ToString(student["FirstName"]) + " " +
                         Convert.ToString(student["LastName"])).Trim(),
@@ -601,10 +601,9 @@ namespace NextGen__7
             chartTrends.ChartAreas.Add(area);
 
             bool hasSynthetic = rows.Any(r => Convert.ToString(r["Data origin"]) ==
-                "SYNTHETIC TEST DATA");
+                "Illustrative records");
             string title = individual ? selected.Label :
                 "All students - four-term overview";
-            if (hasSynthetic) title = "DEMO DATA | " + title;
             chartTrends.Titles.Add(new Title(
                 title, Docking.Top,
                 new Font("Segoe UI", 13F, FontStyle.Bold),
@@ -726,7 +725,7 @@ namespace NextGen__7
             }
 
             if (hasSynthetic)
-                lblTrendSummary.Text = "SYNTHETIC TEST GPA AND ATTENDANCE - NOT REAL STUDENT RESULTS." +
+                lblTrendSummary.Text = "Data note: Illustrative records are not verified university academic results." +
                     Environment.NewLine + lblTrendSummary.Text;
             lblTrendSummary.Visible = true;
             chartTrends.Visible = true;
@@ -734,7 +733,7 @@ namespace NextGen__7
             grid.Visible = false;
             btnToggleView.Text = "Show table";
             lblStatus.Text = hasSynthetic ?
-                "DEMO ONLY - Synthetic GPA and attendance. Not real student results." :
+                "Some academic records are illustrative; verify them before drawing conclusions." :
                 (individual ? "Student trend from recorded academic and session data." :
                 "Cohort trends - no missing attendance values have been estimated.");
         }
