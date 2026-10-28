@@ -82,7 +82,7 @@ namespace NextGen__7
                     EduConnectTheme.StyleGrid(grid);
                     grid.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.True;
                     grid.ColumnHeadersHeight = 50;
-                    grid.DataBindingComplete += (sender, args) =>
+                    Action improveGrid = () =>
                     {
                         grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                         grid.ScrollBars = ScrollBars.Both;
@@ -105,6 +105,8 @@ namespace NextGen__7
                             column.ToolTipText = heading;
                         }
                     };
+                    grid.DataBindingComplete += (sender, args) => improveGrid();
+                    improveGrid();
                     grid.CellFormatting += (sender, args) =>
                     {
                         if (args.ColumnIndex < 0 || args.RowIndex < 0) return;
