@@ -32,6 +32,14 @@ namespace NextGen__7
             lblTutor.Text = tutorName + "   |   Tutor #" + tutorId;
             dtpDate.MinDate = DateTime.Today;
             dtpDate.Value = DateTime.Today.AddDays(1);
+            dtpDate.Format = DateTimePickerFormat.Custom;
+            dtpDate.CustomFormat = "dd MMM yyyy";
+            dtpStart.Format = DateTimePickerFormat.Custom;
+            dtpStart.CustomFormat = "HH:mm";
+            dtpStart.ShowUpDown = true;
+            dtpEnd.Format = DateTimePickerFormat.Custom;
+            dtpEnd.CustomFormat = "HH:mm";
+            dtpEnd.ShowUpDown = true;
             dtpStart.Value = DateTime.Today.AddHours(9);
             dtpEnd.Value = DateTime.Today.AddHours(11);
             btnAdd.Click += (s, e) => AddSlot();
@@ -90,6 +98,7 @@ namespace NextGen__7
                     db.Open();
                     using (var cmd = new OleDbCommand(
                         "SELECT * FROM [TUTOR_AVAILABILITY] WHERE [TutorID]=? " +
+                        "AND [AvailableDate] IS NOT NULL " +
                         "ORDER BY [AvailableDate] DESC", db))
                     {
                         cmd.Parameters.Add("@TutorID", OleDbType.Integer).Value = tutorId;
@@ -250,12 +259,20 @@ namespace NextGen__7
             }
             if (!IsSlotAvailable(row.Cells["IsAvailable"].Value))
             { MessageBox.Show("This availability slot is already disabled."); return; }
-            int id = Convert.ToInt32(row.Cells[availabilityIdColumn].Value);
-            DateTime date = Convert.ToDateTime(row.Cells["AvailableDate"].Value).Date;
-            TimeSpan slotStart = BookingData.ReadTime(row.Cells["StartTime"].Value);
-            TimeSpan slotEnd = BookingData.ReadTime(row.Cells["EndTime"].Value);
+            if (row.Cells[availabilityIdColumn].Value == DBNull.Value ||
+                row.Cells["AvailableDate"].Value == DBNull.Value ||
+                row.Cells["StartTime"].Value == DBNull.Value ||
+                row.Cells["EndTime"].Value == DBNull.Value)
+            {
+                MessageBox.Show("This availability row is incomplete. Ask the administrator to repair the database.");
+                return;
+            }
             try
             {
+                int id = Convert.ToInt32(row.Cells[availabilityIdColumn].Value);
+                DateTime date = Convert.ToDateTime(row.Cells["AvailableDate"].Value).Date;
+                TimeSpan slotStart = BookingData.ReadTime(row.Cells["StartTime"].Value);
+                TimeSpan slotEnd = BookingData.ReadTime(row.Cells["EndTime"].Value);
                 using (var db = new OleDbConnection(connectionString))
                 {
                     db.Open();
