@@ -43,6 +43,22 @@ namespace NextGen__7
         private void btnVerify_Click(object sender, EventArgs e) { Verify(); }
         private void btnBack_Click(object sender, EventArgs e) { Close(); }
         private void btnAssign_Click(object sender, EventArgs e) { AssignTutor(); }
+        private void btnPrepareTutors_Click(object sender, EventArgs e)
+        {
+            int? selectedRequestId = null;
+            if (requests.SelectedRows.Count == 1 && requestIdColumn != null)
+            {
+                int id;
+                if (int.TryParse(Convert.ToString(
+                    requests.SelectedRows[0].Cells[requestIdColumn].Value), out id))
+                    selectedRequestId = id;
+            }
+
+            using (var tutors = new ManagaeTutors())
+                tutors.ShowDialog(this);
+
+            Reload(selectedRequestId);
+        }
 
 
         private void Reload(int? selectedRequestId = null)
@@ -410,7 +426,9 @@ namespace NextGen__7
                           start.ToString(@"hh\:mm") + "-" + end.ToString(@"hh\:mm") +
                           ". Unqualified: " + lackingCourse +
                           "; without available slot: " + lackingAvailability +
-                          "; booked already: " + conflicting + "."
+                          "; booked already: " + conflicting +
+                          ". Click Manage tutor availability, select a tutor qualified for the course, " +
+                          "add availability covering the full requested time, then return here."
                         : cmbMatchTutor.Items.Count + " eligible tutor(s) for request #" +
                           requestId + " on " + day.ToString("dd MMM yyyy") + " " +
                           start.ToString(@"hh\:mm") + "-" + end.ToString(@"hh\:mm") + ".";
