@@ -32,8 +32,8 @@ function Next-Id($db,$tx,[string]$table,[string]$key) {
 }
 function Time-Val([int]$hour) { return ([datetime]'1899-12-30').AddHours($hour) }
 $examples=@(
-    [pscustomobject]@{Date=[datetime]'2026-10-20';Start=10;End=11;Attendance='Attended';Status='Completed';Feedback='EDUCONNECT SYNTHETIC TEST: reviewed algorithms and solved practice questions.'},
-    [pscustomobject]@{Date=[datetime]'2026-10-22';Start=14;End=15;Attendance='Absent';Status='Completed';Feedback='EDUCONNECT SYNTHETIC TEST: student absent from scheduled session.'},
+    [pscustomobject]@{Date=[datetime]'2026-10-20';Start=10;End=11;Attendance='Attended';Status='Completed';Feedback='Reviewed algorithms and worked through practice questions.'},
+    [pscustomobject]@{Date=[datetime]'2026-10-22';Start=14;End=15;Attendance='Absent';Status='Completed';Feedback='Student did not attend the scheduled session.'},
     [pscustomobject]@{Date=[datetime]'2026-10-27';Start=10;End=11;Attendance=$null;Status='Scheduled';Feedback=$null}
 )
 $db=Open-Db $DatabasePath
