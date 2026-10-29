@@ -1,0 +1,116 @@
+param(
+    [string]$DatabasePath = (Join-Path (Split-Path -Parent $PSScriptRoot) 'Edu_Connect.accdb'),
+    [switch]$Apply
+)
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Data
+$DatabasePath = [IO.Path]::GetFullPath($DatabasePath)
+if (-not (Test-Path -LiteralPath $DatabasePath)) { throw "Database not found: $DatabasePath" }
+if (Test-Path ([IO.Path]::ChangeExtension($DatabasePath,'.laccdb'))) { throw 'Close Access and EduConnect first.' }
+function Open-Db {
+    foreach ($provider in @('Microsoft.ACE.OLEDB.12.0','Microsoft.ACE.OLEDB.16.0')) {
+        $db = New-Object System.Data.OleDb.OleDbConnection("Provider=$provider;Data Source=$DatabasePath;Persist Security Info=False;")
+        try { $db.Open(); return $db } catch { $db.Dispose() }
+    }
+    throw 'Access Database Engine unavailable.'
+}
+function Table($db,[string]$sql) {
+    $t=New-Object System.Data.DataTable
+    $c=$db.CreateCommand();$c.CommandText=$sql
+    $a=New-Object System.Data.OleDb.OleDbDataAdapter($c)
+    try {[void]$a.Fill($t)} finally {$a.Dispose();$c.Dispose()}
+    return ,$t
+}
+function Scalar($db,$tx,[string]$sql,[object[]]$args=@()) {
+    $c=$db.CreateCommand();$c.CommandText=$sql;if($null -ne $tx){$c.Transaction=$tx}
+    foreach($v in $args){$p=$c.CreateParameter();$p.Value=$v;[void]$c.Parameters.Add($p)}
+    try {return $c.ExecuteScalar()}finally{$c.Dispose()}
+}
+function Exec($db,$tx,[string]$sql,[object[]]$args) {
+    $c=$db.CreateCommand();$c.CommandText=$sql;$c.Transaction=$tx
+    foreach($v in $args){$p=$c.CreateParameter();$p.Value=$v;[void]$c.Parameters.Add($p)}
+    try{return $c.ExecuteNonQuery()}finally{$c.Dispose()}
+}
+function Stamp([datetime]$date,[int]$hour){return $date.Date.AddHours($hour)}
+$db=Open-Db
+try {
+    $students=Table $db 'SELECT [StudentID] FROM [STUDENT] ORDER BY [StudentID]'
+    $tutors=Table $db 'SELECT [TutorID] FROM [TUTOR] ORDER BY [TutorID]'
+    $links=Table $db 'SELECT [TutorID],[CourseID] FROM [TUTOR_COURSE] ORDER BY [TutorID],[CourseID]'
+    $courses=Table $db 'SELECT [CourseID] FROM [COURSE]'
+    $sessionRows=Table $db 'SELECT [SessionID],[TutorID],[SessionDate],[StartTime],[EndTime] FROM [TUTORING_SESSION]'
+    if($students.Rows.Count -lt 5 -or $tutors.Rows.Count -lt 3 -or $links.Rows.Count -lt 5){throw 'Insufficient existing students, tutors or course assignments.'}
+    $courseKeys=@{};foreach($r in $courses.Rows){$courseKeys[[string]$r['CourseID']]=$true}
+    $eligible=@();foreach($r in $links.Rows){if($courseKeys.ContainsKey([string]$r['CourseID'])){$eligible+=,[pscustomobject]@{Tutor=[int]$r['TutorID'];Course=[int]$r['CourseID']}}}
+    if($eligible.Count -lt 5){throw 'Fewer than five valid tutor/course assignments.'}
+    $plan=New-Object System.Collections.ArrayList
+    $terms=@(
+        [datetime]'2026-02-10',[datetime]'2026-05-12',
+        [datetime]'2026-08-11',[datetime]'2026-10-13'
+    )
+    for($i=0;$i -lt $students.Rows.Count;$i++) {
+        for($term=0;$term -lt 4;$term++) {
+            $d=$terms[$term].AddDays($i)
+            $choice=$eligible[($i+$term) % $eligible.Count]
+            $hour=9+(($i+$term) % 6)
+            $a=if((($i+2*$term)%5) -eq 0){'Absent'}else{'Attended'}
+            $feedback=if($a -eq 'Attended'){'Reviewed course concepts and completed guided practice.'}else{'Student did not attend the scheduled session.'}
+            [void]$plan.Add([pscustomobject]@{Student=[int]$students.Rows[$i]['StudentID'];Tutor=$choice.Tutor;Course=$choice.Course;Date=$d;Hour=$hour;Status='Completed';Attendance=$a;Feedback=$feedback})
+        }
+    }
+    for($i=0;$i -lt [Math]::Min(5,$students.Rows.Count);$i++){
+        $choice=$eligible[$i % $eligible.Count]
+        [void]$plan.Add([pscustomobject]@{Student=[int]$students.Rows[$i]['StudentID'];Tutor=$choice.Tutor;Course=$choice.Course;Date=([datetime]'2026-11-10').AddDays($i);Hour=10+($i%4);Status='Scheduled';Attendance=$null;Feedback=$null})
+    }
+    $existingKeys=@{}
+    foreach($r in $sessionRows.Rows) {
+        if($r['SessionDate'] -is [DBNull] -or $r['StartTime'] -is [DBNull]) {continue}
+        $dt=([datetime]$r['SessionDate']).ToString('yyyy-MM-dd')
+        $hh=([datetime]$r['StartTime']).Hour
+        $existingKeys["$([int]$r['TutorID'])|$dt|$hh"]=$true
+    }
+    $pending=@($plan | Where-Object { -not $existingKeys.ContainsKey("$($_.Tutor)|$($_.Date.ToString('yyyy-MM-dd'))|$($_.Hour)") })
+    Write-Host "Database: $DatabasePath"
+    Write-Host "Existing sessions: $($sessionRows.Rows.Count)"
+    Write-Host "Planned across all four terms: $($plan.Count) (40+ completed historical sessions plus 5 future sessions depending on student count)"
+    Write-Host "New sessions to add: $($pending.Count)"
+    Write-Host 'Sample data is for demonstration only. No existing rows or login/academic tables are deleted.'
+    if(-not $Apply){Write-Host 'PREVIEW ONLY. No data changed. Run with -Apply to insert.';return}
+} finally {$db.Dispose()}
+$backup="$DatabasePath.full-report-backup-$(Get-Date -Format yyyyMMdd-HHmmss)"
+Copy-Item -LiteralPath $DatabasePath -Destination $backup -ErrorAction Stop
+Write-Host "Backup saved: $backup"
+$db=Open-Db
+try {
+    $tx=$db.BeginTransaction()
+    try {
+        $maxRequest=Scalar $db $tx 'SELECT MAX([RequestID]) FROM [TUTORING_REQUEST]'
+        $maxSession=Scalar $db $tx 'SELECT MAX([SessionID]) FROM [TUTORING_SESSION]'
+        $rid=if($maxRequest -is [DBNull]){0}else{[int]$maxRequest}
+        $sid=if($maxSession -is [DBNull]){0}else{[int]$maxSession}
+        $n=0
+        foreach($p in $pending){
+            $start=Stamp ([datetime]'1899-12-30') $p.Hour
+            $end=Stamp ([datetime]'1899-12-30') ($p.Hour+1)
+            $exists=[int](Scalar $db $tx 'SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE [TutorID]=? AND [SessionDate]=? AND [StartTime]=?' @($p.Tutor,$p.Date,$start))
+            if($exists -gt 0){continue}
+            $rid++;$sid++
+            $r=Exec $db $tx 'INSERT INTO [TUTORING_REQUEST] ([RequestID],[StudentID],[CourseID],[SupportType],[PreferredDate],[PreferredStartTime],[PreferredEndTime],[RequestDate],[Status]) VALUES (?,?,?,?,?,?,?,?,?)' @($rid,$p.Student,$p.Course,'Individual tutoring',$p.Date,$start,$end,$p.Date.AddDays(-7),$p.Status)
+            if($r -ne 1){throw "Could not insert request $rid"}
+            $attendance=if($null -eq $p.Attendance){[DBNull]::Value}else{$p.Attendance}
+            $feedback=if($null -eq $p.Feedback){[DBNull]::Value}else{$p.Feedback}
+            $s=Exec $db $tx 'INSERT INTO [TUTORING_SESSION] ([SessionID],[RequestID],[TutorID],[SessionDate],[StartTime],[EndTime],[SessionStatus],[Feedback],[AttendanceStatus]) VALUES (?,?,?,?,?,?,?,?,?)' @($sid,$rid,$p.Tutor,$p.Date,$start,$end,$p.Status,$feedback,$attendance)
+            if($s -ne 1){throw "Could not insert session $sid"}
+            $n++
+        }
+        foreach($pair in @(
+            @('EDUCONNECT SYNTHETIC TEST: reviewed algorithms and solved practice questions.','Reviewed algorithms and worked through practice questions.'),
+            @('EDUCONNECT SYNTHETIC TEST: student absent from scheduled session.','Student did not attend the scheduled session.')
+        )){
+            [void](Exec $db $tx 'UPDATE [TUTORING_SESSION] SET [Feedback]=? WHERE [Feedback]=?' @($pair[1],$pair[0]))
+        }
+        $tx.Commit()
+        Write-Host "SUCCESS: inserted $n linked tutoring requests and sessions."
+        Write-Host '2026 terms T1-T4 now have completed attendance samples. November 2026 has scheduled sessions.'
+    } catch {try{$tx.Rollback()}catch{};throw}finally{$tx.Dispose()}
+}finally{$db.Dispose()}
