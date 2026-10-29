@@ -52,9 +52,6 @@ $existingCount = 0
 try {
     $tables = @($database.GetSchema('Tables').Rows | ForEach-Object { [string]$_['TABLE_NAME'] })
     if ($tables -notcontains $primary) { throw "Missing required table: $primary" }
-    if ($tables -contains $archive -or $tables -contains $staging) {
-        throw "An archive or staging table already exists. Review $archive and $staging before rerunning."
-    }
     $original = Read-Data $database "SELECT * FROM [$primary]"
     if ($original.Columns.Contains('AcademicYear') -and
         $original.Columns.Contains('T1') -and
@@ -64,6 +61,9 @@ try {
         Write-Host "ALREADY COMPACT: $primary has T1, T2, T3 and T4 columns."
         Write-Host "Rows: $($original.Rows.Count). No data modified."
         return
+    }
+    if ($tables -contains $archive -or $tables -contains $staging) {
+        throw "An archive or staging table already exists. Review $archive and $staging before rerunning."
     }
     foreach ($column in @('StudentNo','GPA','AcademicPeriod','RecordSource')) {
         if (-not $original.Columns.Contains($column)) {
