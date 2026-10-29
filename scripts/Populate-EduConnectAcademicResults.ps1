@@ -51,6 +51,16 @@ try {
     $students = Read-Data $db "SELECT [StudentNo] FROM [STUDENT] ORDER BY [StudentNo]"
     $academic = Read-Data $db "SELECT * FROM [STUDENTACADEMICRECORD]"
 
+    if ($academic.Columns.Contains("AcademicYear") -and
+        $academic.Columns.Contains("T1") -and
+        $academic.Columns.Contains("T2") -and
+        $academic.Columns.Contains("T3") -and
+        $academic.Columns.Contains("T4")) {
+        Write-Host "STUDENTACADEMICRECORD is already in the one-row-per-student/year T1-T4 format."
+        Write-Host "Existing records: $($academic.Rows.Count). No changes made."
+        return
+    }
+
     foreach ($required in @("StudentNo", "GPA", "AcademicPeriod", "RecordDate", "RecordSource")) {
         if (-not (Test-Column $academic $required)) {
             throw "Academic results were not changed. STUDENTACADEMICRECORD is missing '$required'."
