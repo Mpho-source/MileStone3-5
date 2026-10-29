@@ -55,7 +55,16 @@ namespace NextGen__7
             {
                 if (loadingStudentChoices || result == null ||
                     cmbReport.SelectedIndex != 2) return;
+                bool tableWasVisible = grid.Visible;
                 ShowTrendChart(result);
+                if (tableWasVisible)
+                {
+                    chartTrends.Visible = false;
+                    lblTrendSummary.Visible = false;
+                    grid.Visible = true;
+                    grid.BringToFront();
+                    btnToggleView.Text = "Show chart";
+                }
             };
             btnToggleView.Click += (s, e) => ToggleView();
             btnPreview.Click += (s, e) => PreviewReport();
@@ -270,9 +279,10 @@ namespace NextGen__7
                 }
                 else
                 {
-                    lblStatus.Text = result.Rows.Count + " matching records | " +
-                        (cmbReport.SelectedIndex == 2 ? numYear.Value + " academic year" :
-                         "Submitted requests aged 7+ days");
+                    lblStatus.Text = cmbReport.SelectedIndex == 2
+                        ? GpaStudentSummary(result).Rows.Count + " students | " +
+                          result.Rows.Count + " term results | " + numYear.Value + " academic year"
+                        : result.Rows.Count + " Submitted requests aged 7+ days";
                 }
             }
             catch (Exception ex)
