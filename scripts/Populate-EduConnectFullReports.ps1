@@ -21,15 +21,54 @@ function Table($db,[string]$sql) {
     try {[void]$a.Fill($t)} finally {$a.Dispose();$c.Dispose()}
     return ,$t
 }
-function Scalar($db,$tx,[string]$sql,[object[]]$args=@()) {
-    $c=$db.CreateCommand();$c.CommandText=$sql;if($null -ne $tx){$c.Transaction=$tx}
-    foreach($v in $args){$p=$c.CreateParameter();$p.Value=$v;[void]$c.Parameters.Add($p)}
-    try {return $c.ExecuteScalar()}finally{$c.Dispose()}
+function New-QueryCommand {
+    param(
+        [System.Data.OleDb.OleDbConnection]$Connection,
+        [AllowNull()][System.Data.OleDb.OleDbTransaction]$Transaction,
+        [string]$Sql,
+        [object[]]$Values = @()
+    )
+    $expected = ([regex]::Matches($Sql, '\?')).Count
+    if ($expected -ne $Values.Count) {
+        throw "Parameter mismatch: SQL expects $expected value(s); received $($Values.Count). SQL: $Sql"
+    }
+    $command = $Connection.CreateCommand()
+    $command.CommandText = $Sql
+    if ($null -ne $Transaction) { $command.Transaction = $Transaction }
+    try {
+        foreach ($value in $Values) {
+            $parameter = $command.CreateParameter()
+            $parameter.Value = if ($null -eq $value) { [DBNull]::Value } else { $value }
+            [void]$command.Parameters.Add($parameter)
+        }
+        return $command
+    }
+    catch {
+        $command.Dispose()
+        throw
+    }
 }
-function Exec($db,$tx,[string]$sql,[object[]]$args) {
-    $c=$db.CreateCommand();$c.CommandText=$sql;$c.Transaction=$tx
-    foreach($v in $args){$p=$c.CreateParameter();$p.Value=$v;[void]$c.Parameters.Add($p)}
-    try{return $c.ExecuteNonQuery()}finally{$c.Dispose()}
+function Scalar {
+    param(
+        [System.Data.OleDb.OleDbConnection]$Connection,
+        [AllowNull()][System.Data.OleDb.OleDbTransaction]$Transaction,
+        [string]$Sql,
+        [object[]]$Values = @()
+    )
+    $command = New-QueryCommand $Connection $Transaction $Sql $Values
+    try { return $command.ExecuteScalar() }
+    finally { $command.Dispose() }
+}
+function Exec {
+    param(
+        [System.Data.OleDb.OleDbConnection]$Connection,
+        [AllowNull()][System.Data.OleDb.OleDbTransaction]$Transaction,
+        [string]$Sql,
+        [object[]]$Values = @()
+    )
+    $command = New-QueryCommand $Connection $Transaction $Sql $Values
+    try { return $command.ExecuteNonQuery() }
+    finally { $command.Dispose() }
 }
 function Stamp([datetime]$date,[int]$hour){return $date.Date.AddHours($hour)}
 $db=Open-Db
