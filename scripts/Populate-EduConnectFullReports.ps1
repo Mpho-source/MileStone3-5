@@ -100,7 +100,16 @@ try {
             [void]$plan.Add([pscustomobject]@{Student=[int]$students.Rows[$i]['StudentID'];Tutor=$choice.Tutor;Course=$choice.Course;Date=$d;Hour=$hour;Status='Completed';Attendance=$a;Feedback=$feedback})
         }
     }
-    for($i=0;$i -lt [Math]::Min(5,$students.Rows.Count);$i++){
+    $demoTutor=@($eligible | Where-Object {$_.Tutor -eq 5} | Select-Object -First 1)
+    if($demoTutor.Count -eq 0){throw 'TutorID 5 must have a valid TUTOR_COURSE assignment for the recording demo.'}
+    $demoStudent=@($students.Rows | Where-Object {[int]$_['StudentID'] -eq 9} | Select-Object -First 1)
+    if($demoStudent.Count -eq 0){throw 'StudentID 9 is needed for the existing tutor demonstration scenario.'}
+    [void]$plan.Add([pscustomobject]@{
+        Student=9;Tutor=5;Course=$demoTutor[0].Course
+        Date=[datetime]'2026-10-27';Hour=16
+        Status='Scheduled';Attendance=$null;Feedback=$null
+    })
+    for($i=1;$i -lt [Math]::Min(5,$students.Rows.Count);$i++){
         $choice=$eligible[$i % $eligible.Count]
         [void]$plan.Add([pscustomobject]@{Student=[int]$students.Rows[$i]['StudentID'];Tutor=$choice.Tutor;Course=$choice.Course;Date=([datetime]'2026-11-10').AddDays($i);Hour=10+($i%4);Status='Scheduled';Attendance=$null;Feedback=$null})
     }
@@ -146,7 +155,7 @@ try {
     $completedPlanned=@($plan | Where-Object {$_.Status -eq 'Completed'}).Count
     $scheduledPlanned=@($plan | Where-Object {$_.Status -eq 'Scheduled'}).Count
     Write-Host "Planned historical attendance sessions: $completedPlanned (spread across four terms)"
-    Write-Host "Planned upcoming Scheduled sessions: $scheduledPlanned"
+    Write-Host "Planned Scheduled sessions: $scheduledPlanned (1 past ready for TutorID 5, 4 future)"
     Write-Host "Planned sessions total: $($plan.Count)"
     Write-Host "New sessions to add: $($pending.Count)"
     Write-Host "Overlapping existing tutor sessions skipped: $($plan.Count-$pending.Count)"
@@ -229,6 +238,6 @@ try {
         Write-Host "2026 workload: $scheduledTotal Scheduled and $completedTotal Completed sessions"
         Write-Host "New outstanding Submitted requests: $newOutstanding. Qualifying outstanding requests total: $outstandingTotal"
         Write-Host ("Attendance-completed sessions by term T1-T4: " + ($termCounts -join ', '))
-        Write-Host '2026 terms T1-T4 now have completed attendance samples. November 2026 has scheduled sessions.'
+        Write-Host '2026 T1-T4 include attendance examples; tutor 5 has a past recording-eligible slot plus upcoming scheduled sessions.'
     } catch {try{$tx.Rollback()}catch{};throw}finally{$tx.Dispose()}
 }finally{$db.Dispose()}
