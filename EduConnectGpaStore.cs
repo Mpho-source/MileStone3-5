@@ -86,10 +86,14 @@ namespace NextGen__7
             {
                 DataTable academic = Read(db, "STUDENTACADEMICRECORD");
                 bool compact = academic.Columns.Contains("AcademicYear") &&
-                    academic.Columns.Contains("Term1") &&
-                    academic.Columns.Contains("Term2") &&
-                    academic.Columns.Contains("Term3") &&
-                    academic.Columns.Contains("Term4");
+                    (academic.Columns.Contains("T1") ||
+                     academic.Columns.Contains("Term1")) &&
+                    (academic.Columns.Contains("T2") ||
+                     academic.Columns.Contains("Term2")) &&
+                    (academic.Columns.Contains("T3") ||
+                     academic.Columns.Contains("Term3")) &&
+                    (academic.Columns.Contains("T4") ||
+                     academic.Columns.Contains("Term4"));
 
                 if (compact)
                 {
@@ -104,7 +108,11 @@ namespace NextGen__7
                         string source = academic.Columns.Contains("RecordSource")
                             ? Convert.ToString(record["RecordSource"]) : "";
                         for (int term = 1; term <= 4; term++)
-                            SetValue(row, term, record["Term" + term], source, true);
+                        {
+                            string field = academic.Columns.Contains("T" + term)
+                                ? "T" + term : "Term" + term;
+                            SetValue(row, term, record[field], source, true);
+                        }
                     }
                     return output;
                 }
