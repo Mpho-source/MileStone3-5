@@ -9,8 +9,28 @@ $DatabasePath=[IO.Path]::GetFullPath($DatabasePath)
 if (-not (Test-Path -LiteralPath $DatabasePath)) {throw "Database not found: $DatabasePath"}
 if (Test-Path ([IO.Path]::ChangeExtension($DatabasePath,'.laccdb'))) {throw 'Close Microsoft Access and EduConnect first.'}
 $queryName="Student_GPA_Terms_$AcademicYear"
-$fields=@(1..4 | ForEach-Object { "Max(IIf([AcademicPeriod]='$AcademicYear-T$_',[GPA],Null)) AS [T$_]" })
-$sql="SELECT [StudentNo], "+($fields -join ', ')+" FROM [STUDENTACADEMICRECORD] WHERE [AcademicPeriod] Like '$AcademicYear-T*' GROUP BY [StudentNo] ORDER BY [StudentNo]"
+$probe=New-Object System.Data.OleDb.OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=$DatabasePath")
+try {
+    $probe.Open()
+    $command=$probe.CreateCommand()
+    $command.CommandText="SELECT * FROM [STUDENTACADEMICRECORD] WHERE 1=0"
+    $reader=$command.ExecuteReader([System.Data.CommandBehavior]::SchemaOnly)
+    try {
+        $columns=@($reader.GetSchemaTable().Rows | ForEach-Object { [string]$_['ColumnName'] })
+        $compact=($columns -contains 'AcademicYear') -and
+            ($columns -contains 'T1') -and ($columns -contains 'T2') -and
+            ($columns -contains 'T3') -and ($columns -contains 'T4')
+    }
+    finally { $reader.Dispose(); $command.Dispose() }
+}
+finally { $probe.Dispose() }
+if ($compact) {
+    $sql="SELECT [StudentNo],[T1],[T2],[T3],[T4] FROM [STUDENTACADEMICRECORD] WHERE [AcademicYear]=$AcademicYear ORDER BY [StudentNo]"
+}
+else {
+    $fields=@(1..4 | ForEach-Object { "Max(IIf([AcademicPeriod]='$AcademicYear-T$_',[GPA],Null)) AS [T$_]" })
+    $sql="SELECT [StudentNo], "+($fields -join ', ')+" FROM [STUDENTACADEMICRECORD] WHERE [AcademicPeriod] Like '$AcademicYear-T*' GROUP BY [StudentNo] ORDER BY [StudentNo]"
+}
 Write-Host 'Presentation-ready saved query:' $queryName
 Write-Host 'Fields: StudentNo, T1, T2, T3, T4'
 Write-Host 'The original 40 academic records remain unchanged.'
