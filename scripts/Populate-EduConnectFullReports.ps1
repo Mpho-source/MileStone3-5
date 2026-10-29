@@ -57,6 +57,7 @@ function Scalar {
     )
     $command = New-QueryCommand -Connection $Connection -Transaction $Transaction -Sql $Sql -Values $Values
     try { return $command.ExecuteScalar() }
+    catch { throw ("Access read failed. SQL: {0}. Cause: {1}" -f $Sql, $_.Exception.Message) }
     finally { $command.Dispose() }
 }
 function Exec {
@@ -68,6 +69,7 @@ function Exec {
     )
     $command = New-QueryCommand -Connection $Connection -Transaction $Transaction -Sql $Sql -Values $Values
     try { return $command.ExecuteNonQuery() }
+    catch { throw ("Access write failed. SQL: {0}. Cause: {1}" -f $Sql, $_.Exception.Message) }
     finally { $command.Dispose() }
 }
 function Stamp([datetime]$date,[int]$hour){return $date.Date.AddHours($hour)}
