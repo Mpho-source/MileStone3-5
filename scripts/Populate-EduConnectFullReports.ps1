@@ -100,14 +100,24 @@ try {
     try {
         $maxRequest=Scalar $db $tx 'SELECT MAX([RequestID]) FROM [TUTORING_REQUEST]'
         $maxSession=Scalar $db $tx 'SELECT MAX([SessionID]) FROM [TUTORING_SESSION]'
+        $maxAvailability=Scalar $db $tx 'SELECT MAX([AvailabilityID]) FROM [TUTOR_AVAILABILITY]'
         $rid=if($maxRequest -is [DBNull]){0}else{[int]$maxRequest}
         $sid=if($maxSession -is [DBNull]){0}else{[int]$maxSession}
+        $aid=if($maxAvailability -is [DBNull]){0}else{[int]$maxAvailability}
+        $availabilityInserted=0
         $n=0
         foreach($p in $pending){
             $start=Stamp ([datetime]'1899-12-30') $p.Hour
             $end=Stamp ([datetime]'1899-12-30') ($p.Hour+1)
             $exists=[int](Scalar $db $tx 'SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE [TutorID]=? AND [SessionDate]=? AND [StartTime]=?' @($p.Tutor,$p.Date,$start))
             if($exists -gt 0){continue}
+            $available=[int](Scalar $db $tx 'SELECT COUNT(*) FROM [TUTOR_AVAILABILITY] WHERE [TutorID]=? AND [AvailableDate]=? AND [StartTime]<=? AND [EndTime]>=?' @($p.Tutor,$p.Date,$start,$end))
+            if($available -eq 0){
+                $aid++
+                $av=Exec $db $tx 'INSERT INTO [TUTOR_AVAILABILITY] ([AvailabilityID],[TutorID],[AvailableDate],[StartTime],[EndTime],[IsAvailable]) VALUES (?,?,?,?,?,?)' @($aid,$p.Tutor,$p.Date,$start,$end,$true)
+                if($av -ne 1){throw "Could not insert tutor availability $aid"}
+                $availabilityInserted++
+            }
             $rid++;$sid++
             $r=Exec $db $tx 'INSERT INTO [TUTORING_REQUEST] ([RequestID],[StudentID],[CourseID],[SupportType],[PreferredDate],[PreferredStartTime],[PreferredEndTime],[RequestDate],[Status]) VALUES (?,?,?,?,?,?,?,?,?)' @($rid,$p.Student,$p.Course,'Individual tutoring',$p.Date,$start,$end,$p.Date.AddDays(-7),$p.Status)
             if($r -ne 1){throw "Could not insert request $rid"}
@@ -143,8 +153,13 @@ try {
             $termCounts+= [int](Scalar $db $tx "SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE [SessionStatus]='Completed' AND [SessionDate] >= ? AND [SessionDate] < ? AND ([AttendanceStatus]='Attended' OR [AttendanceStatus]='Absent')" @($begin,$finish))
         }
         if(@($termCounts | Where-Object {$_ -lt 1}).Count -gt 0){throw 'Verification failed: attendance is missing for one or more terms.'}
+        $scheduledTotal=[int](Scalar $db $tx "SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE [SessionStatus]='Scheduled' AND [SessionDate] >= ? AND [SessionDate] < ?" @([datetime]'2026-01-01',[datetime]'2027-01-01'))
+        $completedTotal=[int](Scalar $db $tx "SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE [SessionStatus]='Completed' AND [SessionDate] >= ? AND [SessionDate] < ?" @([datetime]'2026-01-01',[datetime]'2027-01-01'))
+        if($scheduledTotal -lt 1 -or $completedTotal -lt 1){throw 'Verification failed: workload report needs Scheduled and Completed records.'}
         $tx.Commit()
         Write-Host "SUCCESS: inserted $n linked tutoring requests and sessions."
+        Write-Host "Tutor availability slots inserted: $availabilityInserted"
+        Write-Host "2026 workload: $scheduledTotal Scheduled and $completedTotal Completed sessions"
         Write-Host "New outstanding Submitted requests: $newOutstanding. Qualifying outstanding requests total: $outstandingTotal"
         Write-Host ("Attendance-completed sessions by term T1-T4: " + ($termCounts -join ', '))
         Write-Host '2026 terms T1-T4 now have completed attendance samples. November 2026 has scheduled sessions.'
