@@ -90,7 +90,8 @@ try {
         [datetime]'2026-08-11',[datetime]'2026-10-13'
     )
     for($i=0;$i -lt $students.Rows.Count;$i++) {
-        for($term=0;$term -lt 4;$term++) {
+        for($slot=0;$slot -lt 2;$slot++) {
+            $term=($i+2*$slot)%4
             $d=$terms[$term].AddDays($i)
             $choice=$eligible[($i+$term) % $eligible.Count]
             $hour=9+(($i+$term) % 6)
@@ -104,9 +105,15 @@ try {
         [void]$plan.Add([pscustomobject]@{Student=[int]$students.Rows[$i]['StudentID'];Tutor=$choice.Tutor;Course=$choice.Course;Date=([datetime]'2026-11-10').AddDays($i);Hour=10+($i%4);Status='Scheduled';Attendance=$null;Feedback=$null})
     }
     $overdue=@(
-        [pscustomobject]@{Student=[int]$students.Rows[0]['StudentID'];Course=$eligible[0].Course;Submitted=[datetime]'2026-10-05';Preferred=[datetime]'2026-11-25'},
-        [pscustomobject]@{Student=[int]$students.Rows[1]['StudentID'];Course=$eligible[1].Course;Submitted=[datetime]'2026-10-12';Preferred=[datetime]'2026-12-02'},
-        [pscustomobject]@{Student=[int]$students.Rows[2]['StudentID'];Course=$eligible[2].Course;Submitted=[datetime]'2026-10-17';Preferred=[datetime]'2026-12-08'}
+        for($i=0;$i -lt [Math]::Min(10,$students.Rows.Count);$i++){
+            $choice=$eligible[$i % $eligible.Count]
+            [pscustomobject]@{
+                Student=[int]$students.Rows[$i]['StudentID']
+                Course=$choice.Course
+                Submitted=([datetime]'2026-10-05').AddDays($i)
+                Preferred=([datetime]'2026-11-25').AddDays($i)
+            }
+        }
     )
     $outstandingExisting=0
     foreach($o in $overdue){
@@ -136,10 +143,15 @@ try {
     )
     Write-Host "Database: $DatabasePath"
     Write-Host "Existing sessions: $($sessionRows.Rows.Count)"
-    Write-Host "Planned across all four terms: $($plan.Count) (40+ completed historical sessions plus 5 future sessions depending on student count)"
+    $completedPlanned=@($plan | Where-Object {$_.Status -eq 'Completed'}).Count
+    $scheduledPlanned=@($plan | Where-Object {$_.Status -eq 'Scheduled'}).Count
+    Write-Host "Planned historical attendance sessions: $completedPlanned (spread across four terms)"
+    Write-Host "Planned upcoming Scheduled sessions: $scheduledPlanned"
+    Write-Host "Planned sessions total: $($plan.Count)"
     Write-Host "New sessions to add: $($pending.Count)"
     Write-Host "Overlapping existing tutor sessions skipped: $($plan.Count-$pending.Count)"
-    Write-Host "Outstanding Submitted requests to add: $(3-$outstandingExisting)"
+    Write-Host "Planned overdue Submitted requests: $($overdue.Count)"
+    Write-Host "Outstanding Submitted requests to add: $($overdue.Count-$outstandingExisting)"
     Write-Host 'Report 1 requires Submitted requests with RequestDate at least 7 days old, not scheduled sessions.'
     Write-Host 'Report 2 requires a date range covering the scheduled and completed session dates.'
     Write-Host 'Report 3 requires Completed sessions with Attended or Absent values in academic terms T1-T4.'
