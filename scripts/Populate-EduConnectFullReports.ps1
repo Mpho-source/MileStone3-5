@@ -62,6 +62,16 @@ try {
         $choice=$eligible[$i % $eligible.Count]
         [void]$plan.Add([pscustomobject]@{Student=[int]$students.Rows[$i]['StudentID'];Tutor=$choice.Tutor;Course=$choice.Course;Date=([datetime]'2026-11-10').AddDays($i);Hour=10+($i%4);Status='Scheduled';Attendance=$null;Feedback=$null})
     }
+    $overdue=@(
+        [pscustomobject]@{Student=[int]$students.Rows[0]['StudentID'];Course=$eligible[0].Course;Submitted=[datetime]'2026-10-05';Preferred=[datetime]'2026-11-25'},
+        [pscustomobject]@{Student=[int]$students.Rows[1]['StudentID'];Course=$eligible[1].Course;Submitted=[datetime]'2026-10-12';Preferred=[datetime]'2026-12-02'},
+        [pscustomobject]@{Student=[int]$students.Rows[2]['StudentID'];Course=$eligible[2].Course;Submitted=[datetime]'2026-10-17';Preferred=[datetime]'2026-12-08'}
+    )
+    $outstandingExisting=0
+    foreach($o in $overdue){
+        $n=[int](Scalar $db $null 'SELECT COUNT(*) FROM [TUTORING_REQUEST] WHERE [StudentID]=? AND [CourseID]=? AND [RequestDate]=? AND [PreferredDate]=?' @($o.Student,$o.Course,$o.Submitted,$o.Preferred))
+        if($n -gt 0){$outstandingExisting++}
+    }
     $existingKeys=@{}
     foreach($r in $sessionRows.Rows) {
         if($r['SessionDate'] -is [DBNull] -or $r['StartTime'] -is [DBNull]) {continue}
@@ -74,6 +84,10 @@ try {
     Write-Host "Existing sessions: $($sessionRows.Rows.Count)"
     Write-Host "Planned across all four terms: $($plan.Count) (40+ completed historical sessions plus 5 future sessions depending on student count)"
     Write-Host "New sessions to add: $($pending.Count)"
+    Write-Host "Outstanding Submitted requests to add: $(3-$outstandingExisting)"
+    Write-Host 'Report 1 requires Submitted requests with RequestDate at least 7 days old, not scheduled sessions.'
+    Write-Host 'Report 2 requires a date range covering the scheduled and completed session dates.'
+    Write-Host 'Report 3 requires Completed sessions with Attended or Absent values in academic terms T1-T4.'
     Write-Host 'Sample data is for demonstration only. No existing rows or login/academic tables are deleted.'
     if(-not $Apply){Write-Host 'PREVIEW ONLY. No data changed. Run with -Apply to insert.';return}
 } finally {$db.Dispose()}
@@ -103,14 +117,36 @@ try {
             if($s -ne 1){throw "Could not insert session $sid"}
             $n++
         }
-        foreach($pair in @(
+        $newOutstanding=0
+        foreach($o in $overdue){
+            $existing=[int](Scalar $db $tx 'SELECT COUNT(*) FROM [TUTORING_REQUEST] WHERE [StudentID]=? AND [CourseID]=? AND [RequestDate]=? AND [PreferredDate]=?' @($o.Student,$o.Course,$o.Submitted,$o.Preferred))
+            if($existing -gt 0){continue}
+            $rid++
+            $start=Stamp ([datetime]'1899-12-30') 9
+            $end=Stamp ([datetime]'1899-12-30') 10
+            $r=Exec $db $tx 'INSERT INTO [TUTORING_REQUEST] ([RequestID],[StudentID],[CourseID],[SupportType],[PreferredDate],[PreferredStartTime],[PreferredEndTime],[RequestDate],[Status]) VALUES (?,?,?,?,?,?,?,?,?)' @($rid,$o.Student,$o.Course,'Individual tutoring',$o.Preferred,$start,$end,$o.Submitted,'Submitted')
+            if($r -ne 1){throw "Could not insert outstanding request $rid"}
+            $newOutstanding++
+        }
+                foreach($pair in @(
             @('EDUCONNECT SYNTHETIC TEST: reviewed algorithms and solved practice questions.','Reviewed algorithms and worked through practice questions.'),
             @('EDUCONNECT SYNTHETIC TEST: student absent from scheduled session.','Student did not attend the scheduled session.')
         )){
             [void](Exec $db $tx 'UPDATE [TUTORING_SESSION] SET [Feedback]=? WHERE [Feedback]=?' @($pair[1],$pair[0]))
         }
+        $outstandingTotal=[int](Scalar $db $tx "SELECT COUNT(*) FROM [TUTORING_REQUEST] WHERE [Status]='Submitted' AND [RequestDate] <= ?" @([datetime]::Today.AddDays(-7)))
+        if($outstandingTotal -lt 1){throw 'Verification failed: Report 1 has no qualifying overdue Submitted requests.'}
+        $termCounts=@()
+        foreach($quarter in 1..4){
+            $begin=([datetime]'2026-01-01').AddMonths(($quarter-1)*3)
+            $finish=$begin.AddMonths(3)
+            $termCounts+= [int](Scalar $db $tx "SELECT COUNT(*) FROM [TUTORING_SESSION] WHERE [SessionStatus]='Completed' AND [SessionDate] >= ? AND [SessionDate] < ? AND ([AttendanceStatus]='Attended' OR [AttendanceStatus]='Absent')" @($begin,$finish))
+        }
+        if(@($termCounts | Where-Object {$_ -lt 1}).Count -gt 0){throw 'Verification failed: attendance is missing for one or more terms.'}
         $tx.Commit()
         Write-Host "SUCCESS: inserted $n linked tutoring requests and sessions."
+        Write-Host "New outstanding Submitted requests: $newOutstanding. Qualifying outstanding requests total: $outstandingTotal"
+        Write-Host ("Attendance-completed sessions by term T1-T4: " + ($termCounts -join ', '))
         Write-Host '2026 terms T1-T4 now have completed attendance samples. November 2026 has scheduled sessions.'
     } catch {try{$tx.Rollback()}catch{};throw}finally{$tx.Dispose()}
 }finally{$db.Dispose()}
