@@ -44,8 +44,8 @@ namespace NextGen__7
             if (settings == null) throw new InvalidOperationException("Missing database connection.");
             connectionString = settings.ConnectionString;
             numYear.Value = Math.Max(2020, Math.Min(2100, DateTime.Today.Year));
-            fromDate.Value = DateTime.Today.AddMonths(-1);
-            toDate.Value = DateTime.Today;
+            fromDate.Value = new DateTime(DateTime.Today.Year, 1, 1);
+            toDate.Value = new DateTime(DateTime.Today.Year, 12, 31);
             cmbReport.SelectedIndexChanged += (s, e) => ChangeReport();
             fromDate.ValueChanged += (s, e) => UpdateCriteria();
             toDate.ValueChanged += (s, e) => UpdateCriteria();
@@ -242,6 +242,10 @@ namespace NextGen__7
                 {
                     BindTrendChoices(result);
                     ShowTrendChart(result);
+                    chartTrends.Visible = false;
+                    lblTrendSummary.Visible = false;
+                    grid.Visible = true;
+                    grid.BringToFront();
                 }
                 else
                     lblTrendSummary.Visible = false;
@@ -490,7 +494,7 @@ namespace NextGen__7
             result.Columns.Add("Student number", typeof(string));
             result.Columns.Add("Student", typeof(string));
             for (int term = 1; term <= 4; term++)
-                result.Columns.Add("Term " + term, typeof(double));
+                result.Columns.Add("T" + term, typeof(double));
             result.Columns.Add("Attendance (%)", typeof(double));
             result.Columns.Add("Data origin", typeof(string));
 
@@ -506,7 +510,7 @@ namespace NextGen__7
                 int attended = 0, recorded = 0;
                 foreach (DataRow row in group)
                 {
-                    string term = Convert.ToString(row["Term"]);
+                    string term = Convert.ToString(row["Term"]).Replace("Term ", "T");
                     if (result.Columns.Contains(term))
                         summary[term] = row["GPA (%)"];
                     attended += Convert.ToInt32(row["Attended"]);
