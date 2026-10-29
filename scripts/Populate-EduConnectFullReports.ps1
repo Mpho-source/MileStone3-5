@@ -55,7 +55,7 @@ function Scalar {
         [string]$Sql,
         [object[]]$Values = @()
     )
-    $command = New-QueryCommand $Connection $Transaction $Sql $Values
+    $command = New-QueryCommand -Connection $Connection -Transaction $Transaction -Sql $Sql -Values $Values
     try { return $command.ExecuteScalar() }
     finally { $command.Dispose() }
 }
@@ -66,7 +66,7 @@ function Exec {
         [string]$Sql,
         [object[]]$Values = @()
     )
-    $command = New-QueryCommand $Connection $Transaction $Sql $Values
+    $command = New-QueryCommand -Connection $Connection -Transaction $Transaction -Sql $Sql -Values $Values
     try { return $command.ExecuteNonQuery() }
     finally { $command.Dispose() }
 }
@@ -111,18 +111,32 @@ try {
         $n=[int](Scalar $db $null 'SELECT COUNT(*) FROM [TUTORING_REQUEST] WHERE [StudentID]=? AND [CourseID]=? AND [RequestDate]=? AND [PreferredDate]=?' @($o.Student,$o.Course,$o.Submitted,$o.Preferred))
         if($n -gt 0){$outstandingExisting++}
     }
-    $existingKeys=@{}
+    $existingSlots=@()
     foreach($r in $sessionRows.Rows) {
-        if($r['SessionDate'] -is [DBNull] -or $r['StartTime'] -is [DBNull]) {continue}
-        $dt=([datetime]$r['SessionDate']).ToString('yyyy-MM-dd')
-        $hh=([datetime]$r['StartTime']).Hour
-        $existingKeys["$([int]$r['TutorID'])|$dt|$hh"]=$true
+        if($r['SessionDate'] -is [DBNull] -or $r['StartTime'] -is [DBNull] -or $r['EndTime'] -is [DBNull]) {continue}
+        $existingSlots+=,[pscustomobject]@{
+            Tutor=[int]$r['TutorID']
+            Date=([datetime]$r['SessionDate']).Date
+            Start=([datetime]$r['StartTime']).TimeOfDay
+            End=([datetime]$r['EndTime']).TimeOfDay
+        }
     }
-    $pending=@($plan | Where-Object { -not $existingKeys.ContainsKey("$($_.Tutor)|$($_.Date.ToString('yyyy-MM-dd'))|$($_.Hour)") })
+    $pending=@(
+        foreach($p in $plan) {
+            $plannedStart=[TimeSpan]::FromHours($p.Hour)
+            $plannedEnd=[TimeSpan]::FromHours($p.Hour+1)
+            $overlap=@($existingSlots | Where-Object {
+                $_.Tutor -eq $p.Tutor -and $_.Date -eq $p.Date -and
+                $_.Start -lt $plannedEnd -and $_.End -gt $plannedStart
+            })
+            if($overlap.Count -eq 0){$p}
+        }
+    )
     Write-Host "Database: $DatabasePath"
     Write-Host "Existing sessions: $($sessionRows.Rows.Count)"
     Write-Host "Planned across all four terms: $($plan.Count) (40+ completed historical sessions plus 5 future sessions depending on student count)"
     Write-Host "New sessions to add: $($pending.Count)"
+    Write-Host "Overlapping existing tutor sessions skipped: $($plan.Count-$pending.Count)"
     Write-Host "Outstanding Submitted requests to add: $(3-$outstandingExisting)"
     Write-Host 'Report 1 requires Submitted requests with RequestDate at least 7 days old, not scheduled sessions.'
     Write-Host 'Report 2 requires a date range covering the scheduled and completed session dates.'
